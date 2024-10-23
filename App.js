@@ -12,6 +12,7 @@ import BasketballScreen from './screens/BasketballScreen';
 import MatchScreen from './screens/MatchScreen';
 import MyPageScreen from './screens/MyPageScreen';
 import PlayerDetailScreen from './screens/basketball/PlayerDetailScreen';
+import Login from './screens/mypage/Login';
 
 // Stack Navigator for each tab
 const Stack = createStackNavigator();
@@ -74,6 +75,7 @@ export default function App() {
       >
         <Stack.Screen name="Main" component={MainTabs} style={{  }}/>
         <Stack.Screen name="PlayerDetail" component={PlayerDetailScreen} options={{ title: '선수 상세 정보' }} />
+        <Stack.Screen name="Login" component={Login} options={{ title: '로그인' }} />
       </Stack.Navigator>
     </NavigationContainer>
     </>
