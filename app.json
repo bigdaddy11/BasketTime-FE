@@ -1,9 +1,11 @@
 {
   "expo": {
-    "name": "baskettime_fe",
-    "slug": "baskettime_fe",
+    "name": "baskettime",
+    "slug": "baskettime",
     "version": "1.0.0",
+    "owner": "jaehyunheo",
     "orientation": "portrait",
+    "scheme": "BasketTime",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -22,6 +24,13 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "googleClientId": "94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com",
+      "googleRedirectUri": "https://auth.expo.io/@jaehyunheo/baskettime_fe",
+      "eas": {
+        "projectId": "774371b5-0065-47e3-9f25-72eb18bea80d"
+      }
     }
   }
 }

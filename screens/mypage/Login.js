@@ -1,13 +1,60 @@
-import React from 'react';
+import React, { useState, useEffect }  from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign'; // 구글 아이콘
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; // 네이버, 카카오 아이콘
+import * as Google from 'expo-auth-session/providers/google';  // Google OAuth 라이브러리 사용
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
+
+// WebBrowser를 세션 관리에 사용
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
-    const handleGoogleLogin = () => {
-        console.log('구글 로그인 버튼 클릭됨');
+    const [userInfo, setUserInfo] = useState(null);
+    // const [authRequest, authResult, promptAsync] = Google.useAuthRequest({
+    //     clientId: '94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com',
+    //     redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
+    //     scopes: ['profile', 'email'],
+    // });
+
+    const [request, response, promptAsync] = Google.useAuthRequest({
+        expoClientId: '94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com',
+        iosClientId: '94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com',
+        androidClientId: '94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com',
+        webClientId: '94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com',
+        redirectUri: 'https://auth.expo.io/@jaehyunheo/baskettime_fe',
+        scopes: ['profile', 'email'],  // 최소한의 범위 설정
+      });
+
+    useEffect(() => {
+        if (response?.type === 'success') {
+            const { authentication } = response;
+            console.log(authentication);
+        }
+    }, [response]);
+
+    const handleGoogleLogin = async () => {
+        try {
+          // Google 로그인 요청
+          const result = await promptAsync();
+          if (result.type === 'success') {
+            // 액세스 토큰 가져오기
+            const accessToken = result.authentication.accessToken;
+
+            // 사용자 정보 가져오기
+            const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            const userData = await response.json();
+            setUserInfo(userData);
+          } else {
+            console.log('Google 로그인 취소됨');
+          }
+        } catch (error) {
+          console.error('Google 로그인 실패:', error);
+        }
     };
-    
+
     const handleNaverLogin = () => {
         console.log('네이버 로그인 버튼 클릭됨');
     };
@@ -26,11 +73,15 @@ export default function LoginScreen() {
 
         {/* 설명 텍스트 */}
         <Text style={styles.description}>
-            Basket Time 에 오신것을 환영합니다.
+            님. Basket Time 에 오신것을 환영합니다. 
         </Text>
         
         {/* 구글 로그인 버튼 */}
-        <TouchableOpacity style={[styles.loginButton, styles.googleButton]} onPress={handleGoogleLogin}>
+        <TouchableOpacity 
+            style={[styles.loginButton, styles.googleButton]} 
+            onPress={() => {
+                handleGoogleLogin();
+            }}>
             <View style={styles.iconAndTextContainer}>
                 <AntDesign name="google" size={24} color="#fff" style={styles.iconLayout}/>
                 <Text style={styles.loginButtonText}>구글 아이디로 로그인    </Text>
