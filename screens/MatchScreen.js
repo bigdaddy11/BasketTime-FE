@@ -27,10 +27,11 @@ export default function MatchScreen() {
         tabBarActiveTintColor: '#FFD73C',  // 선택된 탭 텍스트 색
         tabBarInactiveTintColor: '#888',   // 선택되지 않은 탭 텍스트 색
         tabBarIndicatorStyle: { backgroundColor: '#FFD73C', height: 2 },  // 탭 아래 강조선 스타일
+        
       })}
     >
-    <Tab.Screen name="Map" component={MapScreen} />
-    <Tab.Screen name="List" component={ListScreen} />
+    <Tab.Screen name="Map" component={MapScreen} options={{tabBarButton: () => null}}/>
+    {/* <Tab.Screen name="List" component={ListScreen} /> */}
       
     </Tab.Navigator>
   );

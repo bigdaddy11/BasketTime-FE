@@ -13,6 +13,8 @@ import MatchScreen from './screens/MatchScreen';
 import MyPageScreen from './screens/MyPageScreen';
 import PlayerDetailScreen from './screens/basketball/PlayerDetailScreen';
 import Login from './screens/mypage/Login';
+import MatchCreateScreen from './screens/match/MatchCreateScreen';
+import MapScreen from './screens/match/MapScreen';
 
 // Stack Navigator for each tab
 const Stack = createStackNavigator();
@@ -54,7 +56,7 @@ function MainTabs() {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: '홈', headerShown: false }} />
       <Tab.Screen name="Basketball" component={BasketballScreen} options={{ tabBarLabel: '프로농구', headerShown: false  }} />
-      <Tab.Screen name="Match" component={MatchScreen} options={{ tabBarLabel: '경기매칭', headerShown: false  }} />
+      <Tab.Screen name="Match" component={MapScreen} options={{ tabBarLabel: '경기매칭', headerShown: false  }} />
       <Tab.Screen name="MyPage" component={MyPageScreen} options={{ tabBarLabel: '마이페이지', headerShown: false  }} />
     </Tab.Navigator>
   );
@@ -76,6 +78,7 @@ export default function App() {
         <Stack.Screen name="Main" component={MainTabs} style={{  }}/>
         <Stack.Screen name="PlayerDetail" component={PlayerDetailScreen} options={{ title: '선수 상세 정보' }} />
         <Stack.Screen name="Login" component={Login} options={{ title: '로그인' }} />
+        <Stack.Screen name="MatchCreateScreen" component={MatchCreateScreen} options={{ title: '경기매칭생성' }} />
       </Stack.Navigator>
     </NavigationContainer>
     </>

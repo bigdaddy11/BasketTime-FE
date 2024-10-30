@@ -17,6 +17,10 @@ export default function NBAScreen() {
       navigation.navigate('PlayerDetail', { player, teamName });
     };
 
+    function getPlayersByTeam(teamId, allPlayers) {
+      return allPlayers.filter((player) => player.teamId === teamId);
+    }
+
     useEffect(() => {
         const fetchTeamsAndPlayers = async () => {
           try {
@@ -31,7 +35,7 @@ export default function NBAScreen() {
             // 팀별로 플레이어를 분류
             const playersByTeam = {};
             teamsResponse.data.forEach((team) => {
-              playersByTeam[team.id] = allPlayers.filter((player) => player.teamId === team.id);
+              playersByTeam[team.id] = getPlayersByTeam(team.id, allPlayers);
             });
             
             setPlayers(playersByTeam);

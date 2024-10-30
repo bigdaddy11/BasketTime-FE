@@ -1,55 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Image, View, Dimensions, ActivityIndicator, Text, TouchableOpacity, Button, ScrollView } from 'react-native';
+import { StyleSheet, View, ActivityIndicator, Text, TouchableOpacity, ScrollView } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import axios from 'axios';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Feather from '@expo/vector-icons/Feather';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+
 import { MatchCard } from './MatchCard';
 
-const { width:CATEGORY_SCREEN_WIDTH } = Dimensions.get("window");
 const GOOGLE_PLACES_API_KEY = 'AIzaSyCiP64B8lfsCRHNDa94JRJJ0JI1qd8kXuQ';
 
 export default function MapScreen() {
+    const navigation = useNavigation();
+
     const [basketballCourts, setBasketballCourts] = useState([]);
     const [selectedCourt, setSelectedCourt] = useState(null); // 선택된 농구장 정보 저장
-    
+    const [matchs, setMatchs] = useState([]);
     const [imageUrl, setImageUrl] = useState(null); //농구장 이미지 정보 저장
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [markerClicked, setMarkerClicked] = useState(false);
     const [errorMsg, setErrorMsg] = useState(null);
     const [loading, setLoading] = useState(false);
-    const arrayJson = [
-        {
-            match_id: 1,
-            match_title: "3대3 초보분들 모집해요",
-            match_body: "제목그대로 3VS3 하실분 구합니다. 적당히 즐기면서 뛰실분, 너무 모나지 않으신분들 모집해요.",
-            time_title: "19:00",
-            member_id: 1,
-            member_name: "휴직맨",
-            class_id: 1,
-            class_name: "초보",
-            vs_id: 1,
-            vs_name: "3 VS 3",
-            join_id: 1,
-            join_name: "참여인원 : 5"
-        },
-        {
-            match_id: 2,
-            match_title: "5대5 엘리트 체육인들만 오세요",
-            match_body: "다칩니다",
-            time_title: "20:00",
-            member_id: 2,
-            member_name: "휴직맨",
-            class_id: 2,
-            class_name: "중수",
-            vs_id: 2,
-            vs_name: "5 VS 5",
-            join_id: 2,
-            join_name: "참여인원 : 8"
-        },
-    ];
 
     const [region, setRegion] = useState({
         latitude: 37.7749,
@@ -107,14 +81,31 @@ export default function MapScreen() {
 
     // Marker 클릭 시 호출되는 함수
     const handleMarkerPress = (court) => {
-        //console.log(court);
         setMarkerClicked(true); // Marker 클릭 상태로 변경
         setSelectedCourt(court); // 클릭한 농구장 정보를 상태에 저장
-        const photoReference = court.photos[0]?.photo_reference;
-        if (photoReference) {
-            const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photoreference=${photoReference}&key=${GOOGLE_PLACES_API_KEY}`;
-            setImageUrl(url); // 이미지 URL 설정
-          }
+    };
+
+    const formatToYYYYMMDD = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1 필요
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const fetchMatchs = async (courtId) => {
+        try {
+          // 장소의 경기정보 가져오기
+          const YYYYMMDD = formatToYYYYMMDD(selectedDate);
+          const MatchResponse = await axios.get("http://192.168.0.11:8080/api/matches", {
+            params: {
+                courtId: courtId,
+                date: YYYYMMDD  // selectedDate를 추가한 부분
+            }
+        });
+          setMatchs(MatchResponse.data); // 데이터가 data 필드에 있다고 가정
+        } catch (error) {
+          console.error(error);
+        }
     };
 
     //Cancel버튼 클릭 시 팝업 닫음
@@ -133,12 +124,25 @@ export default function MapScreen() {
         // 현재 위치 가져오기
         let location = await Location.getCurrentPositionAsync({});
 
-        setRegion(prevRegion => ({
-            ...prevRegion, // 기존 region 값 복사
-            latitude: location.coords.latitude,  // 새로운 latitude 값
-            longitude: location.coords.longitude, // 새로운 longitude 값
-          }));
+        const newRegion = {
+            ...region,
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+        };
+
+        // setRegion(prevRegion => ({
+        //     ...prevRegion, // 기존 region 값 복사
+        //     latitude: location.coords.latitude,  // 새로운 latitude 값
+        //     longitude: location.coords.longitude, // 새로운 longitude 값
+        //   }));
+        setRegion(newRegion);
+        fetchBasketballCourts(newRegion); // 초기 위치로 코트를 로딩
     }
+
+    const matchCreatePress = async (Court) => {
+        navigation.navigate('MatchCreateScreen', { Court });
+    }
+    
 
     useEffect(() => {
         (async () => {
@@ -148,7 +152,13 @@ export default function MapScreen() {
     }, []);
 
     useEffect(() => {
-        //console.log(selectedCourt);
+        //console.log(matchs); // 상태가 업데이트된 후에 실행됩니다.
+    }, [matchs]);
+
+    useEffect(() => {
+        if (selectedCourt && selectedCourt.place_id) {  // selectedCourt가 설정되었을 때만 실행
+            fetchMatchs(selectedCourt.place_id);
+        }
     }, [selectedCourt]);
     
     // region이 변경될 때 fetchBasketballCourts 호출
@@ -159,9 +169,7 @@ export default function MapScreen() {
     }, [region]);
 
   return (
-    
-        <View style={styles.Advertising}>
-            
+        <View style={styles.Advertising}>  
         {loading ? (
             <View style={styles.loadingOverlay}>
                 <ActivityIndicator size="large" color="white" />
@@ -195,7 +203,15 @@ export default function MapScreen() {
         </View>
 
         {selectedCourt && (
-        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'whitesmoke', padding: 5 }}>
+        <View style={styles.buttonContainePlus}>
+            <TouchableOpacity onPress={() => matchCreatePress(selectedCourt)}>
+                <Feather name="plus" size={24} color="#FFD73C" />
+            </TouchableOpacity>
+        </View>
+        )}
+
+        {selectedCourt && (
+        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'whitesmoke'}}>
             <View style={{ flex: 1, flexDirection: "row" }}>
                 {/* { imageUrl && (
                     <Image source={{ uri: imageUrl}} style={styles.courtImage}/> 
@@ -211,8 +227,8 @@ export default function MapScreen() {
                     {/* <Text style={{ fontSize: 12, fontWeight: 'bold', flex: 1 }}>{selectedCourt.vicinity}</Text> */}
                 </View>    
             </View>
-            <View style={{ flex: 1, top: 0, flexDirection: "column" }}>
-                <View style={{backgroundColor: "#1478CD", padding: 10, borderRadius: 2}}>
+            <View style={{ top: 0, flexDirection: "column" }}>
+                <View style={{ borderRadius: 2, padding: 5}}>
                     <TouchableOpacity onPress={showDatePicker}>
                         <Text style={styles.dateText}>
                             {selectedDate.toLocaleDateString('ko-KR',{year: 'numeric', month: 'long', day: 'numeric',weekday:'short'})}
@@ -225,19 +241,22 @@ export default function MapScreen() {
                         onConfirm={handleConfirm}
                         onCancel={hideDatePicker}
                     />
+                    
                 </View>
-                <ScrollView 
-                    horizontal 
-                    pagingEnabled
-                    showsHorizontalScrollIndicator={false} 
-                    contentContainerStyle={{alignItems: "flex-start"}}
-                >
-                {
-                    arrayJson.map((string, index) => (
-                        <MatchCard key={string.match_id} message={string}></MatchCard>
-                    ))
-                }
-                </ScrollView>
+                {matchs && matchs.length > 0 ? (
+                    <ScrollView 
+                        horizontal 
+                        pagingEnabled
+                        showsHorizontalScrollIndicator={false} 
+                        contentContainerStyle={{ alignItems: "flex-start", flexDirection: "row" }}
+                    >
+                        {matchs.map((string, index) => (
+                            <MatchCard key={string.id + index} message={string} />
+                        ))}
+                    </ScrollView>
+                ) : (
+                    <Text style={{padding:10, backgroundColor: "white", borderRadius: 2, marginTop: 5, marginBottom: 5, flexDirection: "row", flex: 1, }}>경기일정이 없습니다.</Text>
+                )}
                 
             </View>    
         </View>
@@ -250,10 +269,6 @@ const styles = StyleSheet.create({
     Advertising: {
         flex: 1,
         //backgroundColor: "red",
-        height: "100%",
-    },
-    AdvertisingImage: {
-        width: CATEGORY_SCREEN_WIDTH,
         height: "100%",
     },
     map: {
@@ -270,6 +285,17 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 20,
         left: 10,
+        weight: 20,
+        borderRadius: 30,
+        marginRight: 2,
+        padding: 8,
+        backgroundColor: "white"
+    },
+    buttonContainePlus: {
+        position: 'absolute',
+        top: 70,
+        left: 10,
+        weight: 20,
         borderRadius: 30,
         marginRight: 2,
         padding: 8,
@@ -284,7 +310,7 @@ const styles = StyleSheet.create({
     },
     dateText: {
         fontSize: 18,
-        color: "white"
+        color: "black"
     },
     textAttention: {
         backgroundColor: "#FFD73C", 
