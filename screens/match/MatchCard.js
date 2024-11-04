@@ -1,9 +1,11 @@
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 const { width:CATEGORY_SCREEN_WIDTH } = Dimensions.get("window");
 
 export function MatchCard( jsonString ){
+    const navigation = useNavigation();
 
     const formatDate = (isoString) => {
         const date = new Date(isoString);
@@ -38,24 +40,38 @@ export function MatchCard( jsonString ){
         return "참여인원 : " + count;
     };
 
+    const handlePress = () => {
+        navigation.navigate('MatchCreateScreen', {
+            id: jsonString.message.id,
+        });
+    };
+
     useEffect(() => {
-        console.log(jsonString);
+        //console.log(jsonString);
     }, []);
     return(
-        <View key={jsonString.id} style={{padding:10, backgroundColor: "white", borderRadius: 2, marginTop: 5, marginBottom: 5, flexDirection: "row", flex: 1, width: CATEGORY_SCREEN_WIDTH}}>
-            <View style={{flex: 1}}>
-                <View style={{flexDirection: "row", justifyContent: "flex-start", flex: 1, marginBottom: 5}}>
-                    <Text style={styles.textAttention}>{getSkillLevel(jsonString.message.classType)}</Text>
-                    <Text style={styles.textAttention}>{getVs(jsonString.message.vs)}</Text>
-                    <Text style={styles.textAttention}>{joinPeople(1)}</Text>
+        <TouchableOpacity onPress={handlePress}>
+            <View key={jsonString.id} style={{padding:10, backgroundColor: "white", borderRadius: 2, marginTop: 5, marginBottom: 5, flexDirection: "row", width: CATEGORY_SCREEN_WIDTH}}>
+                <View style={{flex: 1}}>
+                    <View style={{flexDirection: "row", justifyContent: "flex-start", flex: 1, marginBottom: 5}}>
+                        <Text style={styles.textAttention}>{getSkillLevel(jsonString.message.classType)}</Text>
+                        <Text style={styles.textAttention}>{getVs(jsonString.message.vs)}</Text>
+                        <Text style={styles.textAttention}>{joinPeople(1)}</Text>
+                    </View>
+                    <View style={{ flex: 1}}>
+                        <Text style={{ fontSize: 18, marginBottom: 5 }}>{"[" + formatDate(jsonString.message.matchDate) + "] " + jsonString.message.title}</Text>
+                        <Text 
+                            style={{ fontSize: 14, lineHeight: 20, minHeight: 40}}
+                            numberOfLines={2} 
+                            ellipsizeMode="tail"
+                        >
+                            {jsonString.message.content}
+                        </Text>
+                        {/* {jsonString.message.title} */}
+                    </View>
                 </View>
-                <View style={{ flex: 1}}>
-                    <Text style={{ fontSize: 18, marginBottom: 5 }}>{"[" + formatDate(jsonString.message.matchDate) + "] " + jsonString.message.title}</Text>
-                    <Text style={{ fontSize: 14 }}>{jsonString.message.content}</Text>
-                    {/* {jsonString.message.title} */}
-                </View>
-            </View>
-        </View> 
+            </View> 
+        </TouchableOpacity>
     );
 }
 

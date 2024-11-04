@@ -93,6 +93,7 @@ export default function MapScreen() {
     };
 
     const fetchMatchs = async (courtId) => {
+        setMatchs([]);  // 이전 데이터 초기화
         try {
           // 장소의 경기정보 가져오기
           const YYYYMMDD = formatToYYYYMMDD(selectedDate);
@@ -124,19 +125,11 @@ export default function MapScreen() {
         // 현재 위치 가져오기
         let location = await Location.getCurrentPositionAsync({});
 
-        const newRegion = {
-            ...region,
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-        };
-
-        // setRegion(prevRegion => ({
-        //     ...prevRegion, // 기존 region 값 복사
-        //     latitude: location.coords.latitude,  // 새로운 latitude 값
-        //     longitude: location.coords.longitude, // 새로운 longitude 값
-        //   }));
-        setRegion(newRegion);
-        fetchBasketballCourts(newRegion); // 초기 위치로 코트를 로딩
+        setRegion(prevRegion => ({
+            ...prevRegion, // 기존 region 값 복사
+            latitude: location.coords.latitude,  // 새로운 latitude 값
+            longitude: location.coords.longitude, // 새로운 longitude 값
+          }));
     }
 
     const matchCreatePress = async (Court) => {
@@ -228,7 +221,7 @@ export default function MapScreen() {
                 </View>    
             </View>
             <View style={{ top: 0, flexDirection: "column" }}>
-                <View style={{ borderRadius: 2, padding: 5}}>
+                <View style={{ borderRadius: 2, padding: 5, }}>
                     <TouchableOpacity onPress={showDatePicker}>
                         <Text style={styles.dateText}>
                             {selectedDate.toLocaleDateString('ko-KR',{year: 'numeric', month: 'long', day: 'numeric',weekday:'short'})}
@@ -255,7 +248,20 @@ export default function MapScreen() {
                         ))}
                     </ScrollView>
                 ) : (
-                    <Text style={{padding:10, backgroundColor: "white", borderRadius: 2, marginTop: 5, marginBottom: 5, flexDirection: "row", flex: 1, }}>경기일정이 없습니다.</Text>
+                    <Text style={{
+                                padding:10, 
+                                backgroundColor: "white", 
+                                borderRadius: 2, 
+                                marginTop: 5, 
+                                marginBottom: 5, 
+                                flexDirection: "row", 
+                                lineHeight: 20, 
+                                minHeight: 40}}
+                        numberOfLines={2} 
+                        ellipsizeMode="tail"
+                    >
+                        경기일정이 없습니다.
+                    </Text>
                 )}
                 
             </View>    

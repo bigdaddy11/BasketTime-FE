@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -8,13 +8,42 @@ import { useNavigation } from '@react-navigation/native';
 export default function MatchCreateScreen({ route }) {
     const navigation = useNavigation();
 
-    const { Court } = route.params;
+    const { id, Court } = route.params || {};
+
+    const [courtName, setCourtName] = useState(Court ? Court.name : '');
+    const [courtId, setCourId] = useState(Court ? Court.place_id : '');
+
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [selectedClass, setSelectedClass] = useState('I');
     const [selectedVs, setSelectedVs] = useState('3');
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
+
+    const isEditable = !id; // `id`가 없을 때 수정 가능
+
+    // id가 있을 경우 데이터 로드
+    useEffect(() => {
+        if (id) {
+            axios.get(`http://192.168.0.11:8080/api/matches/${id}`)
+                .then(response => {
+                    const matchData = response.data;
+                    setTitle(matchData.title);
+                    setContent(matchData.content);
+                    setSelectedClass(matchData.classType);
+                    setSelectedVs(matchData.vs);
+                    setSelectedDate(new Date(matchData.matchDate));
+                    setCourtName(matchData.courtName);
+                })
+                .catch(error => {
+                    Alert.alert('Error', '매칭 정보를 불러오는데 실패했습니다.');
+                });
+        }
+    }, [id]);
+
+    useEffect(() => {
+        //console.log(id);
+    }, []);
 
     const validateFields = () => {
         if (!title) {
@@ -48,7 +77,8 @@ export default function MatchCreateScreen({ route }) {
               content,
               classType: selectedClass,
               vs: selectedVs,
-              courtId: Court.place_id,
+              courtId: courtId,
+              courtName: courtName,
               matchDate: selectedDate
         };
         
@@ -80,9 +110,9 @@ export default function MatchCreateScreen({ route }) {
     return (
         <View style={styles.container}>
             <View style={{ borderBottomWidth: 1, borderColor: '#ccc', paddingBottom: 10}}>
-                <Text style={{fontSize: 24, padding: 5}}>{Court.name}</Text>
-                <Text>{Court.place_id}</Text>
-                <Text style={{fontSize: 14, padding: 5}}>{Court.vicinity}</Text>
+                <Text style={{fontSize: 24, padding: 5}}>{courtName}</Text>
+                {/* <Text>{Court.place_id}</Text> */}
+                {/* <Text style={{fontSize: 14, padding: 5}}>{Court.vicinity}</Text> */}
                 
             </View>
             
@@ -92,6 +122,7 @@ export default function MatchCreateScreen({ route }) {
                         selectedValue={selectedClass}
                         style={styles.picker}
                         onValueChange={(itemValue) => setSelectedClass(itemValue)}
+                        enabled={isEditable} // 수정 모드일 때만 활성화
                     >
                         <Picker.Item label="초보" value="B" style={styles.pickerItem}/>
                         <Picker.Item label="중수" value="I" style={styles.pickerItem}/>
@@ -103,6 +134,7 @@ export default function MatchCreateScreen({ route }) {
                         selectedValue={selectedVs}
                         style={styles.picker}
                         onValueChange={(itemValue) => setSelectedVs(itemValue)}
+                        enabled={isEditable} // 수정 모드일 때만 활성화
                     >
                         <Picker.Item label="1 vs 1" value="1" style={styles.pickerItem}/>
                         <Picker.Item label="2 vs 2" value="2" style={styles.pickerItem}/>
@@ -114,7 +146,7 @@ export default function MatchCreateScreen({ route }) {
             </View>
 
             <View style={{padding: 10, borderBottomWidth: 1, borderColor: '#ccc', paddingBottom: 10}}>
-                <TouchableOpacity onPress={showDatePicker}>
+                <TouchableOpacity onPress={isEditable ? showDatePicker : null}>
                     <Text style={styles.dateText}>
                         {selectedDate.toLocaleDateString('ko-KR',
                             {   year: 'numeric', 
@@ -142,6 +174,7 @@ export default function MatchCreateScreen({ route }) {
                     value={title}
                     onChangeText={setTitle}
                     placeholder="제목을 입력해주세요."
+                    editable={isEditable} // 수정 모드일 때만 활성화
                 />
                 <TextInput
                     style={styles.inputMain}
@@ -149,9 +182,10 @@ export default function MatchCreateScreen({ route }) {
                     onChangeText={setContent}
                     placeholder="내용을 입력해주세요."
                     multiline
+                    editable={isEditable} // 수정 모드일 때만 활성화
                 />
             </View>
-            <Button title="생성" onPress={handleCreateMatch} />
+            {isEditable && <Button title="생성" onPress={handleCreateMatch} />}
         </View>
     );
 }
