@@ -7,6 +7,7 @@ import axios from 'axios';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import api from '../common/api';
 
 import { MatchCard } from './MatchCard';
 
@@ -97,7 +98,7 @@ export default function MapScreen() {
         try {
           // 장소의 경기정보 가져오기
           const YYYYMMDD = formatToYYYYMMDD(selectedDate);
-          const MatchResponse = await axios.get("http://192.168.0.11:8080/api/matches", {
+          const MatchResponse = await api.get("/api/matches", {
             params: {
                 courtId: courtId,
                 date: YYYYMMDD  // selectedDate를 추가한 부분

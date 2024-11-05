@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, KeyboardAvoidingView, Platform, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import axios from 'axios';
+import api from '../common/api';
 
 export default function PlayerDetailScreen({ route }) {
   const { player, teamName } = route.params;
@@ -9,7 +10,7 @@ export default function PlayerDetailScreen({ route }) {
 
   const fetchComments = async () => {
     try {
-      const response = await axios.get(`http://192.168.0.11:8080/api/comments/${player.id}/NBA`);
+      const response = await api.get(`/api/comments/${player.id}/NBA`);
       setComments(response.data);
     } catch (error) {
       console.error('댓글 로딩 실패:', error);
@@ -19,7 +20,7 @@ export default function PlayerDetailScreen({ route }) {
   const handleAddComment = async () => {
     if (comment.trim() !== '') {
       try {
-        const response = await axios.post('http://192.168.0.11:8080/api/comments', {
+        const response = await api.post('/api/comments', {
           playerId: player.id,
           userId: "1",
           type: "NBA",

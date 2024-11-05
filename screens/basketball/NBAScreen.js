@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'rea
 import axios from 'axios';
 import ImagePath from '../common/ImagePath';
 import { useNavigation } from '@react-navigation/native';
+import api from '../common/api';
 
 export default function NBAScreen() {
     const navigation = useNavigation();
@@ -25,11 +26,11 @@ export default function NBAScreen() {
         const fetchTeamsAndPlayers = async () => {
           try {
             // 팀 정보 가져오기
-            const teamsResponse = await axios.get('http://192.168.0.11:8080/api/nba/teams');
+            const teamsResponse = await api.get('/api/nba/teams');
             setStandings(teamsResponse.data); // 데이터가 data 필드에 있다고 가정
 
             // 전체 플레이어 데이터 가져오기
-            const playersResponse = await axios.get('http://192.168.0.11:8080/api/nba/players/all');
+            const playersResponse = await api.get('/api/nba/players/all');
               
             const allPlayers = playersResponse.data;
             // 팀별로 플레이어를 분류

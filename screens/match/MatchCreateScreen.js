@@ -4,6 +4,7 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import api from '../common/api';
 
 export default function MatchCreateScreen({ route }) {
     const navigation = useNavigation();
@@ -25,7 +26,7 @@ export default function MatchCreateScreen({ route }) {
     // id가 있을 경우 데이터 로드
     useEffect(() => {
         if (id) {
-            axios.get(`http://192.168.0.11:8080/api/matches/${id}`)
+            api.get(`/api/matches/${id}`)
                 .then(response => {
                     const matchData = response.data;
                     setTitle(matchData.title);
@@ -82,7 +83,7 @@ export default function MatchCreateScreen({ route }) {
               matchDate: selectedDate
         };
         
-        axios.post('http://192.168.0.11:8080/api/matches', data)
+        api.post('/api/matches', data)
         .then(response => {
           Alert.alert('Success', '경기 매칭이 생성되었습니다!');
           // 필요한 경우 초기화
