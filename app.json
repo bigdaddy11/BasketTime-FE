@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "owner": "jaehyunheo",
     "orientation": "portrait",
-    "scheme": "BasketTime",
+    "scheme": "com.jaehyunheo.baskettime",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -28,7 +28,7 @@
     },
     "extra": {
       "googleClientId": "94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com",
-      "googleRedirectUri": "https://auth.expo.io/@jaehyunheo/baskettime_fe",
+      "googleRedirectUri": "https://auth.expo.io/@jaehyunheo/baskettime",
       "eas": {
         "projectId": "774371b5-0065-47e3-9f25-72eb18bea80d"
       }
