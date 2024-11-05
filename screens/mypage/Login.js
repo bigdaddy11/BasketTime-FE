@@ -34,7 +34,8 @@ export default function LoginScreen() {
 
     const handleGoogleLogin = async () => {
       console.log("테스트");
-        const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
+        //const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
+        const redirectUri = `https://auth.expo.io/@jaehyunheo/baskettime`;
         console.log(redirectUri);
         const authUrl = `${discovery.authorizationEndpoint}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=profile%20email`;
         console.log(authUrl);
