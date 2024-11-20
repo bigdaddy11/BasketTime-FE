@@ -1,4 +1,4 @@
-import React, { useState, useEffect }  from 'react';
+import React, { useState, useEffect, useContext }  from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign'; // 구글 아이콘
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; // 네이버, 카카오 아이콘
@@ -6,65 +6,18 @@ import * as Google from 'expo-auth-session/providers/google';  // Google OAuth �
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import api from '../common/api';
+import { SessionContext } from '../../contexts/SessionContext';
 
 // WebBrowser를 세션 관리에 사용
 WebBrowser.maybeCompleteAuthSession();
 
-export default function LoginScreen() {
-    const [accessToken, setAccessToken] = useState(null);
-
-    // const [request, response, promptAsync] = Google.useAuthRequest({
-    //     //94369390250-k2lmf9v5lakl7q8h65tb4rhs44rerqb0.apps.googleusercontent.com 안드로이드 ID
-    //     //94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com 클라이언트 ID
-    //     clientId: "94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com",
-    //     redirectUri: AuthSession.makeRedirectUri({
-    //         useProxy: true,  // Expo Go 앱을 사용할 때 필요한 옵션
-    //     }),
-    //     scopes: ['profile', 'email']
-    // });
-
-    // Google OAuth 요청을 설정
-    const discovery = {
-        authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
-        tokenEndpoint: "https://oauth2.googleapis.com/token",
-        userInfoEndpoint: "https://openidconnect.googleapis.com/v1/userinfo"
-    };
-
-    const clientId = '94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com';  // Google Cloud Console에서 생성한 클라이언트 ID
+export default function LoginScreen({ navigation }) {
+    const { login } = useContext(SessionContext);
 
     const handleGoogleLogin = async () => {
-      console.log("테스트");
-        //const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
-        const redirectUri = `https://auth.expo.io/@jaehyunheo/baskettime`;
-        console.log(redirectUri);
-        const authUrl = `${discovery.authorizationEndpoint}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=profile%20email`;
-        console.log(authUrl);
-        const result = await WebBrowser.openAuthSessionAsync(authUrl);
-      
-        if (result.type === 'success' && result.url) {
-            const token = extractAccessToken(result.url);
-            if (token) {
-                setAccessToken(token);
-                await sendTokenToServer(token);
-            }
-        } else {
-            Alert.alert("로그인 실패", "Google 로그인이 취소되었습니다.");
-        }
-    };
-
-    const extractAccessToken = (url) => {
-      const matched = url.match(/access_token=([^&]+)/);
-      return matched ? matched[1] : null;
-    };
-
-    const sendTokenToServer = async (token) => {
-        try {
-            const response = await api.post('/api/auth/google/google-token', { token });
-            Alert.alert("서버 응답", `사용자 정보: ${JSON.stringify(response.data)}`);
-        } catch (error) {
-            console.error("서버로 토큰 전송 실패:", error);
-            Alert.alert("오류", "서버로 토큰 전송에 실패했습니다.");
-        }
+      const user = { id: 1, name: 'John Doe', nickName: "휴직맨", role: 'user' };
+      login(user); // Set the session
+      navigation.navigate('Main'); // Redirect to Main
     };
 
     const handleNaverLogin = () => {

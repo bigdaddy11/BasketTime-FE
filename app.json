@@ -21,7 +21,9 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.jaehyunheo.baskettime"
+      "package": "com.jaehyunheo.baskettime",
+      "permissions": [],
+      "useNextNotificationsApi": true
     },
     "web": {
       "favicon": "./assets/favicon.png"

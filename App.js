@@ -7,6 +7,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
+import { SessionProvider } from './contexts/SessionContext'; // Import the SessionProvider
+
 import HomeScreen from './screens/HomeScreen';
 import BasketballScreen from './screens/BasketballScreen';
 import MatchScreen from './screens/MatchScreen';
@@ -15,6 +17,7 @@ import PlayerDetailScreen from './screens/basketball/PlayerDetailScreen';
 import Login from './screens/mypage/Login';
 import MatchCreateScreen from './screens/match/MatchCreateScreen';
 import MapScreen from './screens/match/MapScreen';
+import CreateCommunity from './screens/home/CreateCommunity';
 
 // Stack Navigator for each tab
 const Stack = createStackNavigator();
@@ -23,8 +26,8 @@ const Tab = createBottomTabNavigator();
 // Header Component
 function CustomHeader() {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', width: "100%" }}>
-      <Text style={{ fontSize: 16, width: "100%" }}>Basket Time</Text>
+    <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+      <Text style={{ fontSize: 14}}>Basket Time</Text>
     </View>
   );
 }
@@ -64,23 +67,26 @@ function MainTabs() {
 
 export default function App() {
   return (
-    <>
-    <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
-    <NavigationContainer>
-      <Stack.Navigator 
-          screenOptions={{ 
-          headerTitle: () => <CustomHeader /> ,
-          headerStyle: {
-            backgroundColor: '#FFD73C',  // 헤더 전체 배경색 설정
-          },
-        }}
-      >
-        <Stack.Screen name="Main" component={MainTabs} style={{  }}/>
-        <Stack.Screen name="PlayerDetail" component={PlayerDetailScreen} options={{ title: '선수 상세 정보' }} />
-        <Stack.Screen name="Login" component={Login} options={{ title: '로그인' }} />
-        <Stack.Screen name="MatchCreateScreen" component={MatchCreateScreen} options={{ title: '경기매칭생성' }} />
-      </Stack.Navigator>
-    </NavigationContainer>
-    </>
+    <SessionProvider>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
+      <NavigationContainer>
+        <Stack.Navigator 
+            screenOptions={{ 
+              headerTitle: () => <CustomHeader /> ,
+              headerStyle: {
+                backgroundColor: '#FFD73C',  // 헤더 전체 배경색 설정
+                height: 70,
+              },
+          }}
+        >
+          <Stack.Screen name="Main" component={MainTabs} style={{  }} options={{ headerLeft: () => null }} />
+          <Stack.Screen name="PlayerDetail" component={PlayerDetailScreen} options={{ title: '선수 상세 정보' }} />
+          <Stack.Screen name="Login" component={Login} options={{ title: '로그인', headerLeft: () => null }} />
+          <Stack.Screen name="MatchCreateScreen" component={MatchCreateScreen} options={{ title: '경기매칭생성' }} />
+          <Stack.Screen name="CreateCommunity" component={CreateCommunity} options={{ title: '글 작성' }}
+        />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SessionProvider>
   );
 }
