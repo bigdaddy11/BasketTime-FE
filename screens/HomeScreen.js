@@ -5,22 +5,26 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Notice } from './home/Notice';
 import { ComponentCard } from './home/ComponentCard';
 import { Category } from './home/Category';
-import { fetchPosts } from './home/CommunityService';
+import api from './common/api';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
 
   const [posts, setPosts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(1);
   const [loading, setLoading] = useState(false); // 로딩 상태
 
   useEffect(() => {
     // 데이터 로드 함수
     const loadPosts = async () => {
+      
       setLoading(true); // 로딩 시작
       try {
-        const data = await fetchPosts(selectedCategory);
-        setPosts(data && Array.isArray(data) ? data : []); // 데이터가 배열인지 확인 후 설정
+        const response = await api.get("/api/posts", {
+           params: { categoryId : selectedCategory || null } 
+          });
+        
+        setPosts(Array.isArray(response.data) ? response.data : []); // 데이터가 배열인지 확인 후 설정
       } catch (error) {
         console.error('Error fetching posts:', error);
         setPosts([]); // 에러 발생 시 빈 배열로 설정
@@ -50,7 +54,7 @@ export default function HomeScreen() {
 
           {!loading &&
               posts.map((post) => (
-              <ComponentCard key={post.board_key} message={post}></ComponentCard>
+              <ComponentCard key={post.id} message={post}></ComponentCard>
               ))
           }
       </ScrollView>

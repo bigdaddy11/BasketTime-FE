@@ -1,22 +1,77 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import api from '../common/api';
+import { Picker } from '@react-native-picker/picker';
+import { SessionContext } from '../../contexts/SessionContext';
 
 export default function CreateCommunity({ navigation }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [SelectedCategory, setSelectedCategory] = useState('1');
+  const [categories, setCategories] = useState([]); // 카테고리 목록 상태
 
-  const handleSave = () => {
-    // 글 저장 로직 추가 (예: 서버로 데이터 전송)
-    console.log('Title:', title);
-    console.log('Content:', content);
+  // useContext로 세션 정보 가져오기
+  const { session } = useContext(SessionContext);
 
-    // 저장 후 이전 화면으로 이동
-    navigation.goBack();
+  // 서버에서 카테고리 목록 가져오기
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await api.get('/api/category'); // 카테고리 데이터 가져오기
+        setCategories(response.data); // 데이터 상태로 저장
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        Alert.alert('Error', '카테고리를 불러오는 중 문제가 발생했습니다.');
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const handleSave = async () => {
+    if (!title || !content) {
+      Alert.alert('Error', '제목과 내용을 입력하세요.');
+      return;
+    }
+
+    try {
+      
+      // 서버로 POST 요청
+      const response = await api.post('/api/posts', {
+        title: title,
+        content: content,
+        categoryId: SelectedCategory, // 임의로 설정된 카테고리 ID
+        userId: session.id,
+      });
+
+      // 서버 응답 확인
+      if (response.status === 201 || response.status === 200) {
+        Alert.alert('Success', '게시글이 저장되었습니다.');
+        navigation.goBack(); // 이전 화면으로 돌아가기
+      } else {
+        Alert.alert('Error', '게시글 저장에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error saving post:', error);
+      Alert.alert('Error', '서버와의 연결에 실패했습니다.');
+    }
   };
 
   return (
     <View style={styles.container}>
-      
+      <Picker
+          selectedValue={SelectedCategory}
+          style={styles.picker}
+          onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+          // enabled={isEditable} // 수정 모드일 때만 활성화
+      >
+          {/* Picker의 기본값 */}
+          {/* <Picker.Item label="카테고리를 선택하세요" value="" style={styles.pickerItem} /> */}
+          {/* 서버에서 가져온 카테고리 목록 */}
+          {categories.map((category) => (
+            <Picker.Item key={category.id} label={category.name} value={category.id} />
+          ))}
+      </Picker>
       <TextInput
         style={styles.input}
         placeholder="제목을 입력하세요"
@@ -24,7 +79,7 @@ export default function CreateCommunity({ navigation }) {
         onChangeText={setTitle}
       />
       <TextInput
-        style={[styles.input, styles.textArea]}
+        style={styles.inputMain}
         placeholder="내용을 입력하세요"
         value={content}
         onChangeText={setContent}
@@ -39,18 +94,32 @@ export default function CreateCommunity({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 0,
     backgroundColor: '#fff',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    //borderRadius: 5,
-    padding: 10,
-    marginBottom: 20,
+    borderRadius: 5,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 10,
+    marginBottom: 2,
+    fontSize: 14,
   },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top', // 다중 라인 입력 시 텍스트가 위쪽에 정렬되도록 설정
+  inputMain: {
+    borderRadius: 5,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 10,
+    marginBottom: 2,
+    height: "50%",
+    flex: 1,
+    textAlignVertical: 'top',  // 텍스트 상단 정렬
+    fontSize: 12,
+  },
+  picker: {
+    height: 'auto',
+    width: '100%',
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
   },
 });

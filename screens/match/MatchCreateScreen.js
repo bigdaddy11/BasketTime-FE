@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
         //bottom: 10,
     },
     picker: {
-        height: 40,
+        height: 'auto',
         width: '100%',
         
     },
