@@ -1,44 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Notice } from './home/Notice';
 import { ComponentCard } from './home/ComponentCard';
 import { Category } from './home/Category';
 import api from './common/api';
 
-export default function HomeScreen() {
+export default function HomeScreen({ route }) {
   const navigation = useNavigation();
 
   const [posts, setPosts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [loading, setLoading] = useState(false); // 로딩 상태
 
-  useEffect(() => {
-    // 데이터 로드 함수
-    const loadPosts = async () => {
-      
-      setLoading(true); // 로딩 시작
-      try {
-        const response = await api.get("/api/posts", {
-           params: { categoryId : selectedCategory || null } 
-          });
-        
-        setPosts(Array.isArray(response.data) ? response.data : []); // 데이터가 배열인지 확인 후 설정
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-        setPosts([]); // 에러 발생 시 빈 배열로 설정
-      } finally {
-        setLoading(false); // 로딩 완료
-      }
-    };
+  const [refreshing, setRefreshing] = useState(false);
 
+  useEffect(() => {
     loadPosts();
   }, [selectedCategory]);
 
+  // 데이터 로드 함수
+  const loadPosts = async () => {
+    setLoading(true); // 로딩 시작
+    try {
+      const response = await api.get("/api/posts", {
+         params: { categoryId : selectedCategory || null } 
+        });
+      
+      setPosts(Array.isArray(response.data) ? response.data : []); // 데이터가 배열인지 확인 후 설정
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      setPosts([]); // 에러 발생 시 빈 배열로 설정
+    } finally {
+      setLoading(false); // 로딩 완료
+      setRefreshing(false);
+    }
+  };
+
+  // 새로고침 트리거 (useFocusEffect)
+  useFocusEffect(
+    React.useCallback(() => {
+      if (route.params?.refresh) {
+        loadPosts();
+        navigation.setParams({ refresh: false }); // refresh 플래그 초기화
+      }
+    }, [route.params?.refresh])
+  );
+
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container}>
+      <ScrollView 
+        style={styles.container}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={loadPosts} />
+        }
+      >
           <Category onSelectCategory={setSelectedCategory}/>
           <Notice></Notice>
 
@@ -54,7 +71,9 @@ export default function HomeScreen() {
 
           {!loading &&
               posts.map((post) => (
-              <ComponentCard key={post.id} message={post}></ComponentCard>
+                <TouchableOpacity key={post.id}>
+                  <ComponentCard key={post.id} message={post}></ComponentCard>
+                </TouchableOpacity>
               ))
           }
       </ScrollView>

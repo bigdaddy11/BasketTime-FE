@@ -4,7 +4,7 @@ import api from '../common/api';
 import { Picker } from '@react-native-picker/picker';
 import { SessionContext } from '../../contexts/SessionContext';
 
-export default function CreateCommunity({ navigation }) {
+export default function UpdateCommunity({ navigation }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [SelectedCategory, setSelectedCategory] = useState('1');

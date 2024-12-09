@@ -1,7 +1,11 @@
 import { StyleSheet, View, Image, Text, ScrollView } from 'react-native';
+import React, { useEffect } from 'react';
 import { Fontisto } from "@expo/vector-icons";
 
 export function ComponentCard(jsonString){
+  useEffect(() => {
+    // console.log(jsonString);
+  })
     return(
         <View style={{marginBottom: 0, borderTopWidth: 1, borderBlockColor: "#ccc", backgroundColor: "white"}}>
           <View style={{flexDirection: "row", flex: 1, marginTop: 10}}>
@@ -9,13 +13,14 @@ export function ComponentCard(jsonString){
               source={{ uri: 'https://picsum.photos/30/30' }} // 가로 200, 세로 300 크기의 랜덤 이미지
               style={styles.BodyImage}
             />
-            <View style={{flexDirection: "column", flexWrap: "wrap"}}>
-              <Text style={styles.bodyText}>{jsonString.message.categoryId}</Text>
+            <View style={{flexDirection: "column"}}>
+              <Text style={styles.bodyText}>{jsonString.message.categoryName}</Text>
+              <Text style={styles.bodyText}>{jsonString.message.nickName}</Text>
               {/* <Text style={styles.bodyText}>{jsonString.message.member_company}</Text> */}
             </View>
-            <View style={{flexDirection: "column", flexWrap: "wrap"}}>
-              <Text style={styles.bodyText}>{jsonString.message.updatedAt}</Text>
-              <Text style={styles.bodyText}>{jsonString.message.userId}</Text>
+            <View style={{flexDirection: "column"}}>
+              <Text style={styles.bodyText}>{jsonString.message.timeAgo}</Text>
+              
             </View>
           </View>
           <View style={{marginTop: 10}}>
@@ -47,7 +52,8 @@ const styles = StyleSheet.create({
         resizeMode: 'cover',
         borderRadius: 30,
         marginRight: 2,
-        marginLeft: 20
+        marginLeft: 20,
+        marginTop: 8
       },
     bodyText: {
         fontSize: 10,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, RefreshControl } from 'react-native';
 import axios from 'axios';
 import ImagePath from '../common/ImagePath';
 import { useNavigation } from '@react-navigation/native';
@@ -12,6 +12,13 @@ export default function NBAScreen() {
     const [selectedScreen, setSelectedScreen] = useState('East'); // 현재 선택된 화면 상태
     const [selectedTeam, setSelectedTeam] = useState(null); // 현재 선택된 팀
     const [players, setPlayers] = useState({});
+
+    const [refreshing, setRefreshing] = useState(false);
+
+    const onRefresh = () => {
+      setRefreshing(true);
+      setTimeout(() => setRefreshing(false), 500); // 새로고침 로직 (예: 데이터 로드)
+    };
 
     const handlePlayerPress = (player, teamName) => {
       // 선수 클릭 시, 선수의 데이터를 파라미터로 전달하며 상세 정보 화면으로 이동
@@ -53,7 +60,12 @@ export default function NBAScreen() {
         };
 
     return (
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        
       <View style={styles.conference}>
         <TouchableOpacity style={styles.conferenceText} onPress={() => setSelectedScreen('East')}>
           <Image source={ImagePath["eastern"]} style={styles.smalllogo}/>
