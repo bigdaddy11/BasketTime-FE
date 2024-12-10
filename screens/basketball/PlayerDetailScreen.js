@@ -29,9 +29,11 @@ export default function PlayerDetailScreen({ route }) {
 
         fetchComments();
         setComment('');
-        Keyboard.dismiss();  // 키보드 닫기
+        //Keyboard.dismiss();  // 키보드 닫기
       } catch (error) {
         console.error('댓글 추가 실패:', error);
+      } finally {
+        Keyboard.dismiss();  // 키보드 닫기
       }
     }
   };
@@ -134,7 +136,7 @@ const styles = StyleSheet.create({
   inputSection: {
     flexDirection: 'row',
     padding: 4,
-    borderTopWidth: 1,
+    //borderTopWidth: 1,
     borderTopColor: '#ccc',
     backgroundColor: '#fff',
   },
@@ -143,7 +145,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 5,
-    marginRight: 10,
+    marginRight: 5,
     borderRadius: 5,
   },
 });

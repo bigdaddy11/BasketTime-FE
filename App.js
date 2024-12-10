@@ -18,6 +18,7 @@ import Login from './screens/mypage/Login';
 import MatchCreateScreen from './screens/match/MatchCreateScreen';
 import MapScreen from './screens/match/MapScreen';
 import CreateCommunity from './screens/home/CreateCommunity';
+import SelectCommunity from './screens/home/SelectCommunity'; 
 
 // Stack Navigator for each tab
 const Stack = createStackNavigator();
@@ -83,8 +84,8 @@ export default function App() {
           <Stack.Screen name="PlayerDetail" component={PlayerDetailScreen} options={{ title: '선수 상세 정보' }} />
           <Stack.Screen name="Login" component={Login} options={{ title: '로그인', headerLeft: () => null }} />
           <Stack.Screen name="MatchCreateScreen" component={MatchCreateScreen} options={{ title: '경기매칭생성' }} />
-          <Stack.Screen name="CreateCommunity" component={CreateCommunity} options={{ title: '글 작성' }}
-        />
+          <Stack.Screen name="CreateCommunity" component={CreateCommunity} options={{ title: '글 작성' }} />
+          <Stack.Screen name="SelectCommunity" component={SelectCommunity} options={{ title: '글 수정/조회' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </SessionProvider>

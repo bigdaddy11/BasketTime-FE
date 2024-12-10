@@ -71,9 +71,7 @@ export default function HomeScreen({ route }) {
 
           {!loading &&
               posts.map((post) => (
-                <TouchableOpacity key={post.id}>
                   <ComponentCard key={post.id} message={post}></ComponentCard>
-                </TouchableOpacity>
               ))
           }
       </ScrollView>
