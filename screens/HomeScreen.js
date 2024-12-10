@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -6,9 +6,11 @@ import { Notice } from './home/Notice';
 import { ComponentCard } from './home/ComponentCard';
 import { Category } from './home/Category';
 import api from './common/api';
+import { SessionContext } from '../contexts/SessionContext';
 
 export default function HomeScreen({ route }) {
   const navigation = useNavigation();
+  const { session } = useContext(SessionContext); // 세션 정보 가져오기
 
   const [posts, setPosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -20,15 +22,31 @@ export default function HomeScreen({ route }) {
     loadPosts();
   }, [selectedCategory]);
 
+  useEffect(() => {
+    console.log(posts);
+  }, [posts]);
+
   // 데이터 로드 함수
   const loadPosts = async () => {
     setLoading(true); // 로딩 시작
+
+    // 세션 확인
+    if (!session || !session.id) {
+      setLoading(false); // 로딩 시작
+      navigation.navigate('Login') // 로그인 페이지로 이동
+      return;
+    }
+
     try {
       const response = await api.get("/api/posts", {
-         params: { categoryId : selectedCategory || null } 
+         params: { 
+                  categoryId : selectedCategory || null ,
+                  userId: session.id
+                 } 
         });
       
       setPosts(Array.isArray(response.data) ? response.data : []); // 데이터가 배열인지 확인 후 설정
+      
     } catch (error) {
       console.error('Error fetching posts:', error);
       setPosts([]); // 에러 발생 시 빈 배열로 설정

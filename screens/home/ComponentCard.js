@@ -1,20 +1,56 @@
 import { StyleSheet, View, Image, Text, TouchableOpacity} from 'react-native';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Fontisto } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
+import api from '../common/api';
+import { SessionContext } from '../../contexts/SessionContext';
 
 export function ComponentCard(jsonString){
   const navigation = useNavigation();
+  const { session } = useContext(SessionContext); // 세션 정보 가져오기
+  
+  const [likeCount, setLikeCount] = useState(jsonString.message.likeCount || 0);
+  const [isLiked, setIsLiked] = useState(jsonString.message.isLiked || false);
+
+  // 게시물 ID
+  const relationId = jsonString.message.id;
 
   useEffect(() => {
-    
-  })
+    //console.log("isLiked : " + isLiked);
+    //console.log("relationId : " + relationId);
+  }, [isLiked]);
+
+  // 좋아요 버튼 클릭 이벤트 핸들러
+  const handleLikeToggle = async () => {
+    console.log(isLiked);
+    try {
+      const payload = {
+        relationId: relationId || null,
+        userId: session.id,
+        type: "P",
+      };
+
+      if (isLiked) {
+        // 좋아요 취소 (DELETE 요청)
+        await api.delete(`/api/interactions/likes`, { data: payload });
+        setLikeCount(likeCount - 1); // 좋아요 개수 감소
+      } else {
+        // 좋아요 추가 (POST 요청)
+        await api.post(`/api/interactions/likes`, payload);
+        setLikeCount(likeCount + 1); // 좋아요 개수 증가
+      }
+      setIsLiked(!isLiked); // 좋아요 상태 토글
+    } catch (error) {
+      console.error('좋아요 처리 중 오류 발생:', error);
+    }
+  };
+
     return(
         <View style={{padding: 2, borderTopWidth: 1, borderBlockColor: "#ccc", backgroundColor: "white"}}>
           <TouchableOpacity key={jsonString.message.id}
               onPress={() =>
               navigation.navigate('SelectCommunity', {
-                postId: jsonString.message.id, // 게시글 ID 전달
+                postId: postId, // 게시글 ID 전달
               })
               }>
               <View style={{flexDirection: "row",  marginTop: 5, alignItems: "center"}}>
@@ -36,17 +72,24 @@ export function ComponentCard(jsonString){
               </View>
           </TouchableOpacity>
           <View style={{padding: 10, flexDirection: "row", justifyContent: "space-around", paddingBottom: 10}}>
-            <View style={{flexDirection: "row", alignItems:"center"}}>
-              <Fontisto name="like" size={12} color="#999" style={styles.icon}/>
-              <Text style={styles.CommentFont}>좋아요</Text>
-            </View>
+            <TouchableOpacity onPress={handleLikeToggle} style={{ flexDirection: "row", alignItems: "center" }}>
+              <Fontisto name="like" size={12} color={isLiked ? "#FFD73C" : "#999"} style={styles.icon}/>
+              <Text style={[
+                styles.CommentFont,
+                  { color: isLiked ? "#FFD73C" : "#999" },]}>
+                  {jsonString.likeCount > 0 ? `${jsonString.likeCount}` : "좋아요"}
+              </Text>
+            </TouchableOpacity>
+            {/* <View style={{flexDirection: "row", alignItems:"center"}}>
+              
+            </View> */}
             <View style={{flexDirection: "row", alignItems:"center"}}>
               <Fontisto name="comment" size={12} color="#999" style={styles.icon}/>
-              <Text style={styles.CommentFont}>댓글</Text>
+              <Text style={styles.CommentFont}>{jsonString.commentCount > 0 ? `${jsonString.commentCount}` : "댓글"}</Text>
             </View>
             <View style={{flexDirection: "row", alignItems:"center"}}>
               <Fontisto name="eye" size={12} color="#999" style={styles.icon}/>
-              <Text style={styles.CommentFont}>조회수</Text>
+              <Text style={styles.CommentFont}>{jsonString.viewCount > 0 ? `${jsonString.viewCount}` : "조회수"}</Text>
             </View>
           </View>
         </View>
