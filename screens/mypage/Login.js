@@ -21,11 +21,15 @@ export default function LoginScreen({ navigation }) {
     };
 
     const handleNaverLogin = () => {
-        console.log('네이버 로그인 버튼 클릭됨');
+      const user = { id: 2, name: 'NaverMan', nickName: "네이버맨", role: 'user' };
+      login(user); // Set the session
+      navigation.navigate('Main'); // Redirect to Main
     };
 
     const handleKakaoLogin = () => {
-        console.log('카카오 로그인 버튼 클릭됨');
+      const user = { id: 3, name: 'KaKaoMan', nickName: "카카오맨", role: 'user' };
+      login(user); // Set the session
+      navigation.navigate('Main'); // Redirect to Main
     };
 
     return (

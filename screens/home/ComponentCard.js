@@ -15,14 +15,29 @@ export function ComponentCard(jsonString){
   // 게시물 ID
   const relationId = jsonString.message.id;
 
-  useEffect(() => {
-    //console.log("isLiked : " + isLiked);
-    //console.log("relationId : " + relationId);
-  }, [isLiked]);
+  // 조회수 업데이트 함수
+  const updateViewCount = async () => {
+    try {
+      // 서버로 조회수 업데이트 요청
+      await api.post('/api/interactions/views', {
+        relationId: relationId,
+        userId: session.id,
+        type: 'P', // Post 타입
+      });
+    } catch (error) {
+      console.error('조회수 업데이트 중 오류 발생:', error);
+    }
+  };
+
+  const handlePress = () => {
+    updateViewCount(); // 조회수 업데이트
+    navigation.navigate('SelectCommunity', {
+      postId: relationId, // 게시글 ID 전달
+    });
+  };
 
   // 좋아요 버튼 클릭 이벤트 핸들러
   const handleLikeToggle = async () => {
-    console.log(isLiked);
     try {
       const payload = {
         relationId: relationId || null,
@@ -48,11 +63,7 @@ export function ComponentCard(jsonString){
     return(
         <View style={{padding: 2, borderTopWidth: 1, borderBlockColor: "#ccc", backgroundColor: "white"}}>
           <TouchableOpacity key={jsonString.message.id}
-              onPress={() =>
-              navigation.navigate('SelectCommunity', {
-                postId: postId, // 게시글 ID 전달
-              })
-              }>
+              onPress={handlePress}>
               <View style={{flexDirection: "row",  marginTop: 5, alignItems: "center"}}>
                 <Image 
                   source={{ uri: 'https://picsum.photos/35/35' }} // 가로 200, 세로 300 크기의 랜덤 이미지
@@ -77,20 +88,23 @@ export function ComponentCard(jsonString){
               <Text style={[
                 styles.CommentFont,
                   { color: isLiked ? "#FFD73C" : "#999" },]}>
-                  {jsonString.likeCount > 0 ? `${jsonString.likeCount}` : "좋아요"}
+                  {likeCount > 0 ? `${likeCount}` : "좋아요"}
               </Text>
             </TouchableOpacity>
-            {/* <View style={{flexDirection: "row", alignItems:"center"}}>
-              
-            </View> */}
-            <View style={{flexDirection: "row", alignItems:"center"}}>
-              <Fontisto name="comment" size={12} color="#999" style={styles.icon}/>
-              <Text style={styles.CommentFont}>{jsonString.commentCount > 0 ? `${jsonString.commentCount}` : "댓글"}</Text>
-            </View>
-            <View style={{flexDirection: "row", alignItems:"center"}}>
-              <Fontisto name="eye" size={12} color="#999" style={styles.icon}/>
-              <Text style={styles.CommentFont}>{jsonString.viewCount > 0 ? `${jsonString.viewCount}` : "조회수"}</Text>
-            </View>
+            <TouchableOpacity key={`${jsonString.message.id}-comment`}
+              onPress={handlePress}>
+                <View style={{flexDirection: "row", alignItems:"center"}}>
+                  <Fontisto name="comment" size={12} color="#999" style={styles.icon}/>
+                  <Text style={styles.CommentFont}>{jsonString.message.commentCount > 0 ? `${jsonString.message.commentCount}` : "댓글"}</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity key={`${jsonString.message.id}-view`}
+              onPress={handlePress}>
+              <View style={{flexDirection: "row", alignItems:"center"}}>
+                <Fontisto name="eye" size={12} color="#999" style={styles.icon}/>
+                <Text style={styles.CommentFont}>{jsonString.message.viewCount > 0 ? `${jsonString.message.viewCount}` : "조회수"}</Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
     );

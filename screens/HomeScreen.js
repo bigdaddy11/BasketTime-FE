@@ -23,7 +23,7 @@ export default function HomeScreen({ route }) {
   }, [selectedCategory]);
 
   useEffect(() => {
-    console.log(posts);
+    
   }, [posts]);
 
   // 데이터 로드 함수
