@@ -66,18 +66,19 @@ const styles = StyleSheet.create({
     touchStyle: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "white", // 배경색
+        backgroundColor: "whitesmoke", // 배경색
         borderRadius: 30,
-        paddingHorizontal: 4,
+        paddingHorizontal: 10,
         height: 35,
-        marginVertical: 10,
+        marginVertical: 5,
         marginHorizontal: 5,
     },
     imageStyle: {
         width: 25,
         height: 25,
         borderRadius: 15, // 이미지 둥글게
-        marginRight: 5, // 텍스트와 이미지 간격
+        marginRight: 0, // 텍스트와 이미지 간격
+        left: -5
     },
     textStyle: {
         fontSize: 12,

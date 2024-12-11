@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
+import { View, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Notice } from './home/Notice';
@@ -9,97 +9,113 @@ import api from './common/api';
 import { SessionContext } from '../contexts/SessionContext';
 
 export default function HomeScreen({ route }) {
-  const scrollViewRef = useRef(null); // ScrollView Ref
   const navigation = useNavigation();
   const { session } = useContext(SessionContext); // 세션 정보 가져오기
+  const listRef = useRef(null); // FlatList Ref
 
   const [posts, setPosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [loading, setLoading] = useState(false); // 로딩 상태
+  const [loading, setLoading] = useState(false); // 데이터 로딩 상태
+  const [refreshing, setRefreshing] = useState(false); // 새로고침 상태
+  const [page, setPage] = useState(1); // 현재 페이지
+  const [hasMore, setHasMore] = useState(true); // 더 가져올 데이터가 있는지 여부
 
-  const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    loadPosts();
-  }, [selectedCategory]);
-
-  useEffect(() => {
-    
-  }, [posts]);
-
-  // 데이터 로드 함수
-  const loadPosts = async () => {
-    setLoading(true); // 로딩 시작
-
-    // 세션 확인
-    if (!session || !session.id) {
-      setLoading(false); // 로딩 시작
-      navigation.navigate('Login') // 로그인 페이지로 이동
-      return;
-    }
-
-    try {
-      const response = await api.get("/api/posts", {
-         params: { 
-                  categoryId : selectedCategory || null ,
-                  userId: session.id
-                 } 
-        });
-      
-      setPosts(Array.isArray(response.data) ? response.data : []); // 데이터가 배열인지 확인 후 설정
-      
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-      setPosts([]); // 에러 발생 시 빈 배열로 설정
-    } finally {
-      setLoading(false); // 로딩 완료
-      setRefreshing(false);
-    }
-  };
-
-  // 새로고침 트리거 (useFocusEffect)
   useFocusEffect(
     React.useCallback(() => {
       if (route.params?.refresh) {
-        loadPosts();
+        setPosts([]);
+        setPage(0);
+        loadPosts(0, true);
         navigation.setParams({ refresh: false }); // refresh 플래그 초기화
       }
     }, [route.params?.refresh])
   );
 
+  useEffect(() => {
+    setPosts([]);
+    setPage(0);
+    loadPosts(0, true);
+  }, [selectedCategory]);
+
+  const loadPosts = async (pageToFetch = 0, refresh = false) => {
+    if (!session || !session.id) {
+      navigation.navigate('Login');
+      return;
+    }
+
+    if (loading || (!refresh && !hasMore)) return; // 로딩 중이거나 더 가져올 데이터가 없으면 중단
+
+    setLoading(true);
+    try {
+      const response = await api.get('/api/posts', {
+        params: {
+          categoryId: selectedCategory || null,
+          userId: session.id,
+          page: pageToFetch,
+          size: 10, // 한 번에 가져올 데이터 수
+        },
+      });
+
+      const fetchedPosts = response.data.content || [];
+      setPosts((prevPosts) => (refresh ? fetchedPosts : [...prevPosts, ...fetchedPosts]));
+      setHasMore(fetchedPosts.length === 10); // 10개 미만이면 더 이상 가져올 데이터가 없음
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setLoading(false);
+      if (refresh) setRefreshing(false);
+    }
+  };
+
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      loadPosts(nextPage);
+    }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setPage(0);
+    loadPosts(0, true);
+  };
+
   const scrollToTop = () => {
-    scrollViewRef.current?.scrollTo({ y: 0, animated: true }); // Scroll to top
+    setPage(0); // 페이지 초기화
+    listRef.current?.scrollToOffset({ animated: true, offset: 0 }); // 최상단으로 스크롤
+  };
+
+  // 메모이제이션된 헤더 컴포넌트
+  const renderHeader = useMemo(() => {
+    return (
+      <View>
+        <Category onSelectCategory={setSelectedCategory} />
+        <Notice />
+      </View>
+    );
+  }, [selectedCategory]);
+
+  const renderFooter = () => {
+    if (!loading) return null;
+    return <ActivityIndicator style={{ margin: 20 }} />;
   };
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView 
-        style={styles.container}
-        ref={scrollViewRef}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={loadPosts} />
-        }
-      >
-          <Category onSelectCategory={setSelectedCategory}/>
-          <Notice></Notice>
+      <FlatList
+        ref={listRef}
+        data={posts}
+        keyExtractor={(item, index) => item.id.toString()}
+        renderItem={({ item }) => <ComponentCard message={item} />}
+        onEndReached={handleLoadMore} // 스크롤 끝에 도달했을 때 호출
+        onEndReachedThreshold={0.5} // 50% 지점에서 호출
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+        ListHeaderComponent={renderHeader} // 스크롤에 포함되는 헤더
+        ListFooterComponent={renderFooter} // 로딩 상태 표시
+        contentContainerStyle={styles.container}
+      />
 
-          {/* 로딩 상태 표시 */}
-          {loading && <Text style={styles.loadingText}>Loading...</Text>}
-
-          {/* 데이터가 없을 경우 기본 메시지 */}
-          {!loading && posts.length === 0 && (
-            <View style={styles.emptyStateContainer}>
-              <Text style={styles.emptyStateText}>게시글이 없습니다.</Text>
-            </View>
-          )}
-
-          {!loading &&
-              posts.map((post) => (
-                  <ComponentCard key={post.id} message={post}></ComponentCard>
-              ))
-          }
-      </ScrollView>
-      
       {/* Floating Button to Scroll to Top */}
       <TouchableOpacity style={styles.scrollToTopButton} onPress={scrollToTop}>
         <MaterialIcons name="arrow-upward" size={24} color="#fff" />
@@ -118,25 +134,24 @@ export default function HomeScreen({ route }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    //justifyContent: 'center',
-    //alignItems: 'center',
+    flexGrow: 1,
+    backgroundColor: '#fff',
   },
   floatingButton: {
     position: 'absolute',
-    bottom: 20, // 화면 아래에서 20px 떨어짐
-    right: 20,  // 화면 오른쪽에서 20px 떨어짐
-    backgroundColor: '#FFD73C', // 버튼 색상
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#FFD73C',
     width: 40,
     height: 40,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000', // 그림자 효과
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
-    elevation: 5, // Android에서 그림자 효과
+    elevation: 5,
   },
   scrollToTopButton: {
     position: 'absolute',
@@ -152,6 +167,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
-    elevation: 5, // Android shadow
+    elevation: 5,
   },
 });
