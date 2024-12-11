@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import api from './common/api';
 import { SessionContext } from '../contexts/SessionContext';
 
 export default function HomeScreen({ route }) {
+  const scrollViewRef = useRef(null); // ScrollView Ref
   const navigation = useNavigation();
   const { session } = useContext(SessionContext); // 세션 정보 가져오기
 
@@ -66,10 +67,15 @@ export default function HomeScreen({ route }) {
     }, [route.params?.refresh])
   );
 
+  const scrollToTop = () => {
+    scrollViewRef.current?.scrollTo({ y: 0, animated: true }); // Scroll to top
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView 
         style={styles.container}
+        ref={scrollViewRef}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={loadPosts} />
         }
@@ -93,6 +99,11 @@ export default function HomeScreen({ route }) {
               ))
           }
       </ScrollView>
+      
+      {/* Floating Button to Scroll to Top */}
+      <TouchableOpacity style={styles.scrollToTopButton} onPress={scrollToTop}>
+        <MaterialIcons name="arrow-upward" size={24} color="#fff" />
+      </TouchableOpacity>
 
       {/* Floating + 버튼 (고정 위치) */}
       <TouchableOpacity
@@ -126,5 +137,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 3,
     elevation: 5, // Android에서 그림자 효과
+  },
+  scrollToTopButton: {
+    position: 'absolute',
+    bottom: 70,
+    right: 20,
+    backgroundColor: '#FFD73C',
+    width: 40,
+    height: 40,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5, // Android shadow
   },
 });
