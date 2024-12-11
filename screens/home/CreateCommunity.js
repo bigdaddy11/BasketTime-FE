@@ -143,7 +143,8 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingLeft: 10,
     marginBottom: 2,
-    fontSize: 14,
+    fontSize: 24,
+    fontWeight: 600,
   },
   inputMain: {
     borderRadius: 5,
@@ -155,6 +156,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlignVertical: 'top',  // 텍스트 상단 정렬
     fontSize: 12,
+    flexWrap: 'wrap', // 텍스트 줄 바꿈 허용
   },
   picker: {
     height: 'auto',
