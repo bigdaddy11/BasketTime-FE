@@ -4,7 +4,9 @@ import api from '../common/api';
 import { Picker } from '@react-native-picker/picker';
 import { SessionContext } from '../../contexts/SessionContext';
 
-export default function CreateCommunity({ navigation }) {
+export default function CreateCommunity({ route, navigation }) {
+  const { postId } = route.params || {}; // postId를 받아옴
+
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [SelectedCategory, setSelectedCategory] = useState('1');
@@ -25,13 +27,28 @@ export default function CreateCommunity({ navigation }) {
       }
     };
 
+    const fetchPostDetails = async () => {
+      if (postId) {
+        try {
+          const response = await api.get(`/api/posts/${postId}`);
+          setTitle(response.data.title);
+          setContent(response.data.content);
+          setSelectedCategory(response.data.categoryId);
+        } catch (error) {
+          console.error('Error fetching post details:', error);
+          Alert.alert('Error', '게시글 정보를 불러오는 중 문제가 발생했습니다.');
+        }
+      }
+    };
+
     fetchCategories();
+    fetchPostDetails(); // postId가 있을 때만 실행
   }, []);
 
   const handleSave = async () => {
     // 세션 확인
     if (!session || !session.id) {
-      navigation.navigate('Login') // 로그인 페이지로 이동
+      navigation.navigate('Login'); // 로그인 페이지로 이동
       return;
     }
 
@@ -41,25 +58,39 @@ export default function CreateCommunity({ navigation }) {
     }
 
     try {
-      
-      // 서버로 POST 요청
-      const response = await api.post('/api/posts', {
-        title: title,
-        content: content,
-        categoryId: SelectedCategory, // 임의로 설정된 카테고리 ID
-        userId: session.id,
-      });
-
-      // 서버 응답 확인
-      if (response.status === 201 || response.status === 200) {
-        Alert.alert('Success', '게시글이 저장되었습니다.');
-        navigation.navigate('Main', {
-          screen: 'Home',
-          params: { refresh: true },
+      if (postId) {
+        // 수정 모드: PUT 요청
+        const response = await api.put(`/api/posts/${postId}`, {
+          title,
+          content,
+          categoryId: SelectedCategory,
         });
+
+        if (response.status === 200) {
+          Alert.alert('Success', '게시글이 수정되었습니다.');
+        } else {
+          Alert.alert('Error', '게시글 수정에 실패했습니다.');
+        }
       } else {
-        Alert.alert('Error', '게시글 저장에 실패했습니다.');
+        // 신규 생성 모드: POST 요청
+        const response = await api.post('/api/posts', {
+          title,
+          content,
+          categoryId: SelectedCategory,
+          userId: session.id,
+        });
+
+        if (response.status === 201 || response.status === 200) {
+          Alert.alert('Success', '게시글이 저장되었습니다.');
+        } else {
+          Alert.alert('Error', '게시글 저장에 실패했습니다.');
+        }
       }
+
+      navigation.navigate('Main', {
+        screen: 'Home',
+        params: { refresh: true },
+      });
     } catch (error) {
       console.error('Error saving post:', error);
       Alert.alert('Error', '서버와의 연결에 실패했습니다.');
