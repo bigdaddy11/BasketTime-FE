@@ -1,5 +1,5 @@
 import { StyleSheet, View, Image, Text, TouchableOpacity} from 'react-native';
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { Fontisto } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 import api from '../common/api';

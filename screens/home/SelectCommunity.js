@@ -150,7 +150,7 @@ export default function SelectCommunity({ route, navigation }) {
           {/* 오른쪽 상단 ... 버튼 (작성자만 노출) */}
           {isAuthor && (
             <TouchableOpacity onPress={handleMoreOptions} style={{ padding: 10, marginTop: -20 }}>
-              <Feather name="more-horizontal" size={20} color="black" />
+              <Feather name="more-horizontal" size={20} color="#999" />
             </TouchableOpacity>
           )}
         </View>
