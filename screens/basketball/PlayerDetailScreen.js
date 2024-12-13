@@ -1,54 +1,86 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, KeyboardAvoidingView, Platform, ScrollView, Keyboard, Image, FlatList, Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import api from '../common/api';
 import { CommentItem } from '../home/CommentItem';
 import { SessionContext } from '../../contexts/SessionContext';
 
 export default function PlayerDetailScreen({ route }) {
   const { player, teamName } = route.params;
-  const [comment, setComment] = useState('');
+  const [newComment, setNewComment] = useState(''); // 새로운 댓글 입력값
   const [comments, setComments] = useState([]);
 
   const [isModalVisible, setIsModalVisible] = useState(false); // 모달 상태
 
   const { session } = useContext(SessionContext); // 세션 정보 가져오기
 
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useFocusEffect(
+      React.useCallback(() => {
+        fetchComments(); // 댓글 목록 재조회
+      }, [])
+    );
+
   const fetchComments = async () => {
     try {
-      const response = await api.get(`/api/comments/${player.id}/NBA`);
-      setComments(response.data);
+      const response = await api.get(`/api/posts/comments/${player.id}`, {
+        params: {
+          type: "N"
+        },
+      });
+      setComments(response.data || []);
     } catch (error) {
-      console.error('댓글 로딩 실패:', error);
+      console.error('Error fetching comments:', error);
+      Alert.alert('Error', '댓글을 불러오는 중 문제가 발생했습니다.');
     }
   };
 
-  const handleAddComment = async () => {
-    if (comment.trim() !== '') {
-      try {
-        const response = await api.post('/api/comments', {
-          playerId: player.id,
-          userId: session.id,
-          type: "NBA",
-          commentText: comment,
-        });
+  const handleCommentSubmit = async () => {
+    if (!newComment.trim()) {
+      Alert.alert('Error', '댓글 내용을 입력하세요.');
+      return;
+    }
 
-        fetchComments();
-        setComment('');
-        //Keyboard.dismiss();  // 키보드 닫기
-      } catch (error) {
-        console.error('댓글 추가 실패:', error);
-      } finally {
-        Keyboard.dismiss();  // 키보드 닫기
-      }
+    // 세션 확인
+    if (!session || !session.id) {
+      navigation.navigate('Login') // 로그인 페이지로 이동
+      return;
+    }
+
+    try {
+      await api.post(`/api/posts/comments/${player.id}`, {
+        commentText: newComment,
+        type: "N",
+        userId: session.id,
+      });
+      setNewComment('');
+      fetchComments(); // 댓글 목록 갱신
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+      Alert.alert('Error', '댓글을 작성하는 중 문제가 발생했습니다.');
+    } finally {
+      Keyboard.dismiss();  // 키보드 닫기
     }
   };
-
+  
   useEffect(() => {
     fetchComments();
-  }, []);
 
-  useEffect(() => {
-  }, [comments]);
+      const showListener = Keyboard.addListener('keyboardDidShow', () => {
+        setKeyboardVisible(true);
+      });
+  
+      const hideListener = Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboardVisible(false);
+      });
+  
+      return () => {
+        
+        showListener.remove();
+        hideListener.remove();
+      };
+    }, []);
 
   function convertHeightToMeters(height) {
     const [feet, inches] = height.split('-').map(Number);
@@ -63,7 +95,7 @@ export default function PlayerDetailScreen({ route }) {
 
   //댓글 삭제 함수
   const handleDeleteComment = (id) => {
-    //setIsModalVisible(false); // 모달 닫기
+    setIsModalVisible(false); // 모달 닫기
     Alert.alert(
       '댓글 삭제',
       '이 댓글을 삭제하시겠습니까?',
@@ -73,7 +105,7 @@ export default function PlayerDetailScreen({ route }) {
           text: '삭제',
           onPress: async () => {
             try {
-              await api.delete(`/api/comments/${id}/NBA`);
+              await api.delete(`/api/posts/comments/${id}`);
               Alert.alert('삭제 완료', '댓글이 삭제되었습니다.');
               fetchComments(); // 댓글 목록 재조회
             } catch (error) {
@@ -91,7 +123,7 @@ export default function PlayerDetailScreen({ route }) {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={80}
+      keyboardVerticalOffset={keyboardVisible ? 80 : 0} // 동적 오프셋 설정
     >
       {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}> */}
       <FlatList
@@ -104,6 +136,7 @@ export default function PlayerDetailScreen({ route }) {
             content={item.commentText}
             userId={item.userId}
             onDelete={() => handleDeleteComment(item.id)} // 댓글 삭제 핸들러에 ID 전달
+            commentId={item.id}
           />
         )}
         ListHeaderComponent={
@@ -133,11 +166,11 @@ export default function PlayerDetailScreen({ route }) {
       <View style={styles.inputSection}>
         <TextInput
           style={styles.input}
-          value={comment}
-          onChangeText={setComment}
+          value={newComment}
+          onChangeText={setNewComment}
           placeholder="선수에게 응원의 댓글을 남겨주세요."
         />
-        <Button title="등록" onPress={handleAddComment} />
+        <Button title="등록" onPress={handleCommentSubmit} />
       </View>
     </KeyboardAvoidingView>
   );
