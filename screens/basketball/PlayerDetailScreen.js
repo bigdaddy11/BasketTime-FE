@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, KeyboardAvoidingView, Platform, ScrollView, Keyboard, Image, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Button, KeyboardAvoidingView, Platform, ScrollView, Keyboard, Image, FlatList, Alert } from 'react-native';
 import api from '../common/api';
 import { CommentItem } from '../home/CommentItem';
 import { SessionContext } from '../../contexts/SessionContext';
@@ -8,6 +8,8 @@ export default function PlayerDetailScreen({ route }) {
   const { player, teamName } = route.params;
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
+
+  const [isModalVisible, setIsModalVisible] = useState(false); // 모달 상태
 
   const { session } = useContext(SessionContext); // 세션 정보 가져오기
 
@@ -59,6 +61,32 @@ export default function PlayerDetailScreen({ route }) {
     return kilograms.toFixed(1);
   }
 
+  //댓글 삭제 함수
+  const handleDeleteComment = (id) => {
+    //setIsModalVisible(false); // 모달 닫기
+    Alert.alert(
+      '댓글 삭제',
+      '이 댓글을 삭제하시겠습니까?',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '삭제',
+          onPress: async () => {
+            try {
+              await api.delete(`/api/comments/${id}/NBA`);
+              Alert.alert('삭제 완료', '댓글이 삭제되었습니다.');
+              fetchComments(); // 댓글 목록 재조회
+            } catch (error) {
+              console.error('Error deleting comment:', error);
+              Alert.alert('삭제 실패', '댓글 삭제 중 문제가 발생했습니다.');
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -74,6 +102,8 @@ export default function PlayerDetailScreen({ route }) {
             nickName={item.nickName}
             timeAgo={item.timeAgo}
             content={item.commentText}
+            userId={item.userId}
+            onDelete={() => handleDeleteComment(item.id)} // 댓글 삭제 핸들러에 ID 전달
           />
         )}
         ListHeaderComponent={

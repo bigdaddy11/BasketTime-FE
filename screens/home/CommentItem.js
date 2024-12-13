@@ -1,51 +1,39 @@
-import React, {useState, useContext} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import React, {useState, useContext, useEffect} from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Feather from '@expo/vector-icons/Feather';
 import { SessionContext } from '../../contexts/SessionContext';
 
 // 댓글 하나를 출력하는 컴포넌트
-export function CommentItem({ nickName, timeAgo, content }) {
+export function CommentItem({ nickName, timeAgo, content, userId, onDelete, onEdit, commentId }) {
   const navigation = useNavigation();
   const { session } = useContext(SessionContext); // 세션 정보 가져오기
+  const isAuthor = userId === session?.id; // 글쓴이 여부 확인
+
+  const [isEditing, setIsEditing] = useState(false); // 수정 모드 상태
+  const [editedText, setEditedText] = useState(content); // 수정 중인 텍스트
 
   const [isModalVisible, setIsModalVisible] = useState(false); // 모달 상태
+  const [isModalEditVisible, setIsModalEditVisible] = useState(false); // 모달 상태
 
   const handleMoreOptions = () => {
     setIsModalVisible(true); // 옵션 모달 열기
   };
 
-  const handleEditPost = () => {
-    setIsModalVisible(false); // 모달 닫기
-    navigation.navigate('CreateCommunity', { postId: post?.id }); // 게시물 수정 화면으로 이동
+  const handleEditMoreOptions = () => {
+    setIsModalVisible(false); // 기존 옵션 모달 닫기
+    setIsModalEditVisible(true); // 수정 모달 열기
+  };
+  
+  const handleSaveEdit = () => {
+    onEdit(editedText); // 수정 핸들러 호출
+    setIsModalEditVisible(false); // 수정 모달 닫기
   };
 
-  const handleDeletePost = () => {
-    setIsModalVisible(false); // 모달 닫기
-    Alert.alert(
-      '게시물 삭제',
-      '이 댓글을 삭제하시겠습니까?',
-      [
-        { text: '취소', style: 'cancel' },
-        {
-          text: '삭제',
-          onPress: async () => {
-            try {
-              await api.delete(`/api/posts/${post?.id}`);
-              Alert.alert('삭제 완료', '댓글이 삭제되었습니다.');
-              // navigation.navigate('Main', {
-              //   screen: 'Home',
-              //   params: { refresh: true },
-              // });
-            } catch (error) {
-              console.error('Error deleting post:', error);
-              Alert.alert('삭제 실패', '댓글 삭제 중 문제가 발생했습니다.');
-            }
-          },
-        },
-      ],
-      { cancelable: false }
-    );
+  const handleEdit = () => {
+    //console.log(commentId, content);
+    setIsModalVisible(false); // 기존 옵션 모달 닫기
+    navigation.navigate('EditComment', { commentId, content }); // 수정 화면으로 이동
   };
 
   return (
@@ -57,9 +45,11 @@ export function CommentItem({ nickName, timeAgo, content }) {
           <Text style={styles.timeAgo}>{timeAgo}</Text>
         </View>
         <View style={styles.headerRight}>
-          <TouchableOpacity onPress={handleMoreOptions} style={{ padding: 10, marginTop: -20 }}>
+        {isAuthor && (
+          <TouchableOpacity onPress={handleMoreOptions} style={{ marginTop: -5 }}>
             <Feather name="more-horizontal" size={16} color="#999" />
           </TouchableOpacity>
+        )}
         </View>
       </View>
       
@@ -79,21 +69,54 @@ export function CommentItem({ nickName, timeAgo, content }) {
             onPress={() => setIsModalVisible(false)} // 모달 닫기
           />
           <View style={styles.modalContent}>
-            <TouchableOpacity style={styles.modalButton} onPress={handleEditPost}>
+            <TouchableOpacity style={styles.modalButton} onPress={handleEdit}>
               <Text style={styles.modalButtonText}>수정하기</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton} onPress={handleDeletePost}>
+            <TouchableOpacity style={styles.modalButton} onPress={onDelete}>
               <Text style={styles.modalButtonText}>삭제하기</Text>
             </TouchableOpacity>
           </View>
         </Modal>
+
+      {/* 수정 Modal */}
+      {/* <Modal
+        visible={isModalEditVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsModalEditVisible(false)} // Android 뒤로가기
+      >
+        <View style={styles.modalEditContainer}>
+            <View style={styles.modalEditContent}>
+              <TextInput
+                style={styles.modalEditInput}
+                value={editedText}
+                onChangeText={setEditedText}
+                placeholder="댓글 내용을 입력하세요."
+                multiline
+              />
+              <View style={styles.modalEditButtonRow}>
+                <TouchableOpacity
+                  onPress={() => setIsModalEditVisible(false)} // Modal 닫기
+                  style={styles.cancelEditButton}
+                >
+                  <Text style={styles.buttonEditText}>취소</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleSaveEdit} // 수정 저장
+                  style={styles.saveEditButton}
+                >
+                  <Text style={styles.buttonEditText}>수정</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+        </View>
+      </Modal> */}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    
     padding: 15,
     backgroundColor: 'white',
 
@@ -161,5 +184,51 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 14,
     textAlign: 'left',
+  },
+  modalEditContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalEditContent: {
+    backgroundColor: 'white',
+    padding: 15,
+    //borderTopLeftRadius: 20,
+    //borderTopRightRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5, // 안드로이드 그림자
+    marginHorizontal: 10, // 화면 좌우 여백
+  },
+  modalEditHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalEditInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    //borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    minHeight: 80,
+    textAlignVertical: 'top', // 텍스트 상단 정렬
+  },
+  modalEditButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  cancelEditButton: {
+    backgroundColor: '#eee',
+    padding: 10,
+    //borderRadius: 5,
+    marginRight: 10,
+  },
+  saveEditButton: {
+    backgroundColor: '#FFD73C',
+    padding: 10,
+    //borderRadius: 5,
   },
 });

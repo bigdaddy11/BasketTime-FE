@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, TextInput, Button, StyleSheet, Alert, FlatList, Text, KeyboardAvoidingView, Platform, Keyboard, ScrollView, Image, TouchableOpacity, Modal } from 'react-native';
+import { View, TextInput, Button, StyleSheet, Alert, FlatList, Text, KeyboardAvoidingView, Platform, Keyboard, ScrollView, Image, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import api from '../common/api';
 import { SessionContext } from '../../contexts/SessionContext';
 import { CommentItem } from './CommentItem'; // 분리된 컴포넌트 불러오기
@@ -34,7 +34,6 @@ export default function SelectCommunity({ route, navigation }) {
     fetchPost();
     fetchComments();
   }, [postId]);
-
 
   const fetchPost = async () => {
     try {
@@ -91,7 +90,7 @@ export default function SelectCommunity({ route, navigation }) {
 
   const fetchComments = async () => {
     try {
-      const response = await api.get(`/api/posts/${postId}/comments`);
+      const response = await api.get(`/api/posts/comments/${postId}`);
       setComments(response.data || []);
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -113,7 +112,7 @@ export default function SelectCommunity({ route, navigation }) {
     }
 
     try {
-      await api.post(`/api/posts/${postId}/comments`, {
+      await api.post(`/api/posts/comments/${postId}`, {
         commentText: newComment,
         userId: session.id,
       });
@@ -127,12 +126,40 @@ export default function SelectCommunity({ route, navigation }) {
     }
   };
 
+  //댓글 삭제 함수
+  const handleDeleteComment = (id) => {
+    setIsModalVisible(false); // 모달 닫기
+    Alert.alert(
+      '댓글 삭제',
+      '이 댓글을 삭제하시겠습니까?',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '삭제',
+          onPress: async () => {
+            try {
+              await api.delete(`/api/posts/comments/${id}`);
+              Alert.alert('삭제 완료', '댓글이 삭제되었습니다.');
+              fetchComments(); // 댓글 목록 재조회
+            } catch (error) {
+              console.error('Error deleting comment:', error);
+              Alert.alert('삭제 실패', '댓글 삭제 중 문제가 발생했습니다.');
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={80}
     >
+      {/* 화면 외부를 터치하면 키보드 닫기 */}
+      <View style={{ flex: 1 }}>
       <View style={{ flexGrow: 1.5, flexShrink: 0 }}>
         <View style={{ flexDirection: "row", alignItems: "center", marginTop: 5, justifyContent: "space-between" }}>
           {/* 이미지와 정보 */}
@@ -183,7 +210,7 @@ export default function SelectCommunity({ route, navigation }) {
           </View>
         </Modal>
       </View>
-
+          
       {/* 댓글 작성 영역 */}
       <View style={styles.commentSection}>
         {/* <Text style={styles.commentHeader}>댓글</Text> */}
@@ -195,6 +222,10 @@ export default function SelectCommunity({ route, navigation }) {
               nickName={item.nickName}
               timeAgo={item.timeAgo}
               content={item.commentText}
+              userId={item.userId}
+              onDelete={() => handleDeleteComment(item.id)} // 댓글 삭제 핸들러에 ID 전달
+              //onEdit={() => handleEditComment(item.id, item.commentText)} // 수정 핸들러
+              commentId={item.id}
             />
           )}
           ListEmptyComponent={
@@ -203,18 +234,23 @@ export default function SelectCommunity({ route, navigation }) {
               <Text style={styles.emptyText}>최초로 댓글을 작성해보세요.</Text>
             </View>
           }
+          //keyboardShouldPersistTaps="handled"
         />
       </View>
-      <View style={styles.inputSection}>
-        <TextInput
-          style={styles.commentInput}
-          placeholder="댓글을 남겨주세요."
-          value={newComment}
-          onChangeText={setNewComment}
-        />
-        <Button title="등록" onPress={handleCommentSubmit} />
       </View>
+
+       <View style={styles.inputSection}>
+         <TextInput
+           style={styles.commentInput}
+           placeholder="댓글을 남겨주세요."
+           value={newComment}
+           onChangeText={setNewComment}
+         />
+         <Button title="등록" onPress={handleCommentSubmit} />
+       </View>
     </KeyboardAvoidingView>
+      
+    
   );
 }
 
