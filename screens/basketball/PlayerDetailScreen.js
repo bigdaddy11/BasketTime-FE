@@ -230,9 +230,9 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 5,
+    padding: 7,
     marginRight: 5,
-    borderRadius: 5,
+    borderRadius: 2,
   },
   imageStyle: {
     width: 100,

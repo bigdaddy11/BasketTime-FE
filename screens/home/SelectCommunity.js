@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, TextInput, Button, StyleSheet, Alert, FlatList, Text, KeyboardAvoidingView, Platform, Keyboard, ScrollView, Image, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import api from '../common/api';
 import { SessionContext } from '../../contexts/SessionContext';
 import { CommentItem } from './CommentItem'; // 분리된 컴포넌트 불러오기
@@ -24,6 +25,11 @@ export default function SelectCommunity({ route, navigation }) {
   const [newComment, setNewComment] = useState(''); // 새로운 댓글 입력값
   const isAuthor = post?.userId === session?.id; // 글쓴이 여부 확인
 
+  useFocusEffect(
+      React.useCallback(() => {
+        fetchComments(); // 댓글 목록 재조회
+      }, [])
+    );
   // 게시글 및 카테고리 데이터를 가져오는 함수
   useEffect(() => {
     if (!postId) {
@@ -90,7 +96,10 @@ export default function SelectCommunity({ route, navigation }) {
 
   const fetchComments = async () => {
     try {
-      const response = await api.get(`/api/posts/comments/${postId}`);
+      const response = await api.get(`/api/posts/comments/${postId}`, {
+        params: {
+          type: "P"
+        }});
       setComments(response.data || []);
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -114,6 +123,7 @@ export default function SelectCommunity({ route, navigation }) {
     try {
       await api.post(`/api/posts/comments/${postId}`, {
         commentText: newComment,
+        type: "P",
         userId: session.id,
       });
       setNewComment('');
@@ -246,7 +256,7 @@ export default function SelectCommunity({ route, navigation }) {
            value={newComment}
            onChangeText={setNewComment}
          />
-         <Button title="등록" onPress={handleCommentSubmit} />
+         <Button style={styles.buttonStyle} title="등록" onPress={handleCommentSubmit} />
        </View>
     </KeyboardAvoidingView>
       
@@ -308,9 +318,9 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 5,
+    padding: 7,
     marginRight: 5,
-    borderRadius: 5,
+    borderRadius: 2,
   }, 
   emptyContainer: {
     alignItems: 'center',
@@ -384,4 +394,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'left',
   },
+  buttonStyle: {
+    
+  }
 });
