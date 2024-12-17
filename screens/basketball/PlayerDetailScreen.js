@@ -26,7 +26,7 @@ export default function PlayerDetailScreen({ route }) {
     try {
       const response = await api.get(`/api/posts/comments/${player.id}`, {
         params: {
-          type: "N"
+          type: player.type
         },
       });
       setComments(response.data || []);
@@ -51,7 +51,7 @@ export default function PlayerDetailScreen({ route }) {
     try {
       await api.post(`/api/posts/comments/${player.id}`, {
         commentText: newComment,
-        type: "N",
+        type: player.type,
         userId: session.id,
       });
       setNewComment('');
@@ -145,15 +145,27 @@ export default function PlayerDetailScreen({ route }) {
                 source={{ uri: "https://via.placeholder.com/100" }}
                 style={styles.imageStyle}
             />
-            {/* <Text style={styles.teamName}>{teamName}</Text> */}
-            <Text style={styles.name}>{player.firstName} {player.lastName}</Text>
-            <Text style={styles.textStyle}>LAST ATTENDED : {player.college || 'N/A'}</Text>
-            <Text style={styles.textStyle}>COUNTRY : {player.country || 'N/A'}</Text>
-            <Text style={styles.textStyle}>DRAFT : {player.draftYear + " " + player.draftRound + " Pick " + player.draftNumber || 'N/A'}</Text>
-            <Text style={styles.textStyle}>POSITION : {player.position || 'N/A'}</Text>
-            <Text style={styles.textStyle}>HEIGHT : {convertHeightToMeters(player.height) + "m" || 'N/A'}</Text>
-            <Text style={styles.textStyle}>WEIGHT : {convertWeightToKg(player.weight) + "kg" || 'N/A'}</Text>
-            <Text style={styles.textStyle}>NUMBER : {player.jerseyNumber || 'N/A'}</Text>
+            {player.type === 'N' ? (
+              <>
+                <Text style={styles.name}>{player.firstName} {player.lastName}</Text>
+                <Text style={styles.textStyle}>LAST ATTENDED : {player.college || 'N/A'}</Text>
+                <Text style={styles.textStyle}>COUNTRY : {player.country || 'N/A'}</Text>
+                <Text style={styles.textStyle}>DRAFT : {player.draftYear + " " + player.draftRound + " Pick " + player.draftNumber || 'N/A'}</Text>
+                <Text style={styles.textStyle}>POSITION : {player.position || 'N/A'}</Text>
+                <Text style={styles.textStyle}>HEIGHT : {convertHeightToMeters(player.height) + "m" || 'N/A'}</Text>
+                <Text style={styles.textStyle}>WEIGHT : {convertWeightToKg(player.weight) + "kg" || 'N/A'}</Text>
+                <Text style={styles.textStyle}>NUMBER : {player.jerseyNumber || 'N/A'}</Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.name}>{player.firstName}</Text>
+                <Text style={styles.textStyle}>드래프트 : {player.draftYear + " " + player.draftRound + " Pick " + player.draftNumber || 'N/A'}</Text>
+                <Text style={styles.textStyle}>포지션 : {player.position || 'N/A'}</Text>
+                <Text style={styles.textStyle}>키 : {player.height || 'N/A'}</Text>
+                <Text style={styles.textStyle}>몸무게 : {player.weight || 'N/A'}</Text>
+                <Text style={styles.textStyle}>번호 : {player.jerseyNumber || 'N/A'}</Text>
+              </>
+            )}
           </View>
         }
         ListEmptyComponent={

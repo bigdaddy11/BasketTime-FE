@@ -33,11 +33,11 @@ export default function NBAScreen() {
         const fetchTeamsAndPlayers = async () => {
           try {
             // 팀 정보 가져오기
-            const teamsResponse = await api.get('/api/nba/teams');
+            const teamsResponse = await api.get('/api/teams/nba');
             setStandings(teamsResponse.data); // 데이터가 data 필드에 있다고 가정
 
             // 전체 플레이어 데이터 가져오기
-            const playersResponse = await api.get('/api/nba/players/all');
+            const playersResponse = await api.get('/api/players/nba');
               
             const allPlayers = playersResponse.data;
             // 팀별로 플레이어를 분류
