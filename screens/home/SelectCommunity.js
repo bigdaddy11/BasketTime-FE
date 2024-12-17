@@ -295,7 +295,8 @@ const styles = StyleSheet.create({
     flex:1,
     marginTop: 20,
     borderTopWidth: 10,
-    borderColor: "whitesmoke"
+    borderColor: "whitesmoke",
+    backgroundColor: '#f9f9f9', // 배경색(필요 시 수정)
   },
   commentHeader: {
     fontSize: 18,
