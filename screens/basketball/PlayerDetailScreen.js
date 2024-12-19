@@ -9,6 +9,7 @@ export default function PlayerDetailScreen({ route }) {
   const { player, teamName } = route.params;
   const [newComment, setNewComment] = useState(''); // 새로운 댓글 입력값
   const [comments, setComments] = useState([]);
+  const [draftInfo, setDraftInfo] = useState('');
 
   const [isModalVisible, setIsModalVisible] = useState(false); // 모달 상태
 
@@ -63,10 +64,21 @@ export default function PlayerDetailScreen({ route }) {
       Keyboard.dismiss();  // 키보드 닫기
     }
   };
+
+  // draft 정보가 모두 undefined일 경우 "-"로 설정
+  useEffect(() => {
+    if (!player.draftYear && !player.draftRound && !player.draftNumber) {
+      setDraftInfo('-');
+    } else {
+      const draftYear = player.draftYear || '';
+      const draftRound = player.draftRound ? `${player.draftRound}R` : '';
+      const draftNumber = player.draftNumber ? `${player.draftNumber}순위` : '';
+      setDraftInfo(`${draftYear} ${draftRound} ${draftNumber}`.trim());
+    }
+  }, [player]);
   
   useEffect(() => {
     fetchComments();
-
       const showListener = Keyboard.addListener('keyboardDidShow', () => {
         setKeyboardVisible(true);
       });
@@ -74,12 +86,12 @@ export default function PlayerDetailScreen({ route }) {
       const hideListener = Keyboard.addListener('keyboardDidHide', () => {
         setKeyboardVisible(false);
       });
-  
       return () => {
         
         showListener.remove();
         hideListener.remove();
       };
+      
     }, []);
 
   function convertHeightToMeters(height) {
@@ -148,18 +160,17 @@ export default function PlayerDetailScreen({ route }) {
             {player.type === 'N' ? (
               <>
                 <Text style={styles.name}>{player.firstName} {player.lastName}</Text>
-                <Text style={styles.textStyle}>LAST ATTENDED : {player.college || 'N/A'}</Text>
-                <Text style={styles.textStyle}>COUNTRY : {player.country || 'N/A'}</Text>
-                <Text style={styles.textStyle}>DRAFT : {player.draftYear + " " + player.draftRound + " Pick " + player.draftNumber || 'N/A'}</Text>
                 <Text style={styles.textStyle}>POSITION : {player.position || 'N/A'}</Text>
                 <Text style={styles.textStyle}>HEIGHT : {convertHeightToMeters(player.height) + "m" || 'N/A'}</Text>
                 <Text style={styles.textStyle}>WEIGHT : {convertWeightToKg(player.weight) + "kg" || 'N/A'}</Text>
                 <Text style={styles.textStyle}>NUMBER : {player.jerseyNumber || 'N/A'}</Text>
+                <Text style={styles.textStyle}>LAST ATTENDED : {player.college || 'N/A'}</Text>
+                <Text style={styles.textStyle}>COUNTRY : {player.country || 'N/A'}</Text>
               </>
             ) : (
               <>
                 <Text style={styles.name}>{player.firstName}</Text>
-                <Text style={styles.textStyle}>드래프트 : {player.draftYear + " " + player.draftRound + " Pick " + player.draftNumber || 'N/A'}</Text>
+                <Text style={styles.textStyle}>드래프트 : {draftInfo}</Text>
                 <Text style={styles.textStyle}>포지션 : {player.position || 'N/A'}</Text>
                 <Text style={styles.textStyle}>키 : {player.height || 'N/A'}</Text>
                 <Text style={styles.textStyle}>몸무게 : {player.weight || 'N/A'}</Text>

@@ -1,177 +1,173 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, RefreshControl } from 'react-native';
-import axios from 'axios';
-import ImagePath from '../common/ImagePath';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import api from '../common/api';
+import { useNavigation } from '@react-navigation/native';
 
 export default function KBLScreen() {
-    const navigation = useNavigation();
+  const navigation = useNavigation(); // 네비게이션 객체 생성
 
-    const [standings, setStandings] = useState([]);
-    const [selectedScreen, setSelectedScreen] = useState('East'); // 현재 선택된 화면 상태
-    const [selectedTeam, setSelectedTeam] = useState(null); // 현재 선택된 팀
-    const [players, setPlayers] = useState({});
+  const [teams, setTeams] = useState([]); // 팀 목록
+  const [players, setPlayers] = useState([]); // 전체 선수 목록
+  const [selectedTeam, setSelectedTeam] = useState(''); // 선택된 팀
+  const [filteredPlayers, setFilteredPlayers] = useState([]); // 선택된 팀의 선수 목록
 
-    const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-    const onRefresh = () => {
-      setRefreshing(true);
-      setTimeout(() => setRefreshing(false), 500); // 새로고침 로직 (예: 데이터 로드)
-    };
+  // 새로고침 로직
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchTeamsAndPlayers(); // 데이터 리로드
+    setTimeout(() => setRefreshing(false), 500);
+  };
 
-    const handlePlayerPress = (player, teamName) => {
-      // 선수 클릭 시, 선수의 데이터를 파라미터로 전달하며 상세 정보 화면으로 이동
-      navigation.navigate('PlayerDetail', { player, teamName });
-    };
+  // 데이터 가져오기
+  const fetchTeamsAndPlayers = async () => {
+    try {
+      const teamsResponse = await api.get('/api/teams/kbl');
+      const playersResponse = await api.get('/api/players/kbl');
 
-    function getPlayersByTeam(teamId, allPlayers) {
-      return allPlayers.filter((player) => player.teamId === teamId);
+      setTeams(teamsResponse.data);
+      setPlayers(playersResponse.data);
+
+      const initialTeamId = teamsResponse.data[0]?.id; // 최초 팀 ID
+      if (initialTeamId) {
+        setSelectedTeam(initialTeamId); // 최초 팀 설정
+        const initialPlayers = playersResponse.data.filter((player) => player.teamId === initialTeamId);
+        setFilteredPlayers(initialPlayers); // 초기 선수 데이터 설정
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
+  };
 
-    useEffect(() => {
-        const fetchTeamsAndPlayers = async () => {
-          try {
-            // 팀 정보 가져오기
-            const teamsResponse = await api.get('/api/teams/kbl');
-            setStandings(teamsResponse.data); // 데이터가 data 필드에 있다고 가정
+  // 팀 선택 시 선수 필터링
+  const handleTeamSelect = (teamId) => {
+    setSelectedTeam(teamId);
+    const filtered = players.filter((player) => player.teamId === teamId);
+    setFilteredPlayers(filtered);
+  };
 
-            // 전체 플레이어 데이터 가져오기
-            const playersResponse = await api.get('/api/players/kbl');
-              
-            const allPlayers = playersResponse.data;
-            // 팀별로 플레이어를 분류
-            const playersByTeam = {};
-            teamsResponse.data.forEach((team) => {
-              playersByTeam[team.id] = getPlayersByTeam(team.id, allPlayers);
-            });
-            
-            setPlayers(playersByTeam);
-          } catch (error) {
-            console.error(error);
-          }
-        };
-            fetchTeamsAndPlayers();
-        }, []);
+  useEffect(() => {
+    if (players.length > 0 && selectedTeam) {
+      const filtered = players.filter((player) => player.teamId === selectedTeam);
+      setFilteredPlayers(filtered);
+    }
+  }, [players, selectedTeam]);
 
-        // 팀을 클릭했을 때 선수 목록을 보여주는 함수
-        const handleTeamPress = (teamId) => {
-            setSelectedTeam(selectedTeam === teamId ? null : teamId);  // 이미 선택한 팀이면 닫기
-        };
+  useEffect(() => {
+    fetchTeamsAndPlayers();
+  }, []);
 
-    return (
-      <ScrollView style={styles.container}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-      <View>
-      {standings.map((item) => {
-      // 비교를 문자열로 변환하여 일관성 있게 처리
-      
-        return (
-          <TouchableOpacity 
-            key={item.id} 
-            style={{flex: 1, justifyContent: "center"}}
-            onPress={() => handleTeamPress(item.id)}
-          >
-            <View key={item.id + "-view"} style={styles.standingsItem}>
-              <Image 
-                source={ImagePath[item.fullName]} 
-                style={styles.logo}
-              />
-              <Text style={{fontSize: 16}}>{item.fullName}</Text>
+  return (
+    <View style={styles.container}>
+      {/* 콤보박스 영역 */}
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={selectedTeam}
+          onValueChange={(value) => handleTeamSelect(value)}
+          style={styles.picker}
+        >
+          {teams.map((team) => (
+            <Picker.Item key={team.id} label={team.fullName} value={team.id} />
+          ))}
+        </Picker>
+      </View>
+
+      {/* 선수 목록 출력 영역 */}
+      {selectedTeam ? (
+        <FlatList
+          data={filteredPlayers}
+          keyExtractor={(item) => item.id.toString()}
+          ListHeaderComponent={
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableCell, styles.headerCell]}>이름</Text>
+              <Text style={[styles.tableCell, styles.headerCell]}>넘버</Text>
+              <Text style={[styles.tableCell, styles.headerCell]}>포지션</Text>
+              <Text style={[styles.tableCell, styles.headerCell]}>키</Text>
+              <Text style={[styles.tableCell, styles.headerCell]}>몸무게</Text>
             </View>
-
-            {/* 선수 목록을 표시하는 부분 */}
-            {selectedTeam === item.id && (
-                <View style={styles.playersList}>
-                  {players[item.id] && players[item.id].length > 0 ? (
-                      players[item.id].map((player) => (
-                        <TouchableOpacity
-                          key={player.id} 
-                          onPress={() => handlePlayerPress(player, item.fullName)}
-                        >
-                          <View style={{ flexDirection: "row", padding: 5, alignItems: "center"}} key={player.id + "-view"} >
-                            <Image
-                              source={ImagePath["defaultIcon"]} 
-                              style={styles.playerlogo}
-                            />
-                            <Text style={styles.playerName}>
-                            {player.firstName} {player.lastName} 
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                        ))
-                      ) : (
-                        <Text>No players found for this team</Text>
-                    )}
-                  </View>
-                )}
-                    </TouchableOpacity>
-                  );
-                
-              })}
+          }
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('PlayerDetail', { player: item, teamName: teams.find((team) => team.id === selectedTeam)?.fullName })}
+            >
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCell}>{item.firstName} {item.lastName}</Text>
+                <Text style={styles.tableCell}>{item.jerseyNumber || 'N/A'}</Text>
+                <Text style={styles.tableCell}>{item.position || 'N/A'}</Text>
+                <Text style={styles.tableCell}>{item.height || 'N/A'}</Text>
+                <Text style={styles.tableCell}>{item.weight || 'N/A'}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        />
+      ) : (
+        <Text style={styles.placeholderText}>팀을 선택하면 선수가 표시됩니다.</Text>
+      )}
     </View>
-  </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    //flex: 1,
-    //padding: 20,
+    flex: 1,
     backgroundColor: 'white',
-  },
-  conference: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
     padding: 10,
-    borderBottomColor: "whitesmoke", 
-    borderBottomWidth: 1
   },
-  conferenceText: {
-    //marginRight: 0,
-    flexDirection: "row",
-    padding: 5,
-    //borderRightColor: "whitesmoke", 
-    //borderRightWidth: 1
+  pickerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    //backgroundColor: '#f0f0f0',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
   },
-  standingsItem: {
-    padding: 10,
-    //marginBottom: 15,
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomColor: "whitesmoke", 
-    borderBottomWidth: 1
-  },
-  logo: {
-      width: 90,
-      height: 60,
-      resizeMode: 'cover',
-      borderRadius: 30,
-      marginRight: 10,
-  },
-  playerlogo: {
-    width: 40,
-    height: 40,
-    resizeMode: 'cover',
-    borderRadius: 30,
+  label: {
+    fontSize: 14,
+    fontWeight: 'bold',
     marginRight: 10,
   },
-  smalllogo: {
-      width: 20,
-      height: 20,
-      resizeMode: 'cover',
-      borderRadius: 30,
-      marginRight: 3,
+  picker: {
+    flex: 1,
+    //backgroundColor: '#fff',
+    borderRadius: 5,
+    
   },
-  playersList: {
-    marginLeft: 40,
-    paddingBottom: 10,
-  },
-  playerName: {
+  placeholderText: {
+    textAlign: 'center',
     fontSize: 16,
-    paddingVertical: 2,
+    color: '#888',
+    marginTop: 20,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    paddingBottom: 5,
+    marginBottom: 5,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingVertical: 10,
+  },
+  tableCell: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 14,
+  },
+  tableLeftCell: {
+    flex: 1,
+    textAlign: 'left',
+    fontSize: 14,
+  },
+  headerCell: {
+    fontWeight: 'bold',
   },
 });
