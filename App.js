@@ -11,12 +11,12 @@ import { SessionProvider } from './contexts/SessionContext'; // Import the Sessi
 
 import HomeScreen from './screens/HomeScreen';
 import BasketballScreen from './screens/BasketballScreen';
-import MatchScreen from './screens/MatchScreen';
 import MyPageScreen from './screens/MyPageScreen';
 import PlayerDetailScreen from './screens/basketball/PlayerDetailScreen';
 import Login from './screens/mypage/Login';
 import MatchCreateScreen from './screens/match/MatchCreateScreen';
 import MapScreen from './screens/match/MapScreen';
+import DrawScreen from './screens/DrawScreen';
 import CreateCommunity from './screens/home/CreateCommunity';
 import SelectCommunity from './screens/home/SelectCommunity'; 
 import EditComment from './screens/home/EditComment';
@@ -46,7 +46,7 @@ function MainTabs() {
           iconName = 'home';
         } else if (route.name === 'Basketball') {
           iconName = 'sports-basketball';
-        } else if (route.name === 'Match') {
+        } else if (route.name === 'Draw') {
           iconName = 'search';
         } else if (route.name === 'MyPage') {
           iconName = 'emoji-people';
@@ -61,7 +61,7 @@ function MainTabs() {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: '홈', headerShown: false }} />
       <Tab.Screen name="Basketball" component={BasketballScreen} options={{ tabBarLabel: '프로농구', headerShown: false  }} />
-      <Tab.Screen name="Match" component={MapScreen} options={{ tabBarLabel: '경기매칭', headerShown: false  }} />
+      <Tab.Screen name="Draw" component={DrawScreen} options={{ tabBarLabel: 'Draw', headerShown: false  }} />
       <Tab.Screen name="MyPage" component={MyPageScreen} options={{ tabBarLabel: '마이페이지', headerShown: false  }} />
     </Tab.Navigator>
   );
