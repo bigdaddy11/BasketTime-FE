@@ -83,6 +83,7 @@ export default function DrawScreen() {
             <View style={styles.cardContent}>
               <Text style={styles.cardSubTitle}>{item.drawStyle}</Text>
               <Text style={styles.cardTitle}>{item.drawName}</Text>
+              <Text style={styles.cardSubTitle}>{item.price}</Text>
             </View>
           </TouchableOpacity>
         )}
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   cardSubTitle: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#555',
   },
   placeholderText: {
