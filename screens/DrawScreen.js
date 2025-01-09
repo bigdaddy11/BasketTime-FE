@@ -51,6 +51,17 @@ export default function DrawScreen() {
     }
   };
 
+  function getBrandName(type) {
+    switch (type) {
+      case 'N':
+        return 'Nike';
+      case 'NB':
+        return 'Newbalance';
+      default:
+        return 'Unknown';
+    }
+  }
+
   return (
     <View style={styles.container}>
       {/* 날짜 선택기 */}
@@ -81,7 +92,7 @@ export default function DrawScreen() {
           <TouchableOpacity style={styles.card} onPress={() => handleLinkPress(item.drawLink)}>
             <Image source={{ uri: item.imagePath || 'https://via.placeholder.com/80' }} style={styles.image} />
             <View style={styles.cardContent}>
-              <Text style={styles.cardSubTitle}>{item.drawStyle}</Text>
+              <Text style={styles.cardSubTitle}>{getBrandName(item.type)}</Text>
               <Text style={styles.cardTitle}>{item.drawName}</Text>
               <Text style={styles.cardSubTitle}>{item.price}</Text>
             </View>
