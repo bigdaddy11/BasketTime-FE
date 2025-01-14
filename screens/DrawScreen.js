@@ -57,6 +57,8 @@ export default function DrawScreen() {
         return 'Nike';
       case 'NB':
         return 'Newbalance';
+      case 'A':
+        return 'Asics';
       default:
         return 'Unknown';
     }
@@ -71,7 +73,7 @@ export default function DrawScreen() {
           onPress={() => setShowDatePicker(true)}
           activeOpacity={0.7}
         >
-          <Feather name="calendar" size={20} color="white" style={styles.icon} />
+          <Feather name="calendar" size={16} color="gray" style={styles.icon} />
           <Text style={styles.dateText}>{selectedDate.toISOString().split('T')[0]}</Text>
         </TouchableOpacity>
         {showDatePicker && (
@@ -126,19 +128,19 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    //borderWidth: 1,
+    borderBottomWidth: 1,
     borderColor: '#ddd',
-    //borderRadius: 8,
+    //borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    backgroundColor: '#1478CD',
+    //backgroundColor: '#1478CD',
   },
   icon: {
     marginRight: 8,
   },
   dateText: {
-    fontSize: 20,
-    color: "white"
+    fontSize: 16,
+    color: "gray"
   },
   card: {
     flexDirection: 'row',
@@ -150,8 +152,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   image: {
-    width: 80,
-    height: 80,
+    width: 100,
+    //height: 80,
+    //flex: 1,
     resizeMode: 'cover',
   },
   cardContent: {

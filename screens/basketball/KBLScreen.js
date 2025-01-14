@@ -123,9 +123,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     //backgroundColor: '#f0f0f0',
     marginBottom: 20,
-    borderWidth: 1,
+    borderBottomWidth: 1,
     borderColor: "#ddd",
-    borderRadius: 8,
+    //borderRadius: 5,
   },
   label: {
     fontSize: 14,
@@ -135,6 +135,7 @@ const styles = StyleSheet.create({
   picker: {
     flex: 1,
     //backgroundColor: '#fff',
+    color: 'gray',
     borderRadius: 5,
     
   },
@@ -148,7 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
-    paddingBottom: 5,
+    paddingBottom: 10,
     marginBottom: 5,
   },
   tableRow: {

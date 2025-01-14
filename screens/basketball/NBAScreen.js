@@ -152,9 +152,9 @@ const styles = StyleSheet.create({
   pickerContainer: {
     flexDirection: "row",
     alignItems: 'center',
-    borderWidth: 1,
+    borderBottomWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 8,
+    //borderRadius: 5,
     marginBottom: 20,
   },
   picker: {
@@ -165,13 +165,14 @@ const styles = StyleSheet.create({
   pickerTeam: {
     //height: 50,
     //margin: 5,
+    color: 'gray',
     flex: 2
   },
   tableHeader: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
-    paddingBottom: 5,
+    paddingBottom: 10,
   },
   tableRow: {
     flexDirection: 'row',
