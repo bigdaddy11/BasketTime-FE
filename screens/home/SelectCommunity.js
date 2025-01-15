@@ -23,7 +23,10 @@ export default function SelectCommunity({ route, navigation }) {
   const [post, setPost] = useState(null); // 게시글 데이터
   const [comments, setComments] = useState([]); // 댓글 데이터
   const [newComment, setNewComment] = useState(''); // 새로운 댓글 입력값
+  const [images, setImages] = useState([]); // 업로드할 이미지 목록
   const isAuthor = post?.userId === session?.id; // 글쓴이 여부 확인
+
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   useFocusEffect(
       React.useCallback(() => {
@@ -31,6 +34,23 @@ export default function SelectCommunity({ route, navigation }) {
       }, [])
     );
   // 게시글 및 카테고리 데이터를 가져오는 함수
+
+  useEffect(() => {
+    const showListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+
+    const hideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+    return () => {
+      
+      showListener.remove();
+      hideListener.remove();
+    };
+    
+  }, []);
+
   useEffect(() => {
     if (!postId) {
       Alert.alert('Error', '게시물 ID가 없습니다.');
@@ -44,6 +64,16 @@ export default function SelectCommunity({ route, navigation }) {
   const fetchPost = async () => {
     try {
       const response = await api.get(`/api/posts/${postId}`);
+
+      // baseURL 가져오기
+      const baseURL = api.defaults.baseURL;
+      //console.log(response.data);
+
+      // imagePaths를 정상적으로 처리하여 URI 목록으로 변환
+      const normalizedImages = (response.data.imagePaths || []).map((path) => ({
+        uri: `${baseURL}/${path.imagePaths}`, // 각 이미지 경로에 baseURL 추가
+      }));
+
       setPost(response.data);
       setTitle(response.data.title || '');
       setContent(response.data.content || '');
@@ -51,6 +81,7 @@ export default function SelectCommunity({ route, navigation }) {
       setNickName(response.data.nickName);
       setImagePath(response.data.image);
       setTimeAgo(response.data.timeAgo);
+      setImages(normalizedImages); // 치환된 이미지 경로 설정
     } catch (error) {
       console.error('Error fetching post:', error);
       Alert.alert('Error', '게시글을 불러오는 중 문제가 발생했습니다.');
@@ -166,7 +197,7 @@ export default function SelectCommunity({ route, navigation }) {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={80}
+      keyboardVerticalOffset={keyboardVisible ? 80 : 0} // 동적 오프셋 설정
     >
       {/* 화면 외부를 터치하면 키보드 닫기 */}
       <View style={{ flex: 1 }}>
@@ -195,6 +226,20 @@ export default function SelectCommunity({ route, navigation }) {
         {/* 제목과 내용 */}
         <Text style={styles.input} numberOfLines={1}>{title}</Text>
         <ScrollView style={{ flex: 1 }}>
+          {images.length > 0 && (
+          <FlatList
+            data={images}
+            horizontal={true} // 가로 스크롤 설정
+            contentContainerStyle={styles.imageListContainer} // 이미지 리스트에 대한 스타일
+            keyboardShouldPersistTaps="handled"
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item, index }) => (
+              <View style={styles.imageWrapper}>
+                <Image source={{ uri: item.uri }} style={styles.image} />
+              </View>
+            )}
+          />
+          )}
           <Text style={styles.inputMain}>{content}</Text>
         </ScrollView>
 
@@ -220,7 +265,7 @@ export default function SelectCommunity({ route, navigation }) {
           </View>
         </Modal>
       </View>
-          
+
       {/* 댓글 작성 영역 */}
       <View style={styles.commentSection}>
         {/* <Text style={styles.commentHeader}>댓글</Text> */}
@@ -283,7 +328,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingTop: 10,
     paddingBottom: 10,
-    paddingLeft: 10,
+    paddingLeft: 15,
     marginBottom: 2,
     height: "50%",
     flex: 1,
@@ -328,6 +373,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginVertical: 50,
     //paddingHorizontal: 10,
+    flex: 20
   },
   emptyText: {
     fontSize: 14,
@@ -397,5 +443,31 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     
-  }
+  },
+  imageWrapper: {
+    position: 'relative',
+    //padding: 10,
+    //marginRight: 10,
+    marginBottom: 10,
+  },
+  image: {
+    width: "330",
+    height: undefined,
+    aspectRatio: 1
+    //borderRadius: 5,
+  },
+  imageListContainer: {
+    flexDirection: 'column', // 이미지 리스트를 가로로 배치
+    alignItems: "center",
+    width: "auto",
+    //marginVertical: 10,
+    //alignItems: ""
+    flex: 1,
+    //padding: 10,
+  },
+  emptyImageText: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+  },
 });

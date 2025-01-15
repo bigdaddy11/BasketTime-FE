@@ -11,11 +11,10 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
-  SafeAreaView,
   Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker'; // 이미지 선택 라이브러리
+import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 import api from '../common/api';
 import { Picker } from '@react-native-picker/picker';
@@ -67,10 +66,20 @@ export default function CreateCommunity({ route, navigation }) {
       if (postId) {
         try {
           const response = await api.get(`/api/posts/${postId}`);
+          
+          // baseURL 가져오기
+          const baseURL = api.defaults.baseURL;
+          //console.log(response.data);
+
+           // imagePaths를 정상적으로 처리하여 URI 목록으로 변환
+          const normalizedImages = (response.data.imagePaths || []).map((path) => ({
+            uri: `${baseURL}/${path.imagePaths}`, // 각 이미지 경로에 baseURL 추가
+          }));
+
           setTitle(response.data.title);
           setContent(response.data.content);
           setSelectedCategory(response.data.categoryId);
-          setImages(response.data.imageMainPath || []); // 이미지 경로 배열 설정
+          setImages(normalizedImages); // 치환된 이미지 경로 설정
         } catch (error) {
           console.error('Error fetching post details:', error);
           Alert.alert('Error', '게시글 정보를 불러오는 중 문제가 발생했습니다.');
@@ -90,19 +99,30 @@ export default function CreateCommunity({ route, navigation }) {
   }, []);
 
   useEffect(() => {
-    console.log("image : " + images);
+    //console.log("image : " + images);
   }, [images]);
   
 
   const handleImagePick = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images, // 이미지만 선택
-      allowsEditing: true,
-      quality: 1,
-    });
+    try {
+      if (images.length >= 3) {
+        Alert.alert('Error', '이미지는 최대 3장까지 업로드 가능합니다.');
+        return; // 이미지 추가 방지
+      }
 
-    if (!result.canceled) {
-      setImages([...images, result.assets[0]]); // 선택한 이미지를 목록에 추가
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images, // 이미지만 선택
+        allowsEditing: true, // 선택한 이미지 편집 가능
+        quality: 1, // 이미지 품질
+      });
+  
+      if (!result.canceled) {
+        // 새로운 이미지 추가
+        setImages((prevImages) => [...prevImages, result.assets[0]]);
+      }
+
+    } catch (error) {
+      console.error('Error picking images:', error);
     }
   };
 
@@ -162,51 +182,52 @@ export default function CreateCommunity({ route, navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0} // iOS용 키보드 오프셋 조정
     >
-       <FlatList
-          data={images}
-          keyboardShouldPersistTaps="handled"
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => (
-            <View style={styles.imageWrapper}>
-              <Image source={{ uri: item.uri }} style={styles.image} />
-              <TouchableOpacity
-                style={styles.removeButton}
-                onPress={() => setImages(images.filter((_, i) => i !== index))}
-              >
-                <Text style={styles.removeText}>X</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          ListHeaderComponent={
-            <>
-              <Picker
-                selectedValue={SelectedCategory}
-                style={styles.picker}
-                onValueChange={(itemValue) => setSelectedCategory(itemValue)}
-              >
-                {categories.map((category) => (
-                  <Picker.Item key={category.id} label={category.name} value={category.id} />
-                ))}
-              </Picker>
-              <TextInput
-                style={styles.input}
-                placeholder="제목을 입력하세요"
-                value={title}
-                onChangeText={setTitle}
-              />
-            </>
-          }
-          ListFooterComponent={
-            <TextInput
-              style={styles.inputMain}
-              placeholder="내용을 입력하세요"
-              value={content}
-              onChangeText={setContent}
-              multiline
-              numberOfLines={20}
-            />
-          }
-        />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <Picker
+            selectedValue={SelectedCategory}
+            style={styles.picker}
+            onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+          >
+            {categories.map((category) => (
+              <Picker.Item key={category.id} label={category.name} value={category.id} />
+            ))}
+          </Picker>
+          <TextInput
+            style={styles.input}
+            placeholder="제목을 입력하세요"
+            value={title}
+            onChangeText={setTitle}
+          />
+        
+        <FlatList
+            data={images}
+            horizontal={true} // 가로 스크롤 설정
+            contentContainerStyle={styles.imageListContainer} // 이미지 리스트에 대한 스타일
+            keyboardShouldPersistTaps="handled"
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item, index }) => (
+              <View style={styles.imageWrapper}>
+                <Image source={{ uri: item.uri }} style={styles.image} />
+                <TouchableOpacity
+                  style={styles.removeButton}
+                  onPress={() => setImages(images.filter((_, i) => i !== index))}
+                >
+                  <Text style={styles.removeText}>  X  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+          <TextInput
+            style={styles.inputMain}
+            placeholder={'내용을 입력해주세요.\n이미지는 최대 3장까지 업로드 가능합니다.\n이미지 사이즈는 최대 10MB입니다.'}
+            value={content}
+            onChangeText={setContent}
+            multiline
+            numberOfLines={20}
+          />
+        </View>
+      </TouchableWithoutFeedback>
       {keyboardVisible && (
         <View style={styles.footer}>
             <TouchableOpacity style={styles.imageButton} onPress={handleImagePick}>
@@ -224,7 +245,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: '#fff',
-    flexGrow: 1
+    //flexDirection: "column"
+    //flexGrow: 1
+  },
+  container: {
+    flex: 1,
   },
   input: {
     //borderRadius: 5,
@@ -239,8 +264,8 @@ const styles = StyleSheet.create({
     //borderRadius: 5,
     padding: 10,
     marginBottom: 10,
-    height: "100%",
-    flex: 1,
+    minHeight: "auto",
+    flex: 20,
     textAlignVertical: 'top',
     fontSize: 14,
     //borderWidth: 1,
@@ -267,30 +292,32 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   imageContainer: {
-    flexDirection: 'column',
     marginBottom: 10,
+    
   },
   imageWrapper: {
     position: 'relative',
-    padding: 10,
+    //padding: 10,
+    marginRight: 10,
     marginBottom: 10,
   },
   image: {
-    width: '100%',
-    height: 200,
+    width: '100',
+    height: '100',
     //borderRadius: 5,
   },
   removeButton: {
     position: 'absolute',
-    top: 5,
-    right: 5,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    //borderRadius: 50,
-    padding: 5,
+    top: 0,
+    right: 0,
+    backgroundColor: 'black',
+    //borderRadius: 5,
+    padding: 2,
+
   },
   removeText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '100',
   },
   footer: {
     paddingVertical: 5,
@@ -298,9 +325,15 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     backgroundColor: '#fff',
     flexDirection: "row",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    //flex: 1
   },
   button: {
     width: 50
-  }
+  },
+  imageListContainer: {
+    //flexDirection: 'row', // 이미지 리스트를 가로로 배치
+    //marginVertical: 10,
+    //alignItems: ""
+  },
 });
