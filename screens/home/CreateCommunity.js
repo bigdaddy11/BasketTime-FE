@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
   View,
   TextInput,
-  Button,
   StyleSheet,
   Alert,
   Text,
@@ -42,6 +41,29 @@ export default function CreateCommunity({ route, navigation }) {
     }
   };
 
+  const fetchPostDetails = async () => {
+      try {
+        const response = await api.get(`/api/posts/${postId}`);
+        
+        // baseURL 가져오기
+        const baseURL = api.defaults.baseURL;
+        //console.log(response.data);
+
+         // imagePaths를 정상적으로 처리하여 URI 목록으로 변환
+        const normalizedImages = (response.data.imagePaths || []).map((path) => ({
+          uri: `${baseURL}/${path.imagePaths}`, // 각 이미지 경로에 baseURL 추가
+        }));
+
+        setTitle(response.data.title || '');
+        setContent(response.data.content || '');
+        setSelectedCategory(response.data.categoryId);
+        setImages(normalizedImages); // 치환된 이미지 경로 설정
+      } catch (error) {
+        console.error('Error fetching post details:', error);
+        Alert.alert('Error', '게시글 정보를 불러오는 중 문제가 발생했습니다.');
+      }
+  };
+
   // 서버에서 카테고리 목록 가져오기
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -62,34 +84,8 @@ export default function CreateCommunity({ route, navigation }) {
       }
     };
 
-    const fetchPostDetails = async () => {
-      if (postId) {
-        try {
-          const response = await api.get(`/api/posts/${postId}`);
-          
-          // baseURL 가져오기
-          const baseURL = api.defaults.baseURL;
-          //console.log(response.data);
-
-           // imagePaths를 정상적으로 처리하여 URI 목록으로 변환
-          const normalizedImages = (response.data.imagePaths || []).map((path) => ({
-            uri: `${baseURL}/${path.imagePaths}`, // 각 이미지 경로에 baseURL 추가
-          }));
-
-          setTitle(response.data.title);
-          setContent(response.data.content);
-          setSelectedCategory(response.data.categoryId);
-          setImages(normalizedImages); // 치환된 이미지 경로 설정
-        } catch (error) {
-          console.error('Error fetching post details:', error);
-          Alert.alert('Error', '게시글 정보를 불러오는 중 문제가 발생했습니다.');
-        }
-      }
-    };
-
     requestPermission();
     fetchCategories();
-    fetchPostDetails(); // postId가 있을 때만 실행
 
     return () => {
       showSubscription.remove();
@@ -99,9 +95,21 @@ export default function CreateCommunity({ route, navigation }) {
   }, []);
 
   useEffect(() => {
-    //console.log("image : " + images);
-  }, [images]);
-  
+    if (postId) {
+      fetchPostDetails();
+    }
+  }, [postId]);
+
+  useEffect(() => {
+    // 헤더 옵션 설정
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={handleSave} style={styles.headerButton}>
+          <Text style={styles.headerButtonText}>저장</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, handleSave, title, content, images]);
 
   const handleImagePick = async () => {
     try {
@@ -126,13 +134,12 @@ export default function CreateCommunity({ route, navigation }) {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!session || !session.id) {
       navigation.navigate('Login');
       return;
     }
-
-    if (!title || !content) {
+    if (!title.trim() || !content.trim()) {
       Alert.alert('Error', '제목과 내용을 입력하세요.');
       return;
     }
@@ -152,6 +159,8 @@ export default function CreateCommunity({ route, navigation }) {
           name: `image_${index}.jpg`,
         });
       });
+
+      console.log(images);
 
       let response;
       if (postId) {
@@ -174,7 +183,7 @@ export default function CreateCommunity({ route, navigation }) {
       console.error('Error saving post:', error);
       Alert.alert('Error', '서버와의 연결에 실패했습니다.');
     }
-  };
+  });
 
   return (
     <KeyboardAvoidingView
@@ -233,7 +242,7 @@ export default function CreateCommunity({ route, navigation }) {
             <TouchableOpacity style={styles.imageButton} onPress={handleImagePick}>
               <EvilIcons name="image" size={30} color="#aaa" styles={styles.imageButton}/>
             </TouchableOpacity>
-          <Button style={styles.button} title="저장" onPress={handleSave} />
+          {/* <Button style={styles.button} title="저장" onPress={handleSave} /> */}
         </View>
       )}
     </KeyboardAvoidingView>
@@ -335,5 +344,11 @@ const styles = StyleSheet.create({
     //flexDirection: 'row', // 이미지 리스트를 가로로 배치
     //marginVertical: 10,
     //alignItems: ""
+  },
+  headerButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'black',
+    marginRight: 20
   },
 });

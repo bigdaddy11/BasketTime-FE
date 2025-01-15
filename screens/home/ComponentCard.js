@@ -1,5 +1,5 @@
 import { StyleSheet, View, Image, Text, TouchableOpacity} from 'react-native';
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Fontisto } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 import api from '../common/api';
@@ -12,8 +12,26 @@ export function ComponentCard(jsonString){
   const [likeCount, setLikeCount] = useState(jsonString.message.likeCount || 0);
   const [isLiked, setIsLiked] = useState(jsonString.message.isLiked || false);
 
+  const [images, setImages] = useState(); // 업로드할 이미지 목록
+
   // 게시물 ID
   const relationId = jsonString.message.id;
+
+  useEffect(() => {
+      // baseURL 가져오기
+      const baseURL = api.defaults.baseURL;
+      const imagePath = jsonString.message.imageMainPath;
+
+      if (imagePath) {
+        const normalizedImage = {
+          uri: `${baseURL}/${imagePath.trim()}`, // baseURL과 imageMainPath를 결합
+        };
+    
+        setImages(normalizedImage); // 이미지 상태 설정
+      } else {
+        setImages(null); // 이미지가 없을 경우 빈 배열로 설정
+      }
+  },[]);
 
   // 조회수 업데이트 함수
   const updateViewCount = async () => {
@@ -77,9 +95,20 @@ export function ComponentCard(jsonString){
                     <Text style={styles.nickName}>{jsonString.message.nickName}</Text>
                 </View>
               </View>
-              <View style={{marginTop: 10}}>
-                <Text style={styles.bodyTitle} numberOfLines={1}>{jsonString.message.title}</Text>
-                <Text style={styles.bodyMain} numberOfLines={4}>{jsonString.message.content}</Text>
+              <View style={{ marginTop: 10, justifyContent: "space-between", flexDirection: "row", flex: 1, alignItems: "flex-start"}}>
+                <View style={{ flex: 3 }}>
+                  <Text style={styles.bodyTitle} numberOfLines={1}>{jsonString.message.title}</Text>
+                  <Text style={styles.bodyMain} numberOfLines={4}>{jsonString.message.content}</Text>
+                </View>
+                {images && ( // images가 null이 아닐 경우에만 렌더링
+                <View style={{ flex: 1, alignItems: "flex-end", marginRight: 10}}>
+                  <Image 
+                    source={{ uri: images.uri }} 
+                    style={styles.image} 
+                    //resizeMode="contain" // 이미지 원본 비율 유지
+                  />
+                </View>
+  )}
               </View>
           </TouchableOpacity>
           <View style={{padding: 10, flexDirection: "row", justifyContent: "space-around", paddingBottom: 10}}>
@@ -160,5 +189,11 @@ const styles = StyleSheet.create({
       marginTop: 1,
       fontSize: 11,
       color: '#999',
+    },
+    image: {
+      width: 80,  // 원하는 이미지 가로 크기
+      //height: 100,
+      aspectRatio: 1,
+      borderRadius: 8, // 이미지 모서리 둥글게
     },
 });
