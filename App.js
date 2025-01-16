@@ -20,6 +20,7 @@ import DrawScreen from './screens/DrawScreen';
 import CreateCommunity from './screens/home/CreateCommunity';
 import SelectCommunity from './screens/home/SelectCommunity'; 
 import EditComment from './screens/home/EditComment';
+import ImageEditor from './screens/common/ImageEditor';
 
 // Stack Navigator for each tab
 const Stack = createStackNavigator();
@@ -88,6 +89,7 @@ export default function App() {
           <Stack.Screen name="CreateCommunity" component={CreateCommunity} options={{ title: '글 작성' }} />
           <Stack.Screen name="SelectCommunity" component={SelectCommunity} options={{ title: '글 수정/조회' }} />
           <Stack.Screen name="EditComment" component={EditComment} options={{ title: '댓글 수정' }} />
+          <Stack.Screen name="ImageEditor" component={ImageEditor} />
         </Stack.Navigator>
       </NavigationContainer>
     </SessionProvider>

@@ -160,8 +160,6 @@ export default function CreateCommunity({ route, navigation }) {
         });
       });
 
-      console.log(images);
-
       let response;
       if (postId) {
         response = await api.put(`/api/posts/${postId}`, formData, {

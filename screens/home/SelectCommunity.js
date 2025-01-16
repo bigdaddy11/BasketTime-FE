@@ -97,6 +97,10 @@ export default function SelectCommunity({ route, navigation }) {
     navigation.navigate('CreateCommunity', { postId: post?.id }); // 게시물 수정 화면으로 이동
   };
 
+  const handleImagePress = (imageUri) => {
+    navigation.navigate('ImageEditor', { imageUri }); // 이미지 URI를 전달하며 ImageEditor로 이동
+  };
+
   const handleDeletePost = () => {
     setIsModalVisible(false); // 모달 닫기
     Alert.alert(
@@ -200,49 +204,8 @@ export default function SelectCommunity({ route, navigation }) {
       keyboardVerticalOffset={keyboardVisible ? 80 : 0} // 동적 오프셋 설정
     >
       {/* 화면 외부를 터치하면 키보드 닫기 */}
+      
       <View style={{ flex: 1 }}>
-      <View style={{ flexGrow: 1.5, flexShrink: 0 }}>
-        <View style={{ flexDirection: "row", alignItems: "center", marginTop: 5, justifyContent: "space-between" }}>
-          {/* 이미지와 정보 */}
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Image source={{ uri: imagePath }} style={styles.imageStyle} />
-            <View style={{ flexDirection: "column", justifyContent: "flex-start", alignItems: "flex-start" }}>
-              <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-                <Text style={styles.categoryinput}>{categoryName}</Text>
-                <Text style={styles.timeAgo}>{timeAgo}</Text>
-              </View>
-              <Text style={styles.nickName}>{nickName}</Text>
-            </View>
-          </View>
-
-          {/* 오른쪽 상단 ... 버튼 (작성자만 노출) */}
-          {isAuthor && (
-            <TouchableOpacity onPress={handleMoreOptions} style={{ padding: 10, marginTop: -20 }}>
-              <Feather name="more-horizontal" size={20} color="#999" />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* 제목과 내용 */}
-        <Text style={styles.input} numberOfLines={1}>{title}</Text>
-        <ScrollView style={{ flex: 1 }}>
-          {images.length > 0 && (
-          <FlatList
-            data={images}
-            horizontal={true} // 가로 스크롤 설정
-            contentContainerStyle={styles.imageListContainer} // 이미지 리스트에 대한 스타일
-            keyboardShouldPersistTaps="handled"
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item, index }) => (
-              <View style={styles.imageWrapper}>
-                <Image source={{ uri: item.uri }} style={styles.image} />
-              </View>
-            )}
-          />
-          )}
-          <Text style={styles.inputMain}>{content}</Text>
-        </ScrollView>
-
         {/* 수정/삭제 모달 */}
         <Modal
           transparent={true}
@@ -264,7 +227,7 @@ export default function SelectCommunity({ route, navigation }) {
             </TouchableOpacity>
           </View>
         </Modal>
-      </View>
+
 
       {/* 댓글 작성 영역 */}
       <View style={styles.commentSection}>
@@ -272,6 +235,47 @@ export default function SelectCommunity({ route, navigation }) {
         <FlatList
           data={comments}
           keyExtractor={(item) => item.id.toString()}
+          ListHeaderComponent={
+            <View>
+              {/* 이미지와 정보 */}
+              <View style={{ flexDirection: "row", alignItems: "center", marginTop: 5, justifyContent: "space-between" }}>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Image source={{ uri: imagePath }} style={styles.imageStyle} />
+                  <View style={{ flexDirection: "column", justifyContent: "flex-start", alignItems: "flex-start" }}>
+                    <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+                      <Text style={styles.categoryinput}>{categoryName}</Text>
+                      <Text style={styles.timeAgo}>{timeAgo}</Text>
+                    </View>
+                    <Text style={styles.nickName}>{nickName}</Text>
+                  </View>
+                </View>
+                {/* 오른쪽 상단 ... 버튼 */}
+                {isAuthor && (
+                  <TouchableOpacity onPress={handleMoreOptions} style={{ padding: 10, marginTop: -20 }}>
+                    <Feather name="more-horizontal" size={20} color="#999" />
+                  </TouchableOpacity>
+                )}
+              </View>
+        
+              {/* 제목 */}
+              <Text style={styles.input} numberOfLines={1}>{title}</Text>
+        
+              {/* 이미지 섹션 */}
+              {images.length > 0 && (
+                <View style={styles.imageListContainer}>
+                  {images.map((item, index) => (
+                    <TouchableOpacity key={index} onPress={() => handleImagePress(item.uri)}>
+                      <View style={styles.imageWrapper}>
+                        <Image source={{ uri: item.uri }} style={styles.image} />
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+              {/* 본문 */}
+              <Text style={styles.inputMain}>{content}</Text>
+            </View>
+          }
           renderItem={({ item }) => (
             <CommentItem
               nickName={item.nickName}
@@ -289,7 +293,6 @@ export default function SelectCommunity({ route, navigation }) {
               <Text style={styles.emptyText}>최초로 댓글을 작성해보세요.</Text>
             </View>
           }
-          //keyboardShouldPersistTaps="handled"
         />
       </View>
       </View>
@@ -330,18 +333,20 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingLeft: 15,
     marginBottom: 2,
+    borderBottomWidth: 10,
+    borderColor: "whitesmoke",
     height: "50%",
     flex: 1,
     textAlignVertical: 'top',  // 텍스트 상단 정렬
-    fontSize: 12,
+    fontSize: 14,
     flexWrap: 'wrap', // 텍스트 줄 바꿈 허용
   },
   commentSection: {
     flex:1,
-    marginTop: 20,
-    borderTopWidth: 10,
-    borderColor: "whitesmoke",
-    backgroundColor: '#f9f9f9', // 배경색(필요 시 수정)
+    //marginTop: 20,
+    //borderBottomWidth: 10,
+    borderColor: "white",
+    backgroundColor: 'white', // 배경색(필요 시 수정)
   },
   commentHeader: {
     fontSize: 18,
