@@ -31,7 +31,7 @@ export function Category({ onSelectCategory }) {
 
     // 컴포넌트 마운트 시 카테고리 데이터 로드
     useEffect(() => {
-       console.log(categories);
+       
     }, [categories]);
 
     const handleCategorySelect = (id) => {

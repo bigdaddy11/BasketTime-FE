@@ -14,6 +14,8 @@ export function ComponentCard(jsonString){
 
   const [images, setImages] = useState(); // 업로드할 이미지 목록
 
+  const [logoImage, setLogoImage] = useState(); // 로고 이미지
+
   // 게시물 ID
   const relationId = jsonString.message.id;
 
@@ -21,6 +23,7 @@ export function ComponentCard(jsonString){
       // baseURL 가져오기
       const baseURL = api.defaults.baseURL;
       const imagePath = jsonString.message.imageMainPath;
+      const logoImage = jsonString.message.image;
 
       if (imagePath) {
         const normalizedImage = {
@@ -30,6 +33,14 @@ export function ComponentCard(jsonString){
         setImages(normalizedImage); // 이미지 상태 설정
       } else {
         setImages(null); // 이미지가 없을 경우 빈 배열로 설정
+      }
+
+      if (logoImage) {
+        const logoChangeImage = `${baseURL}/${logoImage}`; // baseURL과 imageMainPath를 결합
+ 
+        setLogoImage(logoChangeImage); // 이미지 상태 설정
+      } else {
+        setLogoImage(null); // 이미지가 없을 경우 빈 배열로 설정
       }
   },[]);
 
@@ -84,7 +95,7 @@ export function ComponentCard(jsonString){
               onPress={handlePress}>
               <View style={{flexDirection: "row",  marginTop: 5, alignItems: "center"}}>
                 <Image 
-                  source={{ uri: 'https://picsum.photos/35/35' }} // 가로 200, 세로 300 크기의 랜덤 이미지
+                  source={{ uri: logoImage }} // 가로 200, 세로 300 크기의 랜덤 이미지
                   style={styles.BodyImage}
                 />
                 <View style={{flexDirection: "column"}}>

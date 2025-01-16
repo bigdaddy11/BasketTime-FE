@@ -24,6 +24,7 @@ export default function SelectCommunity({ route, navigation }) {
   const [comments, setComments] = useState([]); // 댓글 데이터
   const [newComment, setNewComment] = useState(''); // 새로운 댓글 입력값
   const [images, setImages] = useState([]); // 업로드할 이미지 목록
+  const [logoImage, setLogoImage] = useState(); // 로고 이미지
   const isAuthor = post?.userId === session?.id; // 글쓴이 여부 확인
 
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -73,6 +74,11 @@ export default function SelectCommunity({ route, navigation }) {
       const normalizedImages = (response.data.imagePaths || []).map((path) => ({
         uri: `${baseURL}/${path.imagePaths}`, // 각 이미지 경로에 baseURL 추가
       }));
+
+      //로고이미지 셋팅
+      const logoChangeImage = `${baseURL}/${response.data.image}`; // baseURL과 imageMainPath를 결합
+      
+      setLogoImage(logoChangeImage); // 이미지 상태 설정
 
       setPost(response.data);
       setTitle(response.data.title || '');
@@ -240,7 +246,7 @@ export default function SelectCommunity({ route, navigation }) {
               {/* 이미지와 정보 */}
               <View style={{ flexDirection: "row", alignItems: "center", marginTop: 5, justifyContent: "space-between" }}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Image source={{ uri: imagePath }} style={styles.imageStyle} />
+                  <Image source={{ uri: logoImage }} style={styles.imageStyle} />
                   <View style={{ flexDirection: "column", justifyContent: "flex-start", alignItems: "flex-start" }}>
                     <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
                       <Text style={styles.categoryinput}>{categoryName}</Text>
@@ -273,7 +279,9 @@ export default function SelectCommunity({ route, navigation }) {
                 </View>
               )}
               {/* 본문 */}
-              <Text style={styles.inputMain}>{content}</Text>
+              <View style={[styles.contentContainer, !images.length && { minHeight: 300 }]}>
+                <Text style={styles.inputMain}>{content}</Text>
+              </View>
             </View>
           }
           renderItem={({ item }) => (
@@ -322,10 +330,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingTop: 10,
     paddingBottom: 10,
-    paddingLeft: 10,
+    paddingLeft: 15,
     marginBottom: 2,
     fontSize: 24,
-    fontWeight: 600,
+    //fontWeight: 600,
   },
   inputMain: {
     borderRadius: 5,
@@ -335,7 +343,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     borderBottomWidth: 10,
     borderColor: "whitesmoke",
-    height: "50%",
+    //minHeight: "350",
     flex: 1,
     textAlignVertical: 'top',  // 텍스트 상단 정렬
     fontSize: 14,
@@ -378,7 +386,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginVertical: 50,
     //paddingHorizontal: 10,
-    flex: 20
+    flex: 1
   },
   emptyText: {
     fontSize: 14,
@@ -474,5 +482,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#999',
     textAlign: 'center',
+  },
+  contentContainer: {
+    flex: 1,
+    flexGrow: 1, // 본문이 남은 공간을 차지하도록 설정
+    minHeight: 0, // 이미지가 없을 경우 최소 높이
+    justifyContent: "flex-start",
   },
 });
