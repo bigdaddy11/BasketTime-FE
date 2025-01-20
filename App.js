@@ -43,7 +43,7 @@ function CustomHeader({ navigation }) {
         width: '100%',
 
       }}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFD73C" translucent={true} />
+      <StatusBar barStyle="dark-content" backgroundColor="white" translucent={true} />
       <View>
         <Text style={{ fontSize: 14}}>Basket Time</Text>
       </View>
@@ -51,7 +51,7 @@ function CustomHeader({ navigation }) {
       {route.name === 'Main' && (
       <View>
         <TouchableOpacity onPress={() => navigation.navigate('MessageCompose')}>
-          <FontAwesome name="paper-plane" size={20} color="black"/>
+          <FontAwesome name="paper-plane" size={20} color="#aaa"/>
         </TouchableOpacity>
       </View>
       )}
@@ -101,7 +101,7 @@ export default function App() {
               screenOptions={({ navigation }) => ({
                 headerTitle: () => <CustomHeader navigation={navigation} />, // navigation 전달
                 headerStyle: {
-                  backgroundColor: '#FFD73C',
+                  backgroundColor: 'white',
                   height: 50,
                 },
               })}

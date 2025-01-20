@@ -2,20 +2,26 @@ import React, { useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SessionContext } from '../contexts/SessionContext'; 
+import Constants from 'expo-constants';
 
 export default function MyPageScreen() {
   const navigation = useNavigation();
   const { session, logout } = useContext(SessionContext); // 세션 상태 가져오기
+   // 앱 버전을 안전하게 가져오기
+   const appVersion =
+   Constants.expoConfig?.version || // Expo의 EAS 환경
+   Constants.manifest?.version ||  // 로컬 개발 환경
+   '버전 정보 없음';               // Fallback
 
-  const userInfo = {
-    name: "허재현",
-    email: "zidir0070@naver.com"
-  };
+    const userInfo = {
+      name: "허재현",
+      email: "zidir0070@naver.com"
+    };
   
   const menuItems = [
     { id: '2', title: '쪽지함', routeName: "MessageInbox" },
     { id: '3', title: '문의하기', routeName: "ContactUs" },
-    { id: '4', title: '앱버전', version: 'v3.0.8', routeName: "Version" },
+    { id: '4', title: '앱버전', version: appVersion , routeName: "Version" },
     session
         ? { id: '5', title: '로그아웃', routeName: 'Logout' } // 세션이 있을 경우 로그아웃
         : { id: '1', title: '로그인', routeName: 'Login' }, // 세션이 없을 경우 로그인
@@ -27,6 +33,9 @@ export default function MyPageScreen() {
       logout(); // 세션 초기화
       navigation.navigate('Login'); // 홈 화면으로 이동
       //Alert.alert('로그아웃되었습니다.');
+      return;
+    } else if (item.routeName === 'Version'){
+      //console.log(Constants.manifest.version);
       return;
     }
     // 다른 메뉴로 이동
