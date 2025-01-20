@@ -154,7 +154,7 @@ export default function PlayerDetailScreen({ route }) {
         ListHeaderComponent={
           <View style={styles.containerView}>
             <Image
-                source={{ uri: "https://via.placeholder.com/100" }}
+                source={{ uri: player.imagePath }}
                 style={styles.imageStyle}
             />
             {player.type === 'N' ? (
@@ -258,11 +258,12 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   imageStyle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50, // 둥근 이미지(원형)
+    width: 140,
+    height: 200,
+    borderRadius: 20, // 둥근 이미지(원형)
     marginBottom: 10, // 이미지와 텍스트 사이 여백
     marginTop: 10,
+    //borderWidth: 1,
   },
   textStyle: {
     fontSize: 13,
