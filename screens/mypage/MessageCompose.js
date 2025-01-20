@@ -13,22 +13,44 @@ import {
 import api from '../common/api';
 import { SessionContext } from '../../contexts/SessionContext';
 
-export default function MessageCompose({ navigation }) {
+export default function MessageCompose({ navigation, route }) {
   const [recipient, setRecipient] = useState('');
   const [message, setMessage] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedRecipient, setSelectedRecipient] = useState(null);
   const { session } = useContext(SessionContext);
+  const { message: existingMessage } = route.params || {}; // 기존 메시지 파라미터
+
+  useEffect(() => {
+    if (existingMessage) {
+      // 메시지 파라미터가 존재하면 내용을 설정
+      setRecipient(existingMessage.nickName || '');
+      setMessage(existingMessage.content || '');
+      markMessageAsRead(existingMessage.id); // 메시지를 읽음 상태로 업데이트
+    }
+  }, [existingMessage]);
+
+  const markMessageAsRead = async (messageId) => {
+    if(!existingMessage.isRead){
+      try {
+        await api.put(`/api/paper-plan/${messageId}/read`); // 메시지를 읽음 상태로 업데이트
+        //console.log(`Message ${messageId} marked as read.`);
+      } catch (error) {
+        console.error('Error marking message as read:', error);
+        Alert.alert('Error', '메시지를 읽음 상태로 업데이트하는 중 문제가 발생했습니다.');
+      }
+    }
+  };
 
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={handleSendMessage} style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>전송</Text>
+        <TouchableOpacity onPress={existingMessage ? null : handleSendMessage} style={styles.headerButton}>
+          <Text style={styles.headerButtonText}>{existingMessage ? '' : '전송'}</Text>
         </TouchableOpacity>
       ),
     });
-  }, [navigation, selectedRecipient, message]);
+  }, [navigation, existingMessage, selectedRecipient, message]);
 
   const searchRecipients = async (query) => {
     if (!query.trim()) {
@@ -77,7 +99,7 @@ export default function MessageCompose({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>쪽지 보내기</Text>
+        <Text style={styles.label}>{existingMessage ? '' : '쪽지 보내기'}</Text>
         <TextInput
           style={styles.input}
           placeholder="받는 사람의 닉네임 입력"
@@ -86,6 +108,7 @@ export default function MessageCompose({ navigation }) {
             setRecipient(text);
             searchRecipients(text);
           }}
+          editable={!existingMessage} // 기존 메시지일 경우 수정 불가
         />
         {searchResults.length > 0 && (
           <FlatList
@@ -106,8 +129,10 @@ export default function MessageCompose({ navigation }) {
             style={styles.resultsContainer}
           />
         )}
-        {selectedRecipient && (
-          <Text style={styles.selectedRecipient}>받는 사람: {selectedRecipient.nickName}</Text>
+        {selectedRecipient && !existingMessage && (
+          <Text style={styles.selectedRecipient}>
+            받는 사람: {selectedRecipient.nickName}
+          </Text>
         )}
         <TextInput
           style={styles.textArea}
@@ -115,6 +140,7 @@ export default function MessageCompose({ navigation }) {
           value={message}
           onChangeText={setMessage}
           multiline
+          editable={!existingMessage} // 기존 메시지일 경우 수정 불가
         />
       </View>
     </KeyboardAvoidingView>

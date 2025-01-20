@@ -22,7 +22,8 @@ import CreateCommunity from './screens/home/CreateCommunity';
 import SelectCommunity from './screens/home/SelectCommunity'; 
 import EditComment from './screens/home/EditComment';
 import ImageEditor from './screens/common/ImageEditor';
-import MessageCompose from './screens/common/MessageCompose';
+import MessageCompose from './screens/mypage/MessageCompose';
+import MessageInbox from './screens/mypage/MessageInbox';
 
 // Stack Navigator for each tab
 const Stack = createStackNavigator();
@@ -104,6 +105,7 @@ export default function App() {
           <Stack.Screen name="EditComment" component={EditComment} options={{ title: '댓글 수정' }} />
           <Stack.Screen name="ImageEditor" component={ImageEditor} />
           <Stack.Screen name="MessageCompose" component={MessageCompose} options={{ title: '쪽지 쓰기' }} />
+          <Stack.Screen name="MessageInbox" component={MessageInbox} options={{ title: '쪽지함' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </SessionProvider>
