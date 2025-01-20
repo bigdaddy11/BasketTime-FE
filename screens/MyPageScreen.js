@@ -8,11 +8,11 @@ const userInfo = {
 };
 
 const menuItems = [
-  { id: '1', title: '로그인', routeName: "Login" },
+  
   { id: '2', title: '쪽지함', routeName: "MessageInbox" },
-  { id: '3', title: '문의하기', routeName: "Ask" },
+  { id: '3', title: '문의하기', routeName: "ContactUs" },
   { id: '4', title: '앱버전', version: 'v3.0.8', routeName: "Version" },
-
+  { id: '1', title: '로그인', routeName: "Login" },
 ];
 
 export default function MyPageScreen() {

@@ -41,9 +41,7 @@ export default function LoginScreen({ navigation }) {
         />
 
         {/* 설명 텍스트 */}
-        <Text style={styles.description}>
-            님. Basket Time 에 오신것을 환영합니다. 
-        </Text>
+        <Text style={styles.description}>Basket Time 에 오신것을 환영합니다</Text>
         
         {/* 구글 로그인 버튼 */}
         <TouchableOpacity 

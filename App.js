@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, View, Text, StatusBar, TouchableOpacity } from 'react-native';
+import { Image, View, Text, StatusBar, TouchableOpacity, Platform, SafeAreaView } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -24,6 +24,9 @@ import EditComment from './screens/home/EditComment';
 import ImageEditor from './screens/common/ImageEditor';
 import MessageCompose from './screens/mypage/MessageCompose';
 import MessageInbox from './screens/mypage/MessageInbox';
+import ContactUs from './screens/mypage/ContactUs';
+
+import { LoadingProvider } from './contexts/LoadingContext'; // 컨텍스트 가져오기
 
 // Stack Navigator for each tab
 const Stack = createStackNavigator();
@@ -33,7 +36,14 @@ const Tab = createBottomTabNavigator();
 function CustomHeader({ navigation }) {
   const route = useRoute(); // 현재 활성화된 화면 정보 가져오기
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between", width: '100%'}}>
+    <SafeAreaView style={{ 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: "space-between", 
+        width: '100%',
+
+      }}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFD73C" translucent={true} />
       <View>
         <Text style={{ fontSize: 14}}>Basket Time</Text>
       </View>
@@ -45,7 +55,7 @@ function CustomHeader({ navigation }) {
         </TouchableOpacity>
       </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -85,29 +95,31 @@ function MainTabs() {
 export default function App() {
   return (
     <SessionProvider>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
-      <NavigationContainer>
-        <Stack.Navigator
-            screenOptions={({ navigation }) => ({
-              headerTitle: () => <CustomHeader navigation={navigation} />, // navigation 전달
-              headerStyle: {
-                backgroundColor: '#FFD73C',
-                height: 70,
-              },
-            })}
-          >
-          <Stack.Screen name="Main" component={MainTabs} style={{  }} options={{ headerLeft: () => null }} />
-          <Stack.Screen name="PlayerDetail" component={PlayerDetailScreen} options={{ title: '선수 상세 정보' }} />
-          <Stack.Screen name="Login" component={Login} options={{ title: '로그인', headerLeft: () => null }} />
-          <Stack.Screen name="MatchCreateScreen" component={MatchCreateScreen} options={{ title: '경기매칭생성' }} />
-          <Stack.Screen name="CreateCommunity" component={CreateCommunity} options={{ title: '글 작성' }} />
-          <Stack.Screen name="SelectCommunity" component={SelectCommunity} options={{ title: '글 수정/조회' }} />
-          <Stack.Screen name="EditComment" component={EditComment} options={{ title: '댓글 수정' }} />
-          <Stack.Screen name="ImageEditor" component={ImageEditor} />
-          <Stack.Screen name="MessageCompose" component={MessageCompose} options={{ title: '쪽지 쓰기' }} />
-          <Stack.Screen name="MessageInbox" component={MessageInbox} options={{ title: '쪽지함' }} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <LoadingProvider> {/* LoadingProvider를 SessionProvider 내부에 중첩 */}
+        <NavigationContainer>
+          <Stack.Navigator
+              screenOptions={({ navigation }) => ({
+                headerTitle: () => <CustomHeader navigation={navigation} />, // navigation 전달
+                headerStyle: {
+                  backgroundColor: '#FFD73C',
+                  height: 50,
+                },
+              })}
+            >
+            <Stack.Screen name="Main" component={MainTabs} style={{  }} options={{ headerLeft: () => null }} />
+            <Stack.Screen name="PlayerDetail" component={PlayerDetailScreen} options={{ title: '선수 상세 정보' }} />
+            <Stack.Screen name="Login" component={Login} options={{ title: '로그인', headerLeft: () => null }} />
+            <Stack.Screen name="MatchCreateScreen" component={MatchCreateScreen} options={{ title: '경기매칭생성' }} />
+            <Stack.Screen name="CreateCommunity" component={CreateCommunity} options={{ title: '글 작성' }} />
+            <Stack.Screen name="SelectCommunity" component={SelectCommunity} options={{ title: '글 수정/조회' }} />
+            <Stack.Screen name="EditComment" component={EditComment} options={{ title: '댓글 수정' }} />
+            <Stack.Screen name="ImageEditor" component={ImageEditor} />
+            <Stack.Screen name="MessageCompose" component={MessageCompose} options={{ title: '쪽지 쓰기' }} />
+            <Stack.Screen name="MessageInbox" component={MessageInbox} options={{ title: '쪽지함' }} />
+            <Stack.Screen name="ContactUs" component={ContactUs} options={{ title: '문의하기' }} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </LoadingProvider>
     </SessionProvider>
   );
 }
