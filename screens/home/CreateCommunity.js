@@ -19,6 +19,7 @@ import api from '../common/api';
 import { Picker } from '@react-native-picker/picker';
 import { SessionContext } from '../../contexts/SessionContext';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
+import { useLoading } from '../../contexts/LoadingContext'; 
 
 export default function CreateCommunity({ route, navigation }) {
   const { postId } = route.params || {}; // postId를 받아옴
@@ -30,6 +31,7 @@ export default function CreateCommunity({ route, navigation }) {
   const [images, setImages] = useState([]); // 업로드할 이미지 목록
 
   const [keyboardVisible, setKeyboardVisible] = useState(false); // 키보드 상태
+  const { showLoading, hideLoading } = useLoading(); // 로딩 상태 함수 가져오기
 
   // useContext로 세션 정보 가져오기
   const { session } = useContext(SessionContext);
@@ -144,6 +146,8 @@ export default function CreateCommunity({ route, navigation }) {
       return;
     }
 
+    showLoading(); // 로딩 시작
+
     try {
       let formData = new FormData();
       formData.append('title', title);
@@ -180,6 +184,8 @@ export default function CreateCommunity({ route, navigation }) {
     } catch (error) {
       console.error('Error saving post:', error);
       Alert.alert('Error', '서버와의 연결에 실패했습니다.');
+    } finally {
+      hideLoading(); // 로딩 종료
     }
   });
 

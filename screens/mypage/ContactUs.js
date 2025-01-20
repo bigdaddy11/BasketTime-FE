@@ -64,7 +64,7 @@ export default function ContactUs({ navigation }) {
       Alert.alert('Error', '이메일 전송에 실패했습니다. 다시 시도해주세요.');
     } finally {
         hideLoading(); // 로딩 종료
-      }
+    }
   };
 
   return (
