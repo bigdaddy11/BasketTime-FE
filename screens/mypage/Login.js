@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext }  from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, BackHandler } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign'; // 구글 아이콘
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; // 네이버, 카카오 아이콘
 import * as Google from 'expo-auth-session/providers/google';  // Google OAuth 라이브러리 사용
@@ -7,6 +7,7 @@ import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import api from '../common/api';
 import { SessionContext } from '../../contexts/SessionContext';
+import { useFocusEffect } from '@react-navigation/native';
 
 // WebBrowser를 세션 관리에 사용
 WebBrowser.maybeCompleteAuthSession();
@@ -14,20 +15,35 @@ WebBrowser.maybeCompleteAuthSession();
 export default function LoginScreen({ navigation }) {
     const { login } = useContext(SessionContext);
 
+    // 뒤로가기 동작 막기
+    useFocusEffect(
+      React.useCallback(() => {
+        const onBackPress = () => {
+          return true; // 뒤로가기를 차단
+        };
+
+          BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+        return () => {
+          BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        };
+      }, [])
+    );
+    
     const handleGoogleLogin = async () => {
-      const user = { id: 1, name: 'John Doe', nickName: "휴직맨", role: 'user' };
+      const user = { id: 1, name: 'John Doe', nickName: "휴직맨", role: 'user', email : "zidir0070@gmail.com" };
       login(user); // Set the session
       navigation.navigate('Main'); // Redirect to Main
     };
 
     const handleNaverLogin = () => {
-      const user = { id: 2, name: 'NaverMan', nickName: "네이버맨", role: 'user' };
+      const user = { id: 2, name: 'NaverMan', nickName: "네이버맨", role: 'user', email : "zidir0070@naver.com"  };
       login(user); // Set the session
       navigation.navigate('Main'); // Redirect to Main
     };
 
     const handleKakaoLogin = () => {
-      const user = { id: 3, name: 'KaKaoMan', nickName: "카카오맨", role: 'user' };
+      const user = { id: 3, name: 'KaKaoMan', nickName: "카카오맨", role: 'user', email : "zidir0070@kakao.com"  };
       login(user); // Set the session
       navigation.navigate('Main'); // Redirect to Main
     };
