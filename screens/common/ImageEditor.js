@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Image, StyleSheet, TouchableOpacity, Text, Alert, Platform } from 'react-native';
+import { View, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { showToast } from './toast';
 
 export default function ImageViewer({ route, navigation }) {
   const { imageUri } = route.params;
@@ -12,7 +13,11 @@ export default function ImageViewer({ route, navigation }) {
       // 권한 요청
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('권한 필요', '이미지를 저장하려면 권한이 필요합니다.');
+        showToast({
+          type: 'info',
+          text1: '이미지를 저장하려면 권한이 필요합니다.',
+          position: 'bottom'
+        });
         return;
       }
 
@@ -26,10 +31,18 @@ export default function ImageViewer({ route, navigation }) {
       const { uri } = await downloadResumable.downloadAsync();
       const asset = await MediaLibrary.createAssetAsync(uri);
       await MediaLibrary.createAlbumAsync('Download', asset, false);
-      Alert.alert('다운로드 완료', '이미지가 갤러리에 저장되었습니다.');
+      showToast({
+        type: 'success',
+        text1: '이미지가 갤러리에 저장되었습니다.',
+        position: 'bottom'
+      });
     } catch (error) {
       console.error('Error downloading image:', error);
-      Alert.alert('다운로드 실패', '이미지 저장 중 문제가 발생했습니다.');
+      showToast({
+        type: 'error',
+        text1: '이미지 저장 중 문제가 발생했습니다.',
+        position: 'bottom'
+      });
     }
   };
 

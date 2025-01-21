@@ -4,6 +4,7 @@ import { Image, View, Text, StatusBar, TouchableOpacity, Platform, SafeAreaView 
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import Toast from 'react-native-toast-message'; // Import Toast
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -119,6 +120,7 @@ export default function App() {
             <Stack.Screen name="ContactUs" component={ContactUs} options={{ title: '문의하기' }} />
           </Stack.Navigator>
         </NavigationContainer>
+        <Toast />
       </LoadingProvider>
     </SessionProvider>
   );

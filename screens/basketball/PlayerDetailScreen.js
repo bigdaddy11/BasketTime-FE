@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import api from '../common/api';
 import { CommentItem } from '../home/CommentItem';
 import { SessionContext } from '../../contexts/SessionContext';
+import { showToast } from '../common/toast';
 
 export default function PlayerDetailScreen({ route }) {
   const { player, teamName } = route.params;
@@ -33,13 +34,21 @@ export default function PlayerDetailScreen({ route }) {
       setComments(response.data || []);
     } catch (error) {
       console.error('Error fetching comments:', error);
-      Alert.alert('Error', '댓글을 불러오는 중 문제가 발생했습니다.');
+      showToast({
+        type: 'error',
+        text1: '댓글을 불러오는 중 문제가 발생했습니다.',
+        position: 'bottom'
+      });
     }
   };
 
   const handleCommentSubmit = async () => {
     if (!newComment.trim()) {
-      Alert.alert('Error', '댓글 내용을 입력하세요.');
+      showToast({
+          type: 'error',
+          text1: '댓글 내용을 입력하세요.',
+          position: 'bottom'
+        });
       return;
     }
 
@@ -59,7 +68,11 @@ export default function PlayerDetailScreen({ route }) {
       fetchComments(); // 댓글 목록 갱신
     } catch (error) {
       console.error('Error submitting comment:', error);
-      Alert.alert('Error', '댓글을 작성하는 중 문제가 발생했습니다.');
+      showToast({
+        type: 'error',
+        text1: '댓글을 작성하는 중 문제가 발생했습니다.',
+        position: 'bottom'
+      });
     } finally {
       Keyboard.dismiss();  // 키보드 닫기
     }
@@ -118,11 +131,19 @@ export default function PlayerDetailScreen({ route }) {
           onPress: async () => {
             try {
               await api.delete(`/api/posts/comments/${id}`);
-              Alert.alert('삭제 완료', '댓글이 삭제되었습니다.');
+              showToast({
+                type: 'success',
+                text1: '댓글이 삭제되었습니다.',
+                position: 'bottom'
+              });
               fetchComments(); // 댓글 목록 재조회
             } catch (error) {
+              showToast({
+                type: 'error',
+                text1: '댓글 삭제 중 문제가 발생했습니다.',
+                position: 'bottom'
+              });
               console.error('Error deleting comment:', error);
-              Alert.alert('삭제 실패', '댓글 삭제 중 문제가 발생했습니다.');
             }
           },
         },

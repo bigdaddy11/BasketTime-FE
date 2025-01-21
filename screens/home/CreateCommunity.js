@@ -3,7 +3,6 @@ import {
   View,
   TextInput,
   StyleSheet,
-  Alert,
   Text,
   TouchableOpacity,
   Image,
@@ -20,6 +19,7 @@ import { Picker } from '@react-native-picker/picker';
 import { SessionContext } from '../../contexts/SessionContext';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import { useLoading } from '../../contexts/LoadingContext'; 
+import { showToast } from '../common/toast';
 
 export default function CreateCommunity({ route, navigation }) {
   const { postId } = route.params || {}; // postId를 받아옴
@@ -39,7 +39,11 @@ export default function CreateCommunity({ route, navigation }) {
   const requestPermission = async () => {
     const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
     if (status !== 'granted') {
-      alert('이미지 권한이 필요합니다.');
+      showToast({
+        type: 'error',
+        text1: '이미지 권한이 필요합니다.',
+        position: 'bottom'
+      });
     }
   };
 
@@ -62,7 +66,11 @@ export default function CreateCommunity({ route, navigation }) {
         setImages(normalizedImages); // 치환된 이미지 경로 설정
       } catch (error) {
         console.error('Error fetching post details:', error);
-        Alert.alert('Error', '게시글 정보를 불러오는 중 문제가 발생했습니다.');
+        showToast({
+          type: 'error',
+          text1: '게시글 정보를 불러오는 중 문제가 발생했습니다.',
+          position: 'bottom'
+        });
       }
   };
 
@@ -81,8 +89,12 @@ export default function CreateCommunity({ route, navigation }) {
         const response = await api.get('/api/category'); // 카테고리 데이터 가져오기
         setCategories(response.data); // 데이터 상태로 저장
       } catch (error) {
+        showToast({
+          type: 'error',
+          text1: '카테고리를 불러오는 중 문제가 발생했습니다.',
+          position: 'bottom'
+        });
         console.error('Error fetching categories:', error);
-        Alert.alert('Error', '카테고리를 불러오는 중 문제가 발생했습니다.');
       }
     };
 
@@ -116,7 +128,11 @@ export default function CreateCommunity({ route, navigation }) {
   const handleImagePick = async () => {
     try {
       if (images.length >= 3) {
-        Alert.alert('Error', '이미지는 최대 3장까지 업로드 가능합니다.');
+        showToast({
+          type: 'error',
+          text1: '이미지는 최대 3장까지 업로드 가능합니다.',
+          position: 'bottom'
+        });
         return; // 이미지 추가 방지
       }
 
@@ -142,7 +158,11 @@ export default function CreateCommunity({ route, navigation }) {
       return;
     }
     if (!title.trim() || !content.trim()) {
-      Alert.alert('Error', '제목과 내용을 입력하세요.');
+      showToast({
+        type: 'error',
+        text1: '제목과 내용을 입력하세요.',
+        position: 'bottom'
+      });
       return;
     }
 
@@ -176,14 +196,26 @@ export default function CreateCommunity({ route, navigation }) {
       }
 
       if (response.status === 201 || response.status === 200) {
-        Alert.alert('Success', '게시글이 저장되었습니다.');
+        showToast({
+          type: 'success',
+          text1: '게시글이 저장되었습니다.',
+          position: 'bottom'
+        });
         navigation.navigate('Main', { screen: 'Home', params: { refresh: true } });
       } else {
-        Alert.alert('Error', '게시글 저장에 실패했습니다.');
+        showToast({
+          type: 'error',
+          text1: '게시글 저장에 실패했습니다.',
+          position: 'bottom'
+        });
       }
     } catch (error) {
       console.error('Error saving post:', error);
-      Alert.alert('Error', '서버와의 연결에 실패했습니다.');
+      showToast({
+        type: 'error',
+        text1: '서버와의 연결에 실패했습니다.',
+        position: 'bottom'
+      });
     } finally {
       hideLoading(); // 로딩 종료
     }

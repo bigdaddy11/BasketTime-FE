@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext }  from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, BackHandler } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign'; // 구글 아이콘
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; // 네이버, 카카오 아이콘
 import * as Google from 'expo-auth-session/providers/google';  // Google OAuth 라이브러리 사용
@@ -8,6 +8,7 @@ import * as WebBrowser from 'expo-web-browser';
 import api from '../common/api';
 import { SessionContext } from '../../contexts/SessionContext';
 import { useFocusEffect } from '@react-navigation/native';
+import { showToast } from '../common/toast';
 
 // WebBrowser를 세션 관리에 사용
 WebBrowser.maybeCompleteAuthSession();

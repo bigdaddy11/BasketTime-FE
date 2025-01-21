@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   TextInput,
-  Button,
   StyleSheet,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Text,
@@ -12,6 +10,7 @@ import {
 } from 'react-native';
 import { useLoading } from '../../contexts/LoadingContext';
 import emailjs from 'emailjs-com';
+import { showToast } from '../common/toast';
 
 export default function ContactUs({ navigation }) {
   const [name, setName] = useState('');
@@ -31,7 +30,11 @@ export default function ContactUs({ navigation }) {
 
   const handleSendEmail = async () => {
     if (!name.trim() || !email.trim() || !message.trim()) {
-      Alert.alert('Error', '모든 필드를 입력해주세요.');
+      showToast({
+        type: 'error',
+        text1: '모든 필드를 입력해주세요.',
+        position: 'bottom'
+      });
       return;
     }
 
@@ -52,7 +55,11 @@ export default function ContactUs({ navigation }) {
       );
 
       if (result.status === 200) {
-        Alert.alert('Success', '문의가 성공적으로 전송되었습니다.');
+        showToast({
+          type: 'success',
+          text1: '문의가 성공적으로 전송되었습니다.',
+          position: 'bottom'
+        });
         setName('');
         setEmail('');
         setMessage('');
@@ -61,7 +68,11 @@ export default function ContactUs({ navigation }) {
       }
     } catch (error) {
       console.error('Error sending email:', error);
-      Alert.alert('Error', '이메일 전송에 실패했습니다. 다시 시도해주세요.');
+      showToast({
+        type: 'error',
+        text1: '이메일 전송에 실패했습니다. 다시 시도해주세요.',
+        position: 'bottom'
+      });
     } finally {
         hideLoading(); // 로딩 종료
     }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, TouchableOpacity, StyleSheet, Text, View, Image } from "react-native";
 import api from '../common/api';
+import { showToast } from '../common/toast';
 
 export function Category({ onSelectCategory }) {
     const [categories, setCategories] = useState([]);
@@ -20,7 +21,11 @@ export function Category({ onSelectCategory }) {
             setCategories(normalizedCategories); // 응답 데이터를 상태에 저장
         } catch (error) {
             console.error('Error fetching categories:', error);
-            Alert.alert('Error', '카테고리를 불러오는 중 문제가 발생했습니다.');
+            showToast({
+                type: 'error',
+                text1: '카테고리를 불러오는 중 문제가 발생했습니다.',
+                position: 'bottom'
+              });
         }
     };
 

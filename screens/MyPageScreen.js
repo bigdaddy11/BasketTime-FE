@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image,} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SessionContext } from '../contexts/SessionContext'; 
 import Constants from 'expo-constants';
+import { showToast } from './common/toast';
 
 export default function MyPageScreen() {
   const navigation = useNavigation();
@@ -31,8 +32,12 @@ export default function MyPageScreen() {
     if (item.routeName === 'Logout') {
       // 로그아웃 처리
       logout(); // 세션 초기화
+      showToast({
+        type: 'success',
+        text1: '로그아웃되었습니다.',
+        position: 'bottom'
+      });
       navigation.navigate('Login'); // 홈 화면으로 이동
-      //Alert.alert('로그아웃되었습니다.');
       return;
     } else if (item.routeName === 'Version'){
       //console.log(Constants.manifest.version);

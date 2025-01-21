@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
   View,
   TextInput,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Text,
@@ -12,6 +11,7 @@ import {
 } from 'react-native';
 import api from '../common/api';
 import { SessionContext } from '../../contexts/SessionContext';
+import { showToast } from '../common/toast';
 
 export default function MessageCompose({ navigation, route }) {
   const [recipient, setRecipient] = useState('');
@@ -34,10 +34,13 @@ export default function MessageCompose({ navigation, route }) {
     if(!existingMessage.isRead){
       try {
         await api.put(`/api/paper-plan/${messageId}/read`); // 메시지를 읽음 상태로 업데이트
-        //console.log(`Message ${messageId} marked as read.`);
       } catch (error) {
         console.error('Error marking message as read:', error);
-        Alert.alert('Error', '메시지를 읽음 상태로 업데이트하는 중 문제가 발생했습니다.');
+        showToast({
+          type: 'error',
+          text1: '메시지를 읽음 상태로 업데이트하는 중 문제가 발생했습니다.',
+          position: 'bottom'
+        });
       }
     }
   };
@@ -62,7 +65,11 @@ export default function MessageCompose({ navigation, route }) {
       setSearchResults(response.data);
     } catch (error) {
       console.error('Error searching recipients:', error);
-      Alert.alert('Error', '사용자 검색 중 문제가 발생했습니다.');
+      showToast({
+        type: 'error',
+        text1: '사용자 검색 중 문제가 발생했습니다.',
+        position: 'bottom'
+      });
     }
   };
 
@@ -72,7 +79,11 @@ export default function MessageCompose({ navigation, route }) {
       return;
     }
     if (!selectedRecipient || !message.trim()) {
-      Alert.alert('Error', '받는 사람과 쪽지 내용을 확인해주세요.');
+      showToast({
+        type: 'error',
+        text1: '받는 사람과 쪽지 내용을 확인해주세요.',
+        position: 'bottom'
+      });
       return;
     }
     try {
@@ -82,14 +93,22 @@ export default function MessageCompose({ navigation, route }) {
         content: message,
       });
       if (response.status === 200) {
-        Alert.alert('Success', '쪽지가 성공적으로 전송되었습니다.');
+        showToast({
+          type: 'success',
+          text1: '쪽지가 성공적으로 전송되었습니다.',
+          position: 'bottom'
+        });
         navigation.goBack();
       } else {
         throw new Error('쪽지 전송 실패');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      Alert.alert('Error', '쪽지 전송에 실패했습니다. 다시 시도해주세요.');
+      showToast({
+        type: 'error',
+        text1: '쪽지 전송에 실패했습니다. 다시 시도해주세요.',
+        position: 'bottom'
+      });
     }
   }, [session, selectedRecipient, message]);
 

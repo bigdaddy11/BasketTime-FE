@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet, Alert, Text } from 'react-native';
 import api from '../common/api';
+import { showToast } from '../common/toast';
 
 export default function EditComment({ route, navigation}) {
   const { commentId, content, onEdit } = route.params;
@@ -20,11 +21,19 @@ export default function EditComment({ route, navigation}) {
           onPress: async () => {
             try {
               await api.put(`/api/posts/comments/${id}`, { commentText: editedContent });
-              Alert.alert('수정 완료', '댓글이 수정되었습니다.');
+              showToast({
+                type: 'success',
+                text1: '댓글이 수정되었습니다.',
+                position: 'bottom'
+              });
               navigation.goBack(); // 이전 화면으로 돌아가기
             } catch (error) {
               console.error('Error editing comment:', error);
-              Alert.alert('수정 실패', '댓글 수정 중 문제가 발생했습니다.');
+              showToast({
+                type: 'error',
+                text1: '댓글 수정 중 문제가 발생했습니다.',
+                position: 'bottom'
+              });
             }
           },
         },

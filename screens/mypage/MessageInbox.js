@@ -9,6 +9,7 @@ import {
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import api from '../common/api';
 import { SessionContext } from '../../contexts/SessionContext';
+import { showToast } from '../common/toast';
 
 export default function MessageInbox({ navigation }) {
   const [sentMessages, setSentMessages] = useState([]); // 보낸 쪽지 데이터
@@ -37,7 +38,11 @@ export default function MessageInbox({ navigation }) {
       setReceivedMessages(receivedResponse.data);
     } catch (error) {
       console.error('Error fetching messages:', error);
-      Alert.alert('Error', '쪽지를 불러오는 중 문제가 발생했습니다.');
+      showToast({
+        type: 'error',
+        text1: '쪽지를 불러오는 중 문제가 발생했습니다.',
+        position: 'bottom'
+      });
     }
   };
 

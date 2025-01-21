@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, RefreshControl, Alert, Linking } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, RefreshControl, Linking } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Feather from '@expo/vector-icons/Feather'; // Feather 아이콘 임포트
 import api from './common/api';
+import { showToast } from './common/toast';
 
 export default function DrawScreen() {
   const [drawData, setDrawData] = useState([]); // Draw 테이블 데이터
@@ -18,7 +19,11 @@ export default function DrawScreen() {
       setDrawData(response.data || []);
     } catch (error) {
       console.error('Error fetching draw data:', error);
-      Alert.alert('Error', '데이터를 가져오는 중 문제가 발생했습니다.');
+      showToast({
+        type: 'error',
+        text1: '데이터를 가져오는 중 문제가 발생했습니다.',
+        position: 'bottom'
+      });
     }
   };
 
@@ -47,7 +52,11 @@ export default function DrawScreen() {
     if (url && url.trim()) {
       Linking.openURL(url).catch((err) => console.error('Error opening URL:', err));
     } else {
-      Alert.alert('오류', '유효하지 않은 링크입니다.');
+      showToast({
+        type: 'error',
+        text1: '유효하지 않은 링크입니다.',
+        position: 'bottom'
+      });
     }
   };
 

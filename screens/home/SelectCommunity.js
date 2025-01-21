@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import api from '../common/api';
 import { SessionContext } from '../../contexts/SessionContext';
 import { CommentItem } from './CommentItem'; // 분리된 컴포넌트 불러오기
+import { showToast } from '../common/toast';
 
 import Feather from '@expo/vector-icons/Feather';
 
@@ -54,7 +55,11 @@ export default function SelectCommunity({ route, navigation }) {
 
   useEffect(() => {
     if (!postId) {
-      Alert.alert('Error', '게시물 ID가 없습니다.');
+      showToast({
+        type: 'error',
+        text1: '게시물 ID가 없습니다.',
+        position: 'bottom'
+      });
       navigation.goBack();
       return;
     }
@@ -90,7 +95,11 @@ export default function SelectCommunity({ route, navigation }) {
       setImages(normalizedImages); // 치환된 이미지 경로 설정
     } catch (error) {
       console.error('Error fetching post:', error);
-      Alert.alert('Error', '게시글을 불러오는 중 문제가 발생했습니다.');
+      showToast({
+        type: 'error',
+        text1: '게시글을 불러오는 중 문제가 발생했습니다.',
+        position: 'bottom'
+      });
     }
   };
 
@@ -119,14 +128,22 @@ export default function SelectCommunity({ route, navigation }) {
           onPress: async () => {
             try {
               await api.delete(`/api/posts/${post?.id}`);
-              Alert.alert('삭제 완료', '게시물이 삭제되었습니다.');
+              showToast({
+                type: 'success',
+                text1: '게시물이 삭제되었습니다.',
+                position: 'bottom'
+              });
               navigation.navigate('Main', {
                 screen: 'Home',
                 params: { refresh: true },
               });
             } catch (error) {
               console.error('Error deleting post:', error);
-              Alert.alert('삭제 실패', '게시물 삭제 중 문제가 발생했습니다.');
+              showToast({
+                type: 'error',
+                text1: '게시물 삭제 중 문제가 발생했습니다.',
+                position: 'bottom'
+              });
             }
           },
         },
@@ -144,14 +161,22 @@ export default function SelectCommunity({ route, navigation }) {
       setComments(response.data || []);
     } catch (error) {
       console.error('Error fetching comments:', error);
-      Alert.alert('Error', '댓글을 불러오는 중 문제가 발생했습니다.');
+      showToast({
+        type: 'error',
+        text1: '댓글을 불러오는 중 문제가 발생했습니다.',
+        position: 'bottom'
+      });
     }
   };
 
   // 댓글 작성 함수
   const handleCommentSubmit = async () => {
     if (!newComment.trim()) {
-      Alert.alert('Error', '댓글 내용을 입력하세요.');
+      showToast({
+        type: 'error',
+        text1: '댓글 내용을 입력하세요.',
+        position: 'bottom'
+      });
       return;
     }
 
@@ -171,7 +196,11 @@ export default function SelectCommunity({ route, navigation }) {
       fetchComments(); // 댓글 목록 갱신
     } catch (error) {
       console.error('Error submitting comment:', error);
-      Alert.alert('Error', '댓글을 작성하는 중 문제가 발생했습니다.');
+      showToast({
+        type: 'error',
+        text1: '댓글을 작성하는 중 문제가 발생했습니다.',
+        position: 'bottom'
+      });
     } finally {
       Keyboard.dismiss();  // 키보드 닫기
     }
@@ -190,11 +219,19 @@ export default function SelectCommunity({ route, navigation }) {
           onPress: async () => {
             try {
               await api.delete(`/api/posts/comments/${id}`);
-              Alert.alert('삭제 완료', '댓글이 삭제되었습니다.');
+              showToast({
+                type: 'success',
+                text1: '댓글이 삭제되었습니다.',
+                position: 'bottom'
+              });
               fetchComments(); // 댓글 목록 재조회
             } catch (error) {
               console.error('Error deleting comment:', error);
-              Alert.alert('삭제 실패', '댓글 삭제 중 문제가 발생했습니다.');
+              showToast({
+                type: 'error',
+                text1: '댓글 삭제 중 문제가 발생했습니다.',
+                position: 'bottom'
+              });
             }
           },
         },
