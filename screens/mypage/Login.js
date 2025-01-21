@@ -16,6 +16,37 @@ WebBrowser.maybeCompleteAuthSession();
 export default function LoginScreen({ navigation }) {
     const { login } = useContext(SessionContext);
 
+    const [request, response, promptAsync] = Google.useAuthRequest({
+      clientId: '94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com', // Google OAuth 클라이언트 ID
+      redirectUri: 'https://auth.expo.io/@jaehyunheo/baskettime', // Expo Redirect URI
+      scopes: ['openid', 'profile', 'email'], // 권한 범위
+    });
+
+    useEffect(() => {
+      if (response?.type === 'success') {
+        const { access_token } = response.params;
+  
+        // Google API로 사용자 정보 가져오기
+        fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${access_token}` },
+        })
+          .then((res) => res.json())
+          .then((user) => {
+            login({
+              id: user.sub,
+              name: user.name,
+              email: user.email,
+              picture: user.picture,
+            });
+            navigation.navigate('Main'); // 메인 화면으로 이동
+          })
+          .catch((error) => {
+            console.error('Error fetching user info:', error);
+            Alert.alert('Error', '사용자 정보를 가져오는 중 문제가 발생했습니다.');
+          });
+      }
+    }, [response]);
+
     // 뒤로가기 동작 막기
     useFocusEffect(
       React.useCallback(() => {
@@ -30,7 +61,14 @@ export default function LoginScreen({ navigation }) {
         };
       }, [])
     );
-    
+    const handleGoogleOauth2 = async () => {
+      if (request) {
+        await promptAsync();
+      } else {
+        Alert.alert('Error', 'Google OAuth 요청이 초기화되지 않았습니다.');
+      }
+    };
+
     const handleGoogleLogin = async () => {
       const user = { id: 1, name: 'John Doe', nickName: "휴직맨", role: 'user', email : "zidir0070@gmail.com" };
       login(user); // Set the session
@@ -59,8 +97,20 @@ export default function LoginScreen({ navigation }) {
 
         {/* 설명 텍스트 */}
         <Text style={styles.description}>Basket Time 에 오신것을 환영합니다</Text>
-        
+
+        {/* 구글 Oauth2 버튼 */}
+        <TouchableOpacity 
+            style={[styles.loginButton, styles.googleButton]} 
+            title="Login with Google"
+            onPress={handleGoogleOauth2}
+        >
+            <View style={styles.iconAndTextContainer}>
+                <AntDesign name="google" size={24} color="#fff" style={styles.iconLayout}/>
+                <Text style={styles.loginButtonText}>구글 Oauth2 로그인</Text>
+            </View>
+        </TouchableOpacity>
         {/* 구글 로그인 버튼 */}
+
         <TouchableOpacity 
             style={[styles.loginButton, styles.googleButton]} 
             title="Login with Google"
