@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Toast from 'react-native-toast-message'; // Import Toast
 
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRoute } from '@react-navigation/native';
@@ -52,7 +53,8 @@ function CustomHeader({ navigation }) {
       {route.name === 'Main' && (
       <View>
         <TouchableOpacity onPress={() => navigation.navigate('MessageCompose')}>
-          <FontAwesome name="paper-plane" size={20} color="#aaa"/>
+          <SimpleLineIcons name="envelope-letter" size={22} color="#aaa" />
+          {/* <EvilIcons name="envelope" size={30} color="#aaa"/> */}
         </TouchableOpacity>
       </View>
       )}

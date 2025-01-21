@@ -100,7 +100,7 @@ export default function NBAScreen() {
         keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={
           <View style={styles.tableHeader}>
-            <Text style={[styles.tableCell, styles.headerCell]}>이름</Text>
+            <Text style={[styles.tableLeftCell, styles.headerCell]}>이름</Text>
             <Text style={[styles.tableCell, styles.headerCell]}>넘버</Text>
             <Text style={[styles.tableCell, styles.headerCell]}>포지션</Text>
             <Text style={[styles.tableCell, styles.headerCell]}>키</Text>
@@ -112,7 +112,7 @@ export default function NBAScreen() {
             onPress={() => navigation.navigate('PlayerDetail', { player: item, teamName: teams.find((team) => team.id === selectedTeam)?.fullName })}
           >
             <View style={styles.tableRow}>
-              <Text style={styles.tableCell}>{item.firstName} {item.lastName}</Text>
+              <Text style={styles.tableLeftCell}>{item.firstName} {item.lastName}</Text>
               <Text style={styles.tableCell}>{item.jerseyNumber || 'N/A'}</Text>
               <Text style={styles.tableCell}>{item.position || 'N/A'}</Text>
               <Text style={styles.tableCell}>{convertHeightToMeters(item.height) + "m" || 'N/A'}</Text>
@@ -187,5 +187,10 @@ const styles = StyleSheet.create({
   },
   headerCell: {
     fontWeight: 'bold',
+  },
+  tableLeftCell: {
+    flex: 1,
+    textAlign: 'left',
+    fontSize: 14,
   },
 });
