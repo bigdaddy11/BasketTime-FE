@@ -19,7 +19,8 @@ export default function LoginScreen({ navigation }) {
     const [request, response, promptAsync] = Google.useAuthRequest({
       clientId: '94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com', // Google OAuth 클라이언트 ID
       redirectUri: 'https://auth.expo.io/@jaehyunheo/baskettime', // Expo Redirect URI
-      scopes: ['openid', 'profile', 'email'], // 권한 범위
+      clientSecret: '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',
+      scopes: ['profile', 'email'], // 권한 범위
     });
 
     useEffect(() => {
@@ -46,6 +47,11 @@ export default function LoginScreen({ navigation }) {
           });
       }
     }, [response]);
+
+    useEffect(() => {
+      console.log(request);
+    }, [request]);
+    
 
     // 뒤로가기 동작 막기
     useFocusEffect(
@@ -106,7 +112,7 @@ export default function LoginScreen({ navigation }) {
         >
             <View style={styles.iconAndTextContainer}>
                 <AntDesign name="google" size={24} color="#fff" style={styles.iconLayout}/>
-                <Text style={styles.loginButtonText}>구글 Oauth2 로그인</Text>
+                <Text style={styles.loginButtonText}>구글 Oauth222 로그인</Text>
             </View>
         </TouchableOpacity>
         {/* 구글 로그인 버튼 */}
