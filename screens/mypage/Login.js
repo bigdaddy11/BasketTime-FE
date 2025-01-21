@@ -13,19 +13,28 @@ import { showToast } from '../common/toast';
 // WebBrowser를 세션 관리에 사용
 WebBrowser.maybeCompleteAuthSession();
 
+// 네이버 OAuth 설정
+const NAVER_CLIENT_ID = 'ga77hLU_or0jQByJZdPu';
+const NAVER_CLIENT_SECRET = '3iLqTQAK68';
+//const REDIRECT_URI = AuthSession.makeRedirectUri({ useProxy: true });
+const REDIRECT_URI = 'https://auth.expo.io/@jaehyunheo/baskettime';
+const STATE = Math.random().toString(36).substring(2, 15); // 상태 토큰 생성
+
+const authUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&state=${STATE}`;
+
 export default function LoginScreen({ navigation }) {
     const { login } = useContext(SessionContext);
 
     const [request, response, promptAsync] = Google.useAuthRequest({
       clientId: '94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com', // Google OAuth 클라이언트 ID
-      //redirectUri: 'https://auth.expo.io/@jaehyunheo/baskettime', // Expo Redirect URI
+      redirectUri: 'https://auth.expo.io/@jaehyunheo/baskettime', // Expo Redirect URI
       //clientSecret: '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',
-      redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
+      //redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
       scopes: ['profile', 'email'], // 권한 범위
     });
 
     useEffect(() => {
-      console.log(response);
+      //console.log(response);
       if (response?.type === 'success') {
         
         const { access_token } = response.params;
@@ -52,7 +61,7 @@ export default function LoginScreen({ navigation }) {
     }, [response]);
 
     useEffect(() => {
-      console.log(request);
+      //console.log(request);
     }, [request]);
     
 
@@ -82,6 +91,19 @@ export default function LoginScreen({ navigation }) {
       const user = { id: 1, name: 'John Doe', nickName: "휴직맨", role: 'user', email : "zidir0070@gmail.com" };
       login(user); // Set the session
       navigation.navigate('Main'); // Redirect to Main
+    };
+
+    const handleNaverOauth2 = async () => {
+      // 인증 프로세스 시작
+      const result = await AuthSession.startAsync({ authUrl });
+      console.log(result);
+
+      if (result.type === 'success') {
+        const { code } = result.params;
+        fetchAccessToken(code);
+      } else {
+        Alert.alert('로그인 취소됨', '네이버 로그인이 취소되었습니다.');
+      }
     };
 
     const handleNaverLogin = () => {
@@ -115,7 +137,7 @@ export default function LoginScreen({ navigation }) {
         >
             <View style={styles.iconAndTextContainer}>
                 <AntDesign name="google" size={24} color="#fff" style={styles.iconLayout}/>
-                <Text style={styles.loginButtonText}>구글 Oauth222 로그인</Text>
+                <Text style={styles.loginButtonText}>구글 Oauth 로그인</Text>
             </View>
         </TouchableOpacity>
         {/* 구글 로그인 버튼 */}
@@ -136,6 +158,14 @@ export default function LoginScreen({ navigation }) {
             <View style={styles.iconAndTextContainer}>
                 <Text style={styles.naverIcon}>N</Text>
                 <Text style={styles.loginButtonText}>네이버 아이디로 로그인</Text>
+            </View>
+        </TouchableOpacity>
+
+        {/* 네이버 OAuth2 버튼 */}
+        <TouchableOpacity style={[styles.loginButton, styles.naverButton]} onPress={handleNaverOauth2}>
+            <View style={styles.iconAndTextContainer}>
+                <Text style={styles.naverIcon}>N</Text>
+                <Text style={styles.loginButtonText}>네이버 OAuth2 로그인</Text>
             </View>
         </TouchableOpacity>
 
