@@ -7,7 +7,7 @@ import axios from 'axios';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import api from '../common/api';
+import api from '../common/api.js';
 
 import { MatchCard } from './MatchCard';
 

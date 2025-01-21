@@ -5,7 +5,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome'; // 네이버, �
 import * as Google from 'expo-auth-session/providers/google';  // Google OAuth 라이브러리 사용
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
-import api from '../common/api';
+import api from '../common/api.js';
 import { SessionContext } from '../../contexts/SessionContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { showToast } from '../common/toast';

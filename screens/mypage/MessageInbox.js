@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import api from '../common/api';
+import api from '../common/api.js';
 import { SessionContext } from '../../contexts/SessionContext';
 import { showToast } from '../common/toast';
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, KeyboardAvoidingView, Platform, ScrollView, Keyboard, Image, FlatList, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import api from '../common/api';
+import api from '../common/api.js';
 import { CommentItem } from '../home/CommentItem';
 import { SessionContext } from '../../contexts/SessionContext';
 import { showToast } from '../common/toast';
@@ -63,6 +63,11 @@ export default function PlayerDetailScreen({ route }) {
         commentText: newComment,
         type: player.type,
         userId: session.id,
+      });
+      showToast({
+        type: 'success',
+        text1: '댓글 작성에 성공하였습니다.',
+        position: 'bottom'
       });
       setNewComment('');
       fetchComments(); // 댓글 목록 갱신

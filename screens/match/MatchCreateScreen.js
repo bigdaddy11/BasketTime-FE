@@ -4,7 +4,7 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import api from '../common/api';
+import api from '../common/api.js';
 
 export default function MatchCreateScreen({ route }) {
     const navigation = useNavigation();

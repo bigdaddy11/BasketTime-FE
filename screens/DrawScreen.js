@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, RefreshControl, Linking } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Feather from '@expo/vector-icons/Feather'; // Feather 아이콘 임포트
-import api from './common/api';
+import api from './common/api.js';
 import { showToast } from './common/toast';
 
 export default function DrawScreen() {

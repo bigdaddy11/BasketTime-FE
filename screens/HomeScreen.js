@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Notice } from './home/Notice';
 import { ComponentCard } from './home/ComponentCard';
 import { Category } from './home/Category';
-import api from './common/api';
+import api from './common/api.js';
 import { SessionContext } from '../contexts/SessionContext';
 
 export default function HomeScreen({ route }) {

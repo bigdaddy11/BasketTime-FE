@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, TouchableOpacity, StyleSheet, Text, View, Image } from "react-native";
-import api from '../common/api';
+import api from '../common/api.js';
 import { showToast } from '../common/toast';
 
 export function Category({ onSelectCategory }) {

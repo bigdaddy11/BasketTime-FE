@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet, Alert, Text } from 'react-native';
-import api from '../common/api';
+import api from '../common/api.js';
 import { showToast } from '../common/toast';
 
 export default function EditComment({ route, navigation}) {
