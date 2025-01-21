@@ -18,13 +18,16 @@ export default function LoginScreen({ navigation }) {
 
     const [request, response, promptAsync] = Google.useAuthRequest({
       clientId: '94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com', // Google OAuth 클라이언트 ID
-      redirectUri: 'https://auth.expo.io/@jaehyunheo/baskettime', // Expo Redirect URI
-      clientSecret: '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',
+      //redirectUri: 'https://auth.expo.io/@jaehyunheo/baskettime', // Expo Redirect URI
+      //clientSecret: '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',
+      redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
       scopes: ['profile', 'email'], // 권한 범위
     });
 
     useEffect(() => {
+      console.log(response);
       if (response?.type === 'success') {
+        
         const { access_token } = response.params;
   
         // Google API로 사용자 정보 가져오기
