@@ -46,7 +46,7 @@ node_modules/
 .expo/
 dist/
 web-build/
-andriod/
+android/
 expo-env.d.ts
 
 # Native
@@ -77,4 +77,4 @@ yarn-error.*
 
 # @end expo-cli
 
-screens/common/api.js.js
+screens/common/api.js

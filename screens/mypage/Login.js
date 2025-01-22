@@ -27,14 +27,18 @@ export default function LoginScreen({ navigation }) {
 
     const [request, response, promptAsync] = Google.useAuthRequest({
       clientId: '94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com', // Google OAuth 클라이언트 ID
-      redirectUri: 'https://auth.expo.io/@jaehyunheo/baskettime', // Expo Redirect URI
+      //redirectUri: 'https://auth.expo.io/@jaehyunheo/baskettime', // Expo Redirect URI
+      androidClientId: '94369390250-0gtlruhqq1g5diosdi4v3uqjq5c5tvs5.apps.googleusercontent.com',
       //clientSecret: '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',
-      //redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
+      redirectUri: AuthSession.makeRedirectUri({ 
+        useProxy: true,
+        projectNameForProxy: 'baskettime', // 프로젝트 이름
+      }),
       scopes: ['profile', 'email'], // 권한 범위
     });
 
     useEffect(() => {
-      //console.log(response);
+      console.log(response);
       if (response?.type === 'success') {
         
         const { access_token } = response.params;
@@ -95,14 +99,14 @@ export default function LoginScreen({ navigation }) {
 
     const handleNaverOauth2 = async () => {
       // 인증 프로세스 시작
-      const result = await AuthSession.startAsync({ authUrl });
+      const result = await AuthSession.startAsync( authUrl );
       console.log(result);
 
       if (result.type === 'success') {
         const { code } = result.params;
         fetchAccessToken(code);
       } else {
-        Alert.alert('로그인 취소됨', '네이버 로그인이 취소되었습니다.');
+        //Alert.alert('로그인 취소됨', '네이버 로그인이 취소되었습니다.');
       }
     };
 

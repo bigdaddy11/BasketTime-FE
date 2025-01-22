@@ -6,6 +6,7 @@
     "owner": "jaehyunheo",
     "orientation": "portrait",
     "scheme": "com.jaehyunheo.baskettime",
+    "plugins": ["expo-dev-client"],
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
