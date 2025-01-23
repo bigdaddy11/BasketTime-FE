@@ -14,10 +14,21 @@ export const LoadingProvider = ({ children }) => {
   return (
     <LoadingContext.Provider value={{ showLoading, hideLoading }}>
         {React.Children.map(children, (child) => {
-            if (typeof child === 'string') {
+          // child가 null 또는 undefined인 경우 건너뜁니다.
+          if (!child) return null;
+
+          // child가 문자열인 경우 텍스트로 감쌉니다.
+          if (typeof child === 'string') {
             return <Text>{child}</Text>;
-            }
+          }
+
+          // React element인 경우 그대로 반환합니다.
+          if (React.isValidElement(child)) {
             return child;
+          }
+
+          // 알 수 없는 경우 null 반환
+          return null;
         })}
         {isLoading && (
             <View style={styles.overlay}>

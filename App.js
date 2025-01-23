@@ -27,6 +27,7 @@ import ImageEditor from './screens/common/ImageEditor';
 import MessageCompose from './screens/mypage/MessageCompose';
 import MessageInbox from './screens/mypage/MessageInbox';
 import ContactUs from './screens/mypage/ContactUs';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { LoadingProvider } from './contexts/LoadingContext'; // 컨텍스트 가져오기
 
@@ -98,14 +99,14 @@ function MainTabs() {
 export default function App() {
   return (
     <SessionProvider>
-      <LoadingProvider> {/* LoadingProvider를 SessionProvider 내부에 중첩 */}
+      <LoadingProvider>
         <NavigationContainer>
           <Stack.Navigator
               screenOptions={({ navigation }) => ({
                 headerTitle: () => <CustomHeader navigation={navigation} />, // navigation 전달
                 headerStyle: {
                   backgroundColor: 'white',
-                  height: 50,
+                  height: 70,
                 },
               })}
             >

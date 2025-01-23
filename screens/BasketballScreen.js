@@ -1,33 +1,80 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import KBLScreen from './basketball/KBLScreen';
 import NBAScreen from './basketball/NBAScreen';
 
-const Tab = createMaterialTopTabNavigator();
-
 export default function BasketballScreen() {
+  const [activeScreen, setActiveScreen] = useState('NBA'); // 현재 활성 화면 상태
+
+  // 화면 전환 핸들러
+  const handleScreenChange = (screen) => {
+    setActiveScreen(screen);
+  };
+
   return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarActiveTintColor: '#FFD73C',  // 선택된 탭 텍스트 색
-        tabBarInactiveTintColor: '#888',   // 선택되지 않은 탭 텍스트 색
-        tabBarLabelStyle: { fontSize: 16, fontWeight: 'bold' },  // 탭 라벨 스타일
-        tabBarStyle: { backgroundColor: '#FFF' },  // 탭 바 배경색
-        tabBarIndicatorStyle: { backgroundColor: '#FFD73C', height: 2 },  // 탭 아래 강조선 스타일
-      }}
-    >
-    <Tab.Screen name="NBA" component={NBAScreen} />
-    <Tab.Screen name="KBL" component={KBLScreen} />
-      
-    </Tab.Navigator>
+    <View style={styles.container}>
+      {/* 버튼으로 화면 전환 */}
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeScreen === 'NBA' && styles.activeTab,
+          ]}
+          onPress={() => handleScreenChange('NBA')}
+        >
+          <Text style={[styles.tabText, activeScreen === 'NBA' && styles.activeTabText]}>NBA</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeScreen === 'KBL' && styles.activeTab,
+          ]}
+          onPress={() => handleScreenChange('KBL')}
+        >
+          <Text style={[styles.tabText, activeScreen === 'KBL' && styles.activeTabText]}>KBL</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* 화면 렌더링 */}
+      <View style={styles.screenContainer}>
+        {activeScreen === 'NBA' && <NBAScreen />}
+        {activeScreen === 'KBL' && <KBLScreen />}
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#FFF',
+  },
+  tabBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     alignItems: 'center',
+    backgroundColor: '#FFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#DDD',
+  },
+  tabButton: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#FFD73C',
+  },
+  tabText: {
+    fontSize: 16,
+    color: '#888',
+    fontWeight: 'bold',
+  },
+  activeTabText: {
+    color: '#FFD73C',
+  },
+  screenContainer: {
+    flex: 1,
   },
 });

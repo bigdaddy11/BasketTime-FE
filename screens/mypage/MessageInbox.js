@@ -6,20 +6,15 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import api from '../common/api.js';
 import { SessionContext } from '../../contexts/SessionContext';
 import { showToast } from '../common/toast';
 
 export default function MessageInbox({ navigation }) {
+  const [activeTab, setActiveTab] = useState('received'); // 활성 탭 상태
   const [sentMessages, setSentMessages] = useState([]); // 보낸 쪽지 데이터
   const [receivedMessages, setReceivedMessages] = useState([]); // 받은 쪽지 데이터
-  const [index, setIndex] = useState(0); // 현재 탭 인덱스
   const { session } = useContext(SessionContext); // 세션 정보 가져오기
-  const [routes] = useState([
-    { key: 'received', title: '받은 쪽지함' },
-    { key: 'sent', title: '보낸 쪽지함' },
-  ]);
 
   useEffect(() => {
     fetchMessages();
@@ -27,13 +22,14 @@ export default function MessageInbox({ navigation }) {
 
   const fetchMessages = async () => {
     try {
-        const sentResponse = await api.get('/api/paper-plan/sent', {
-            params: { sUserId: session.id }, // 쿼리 파라미터로 전달
-          }); // 보낸 쪽지 데이터
-          
-          const receivedResponse = await api.get('/api/paper-plan/received', {
-            params: { rUserId: session.id }, // 쿼리 파라미터로 전달
-          }); // 받은 쪽지 데이터
+      const sentResponse = await api.get('/api/paper-plan/sent', {
+        params: { sUserId: session.id }, // 쿼리 파라미터로 전달
+      }); // 보낸 쪽지 데이터
+
+      const receivedResponse = await api.get('/api/paper-plan/received', {
+        params: { rUserId: session.id }, // 쿼리 파라미터로 전달
+      }); // 받은 쪽지 데이터
+
       setSentMessages(sentResponse.data);
       setReceivedMessages(receivedResponse.data);
     } catch (error) {
@@ -41,83 +37,100 @@ export default function MessageInbox({ navigation }) {
       showToast({
         type: 'error',
         text1: '쪽지를 불러오는 중 문제가 발생했습니다.',
-        position: 'bottom'
+        position: 'bottom',
       });
     }
   };
 
   const renderMessageItem = ({ item }) => (
     <TouchableOpacity
-      style={[styles.messageItem, activeTab === 'received' && item.isRead ? styles.readMessage : styles.unreadMessage]}
-      onPress={() => navigation.navigate('MessageDetail', { message: item })}
+      style={[
+        styles.messageItem,
+        activeTab === 'received' && !item.isRead ? styles.unreadMessage : styles.readMessage,
+      ]}
+      onPress={() => navigation.navigate('MessageCompose', { message: item })}
     >
-     <View style={{flexDirection: "row", justifyContent: "space-between", marginBottom: 5}}>
+      <View style={styles.messageHeader}>
         <Text style={styles.messageRecipient}>{item.nickName}</Text>
         <Text style={styles.messageDate}>{item.timeAgo}</Text>
-     </View>
+      </View>
       <Text style={styles.messageContent} numberOfLines={1}>
         {item.content}
       </Text>
     </TouchableOpacity>
   );
 
-  const Messages = ({ tab }) => (
-    <FlatList
-      data={tab === 'received' ? receivedMessages : sentMessages}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-            style={[styles.messageItem, tab === 'received' && !item.isRead ? styles.unreadMessage : styles.readMessage]}
-            onPress={() => navigation.navigate('MessageCompose', { message: item })}
-            >
-            <View style={{flexDirection: "row", justifyContent: "space-between", marginBottom: 5}}>
-                <Text style={styles.messageRecipient}>{item.nickName}</Text>
-                <Text style={styles.messageDate}>{item.timeAgo}</Text>
-            </View>
-            <Text style={styles.messageContent} numberOfLines={1}>
-                {item.content}
-            </Text>
-        </TouchableOpacity>
-      )}
-      contentContainerStyle={styles.listContainer}
-      ListEmptyComponent={<Text style={styles.emptyText}>{tab === 'received' ? '받은 쪽지가 없습니다.' : '보낸 쪽지가 없습니다.'}</Text>}
-    />
-  );
-
-
-  const renderScene = ({ route }) => {
-    switch (route.key) {
-      case 'received':
-        return <Messages tab="received" />;
-      case 'sent':
-        return <Messages tab="sent" />;
-      default:
-        return null;
-    }
+  const getMessageData = () => {
+    return activeTab === 'received' ? receivedMessages : sentMessages;
   };
 
   return (
-    <TabView
-      navigationState={{ index, routes }}
-      renderScene={renderScene}
-      onIndexChange={setIndex}
-      renderTabBar={(props) => (
-        <TabBar
-          {...props}
-          indicatorStyle={styles.indicatorStyle}
-          activeColor='#FFD73C'
-          inactiveColor='#888'
-          style={styles.tabBar}
-          labelStyle={styles.tabLabel}
-        />
-      )}
-    />
+    <View style={styles.container}>
+      {/* 상단 탭 버튼 */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'received' && styles.activeTab]}
+          onPress={() => setActiveTab('received')}
+        >
+          <Text style={[styles.tabText, activeTab === 'received' && styles.activeTabText]}>
+            받은 쪽지함
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'sent' && styles.activeTab]}
+          onPress={() => setActiveTab('sent')}
+        >
+          <Text style={[styles.tabText, activeTab === 'sent' && styles.activeTabText]}>
+            보낸 쪽지함
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* 쪽지 리스트 */}
+      <FlatList
+        data={getMessageData()}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderMessageItem}
+        contentContainerStyle={styles.listContainer}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>
+            {activeTab === 'received' ? '받은 쪽지가 없습니다.' : '보낸 쪽지가 없습니다.'}
+          </Text>
+        }
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFF',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#DDD',
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#FFD73C',
+  },
+  tabText: {
+    fontSize: 16,
+    color: '#888',
+    fontWeight: 'bold',
+  },
+  activeTabText: {
+    color: '#FFD73C',
+  },
   listContainer: {
-    //padding: 10,
+    //addingHorizontal: 10,
   },
   messageItem: {
     padding: 15,
@@ -125,41 +138,32 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
   },
   readMessage: {
-    backgroundColor: '#eee', // 읽은 쪽지의 배경색
+    backgroundColor: '#eee',
   },
   unreadMessage: {
-    backgroundColor: '#ffffff', // 읽지 않은 쪽지의 배경색
+    backgroundColor: '#FFF',
+  },
+  messageHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
   },
   messageRecipient: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  messageContent: {
-    fontSize: 14,
-    color: '#555',
   },
   messageDate: {
     fontSize: 12,
     color: '#999',
-    marginTop: 5,
+  },
+  messageContent: {
+    fontSize: 14,
+    color: '#555',
   },
   emptyText: {
     textAlign: 'center',
     marginTop: 20,
     color: '#999',
     fontSize: 14,
-  },
-  tabBar: {
-    backgroundColor: '#FFF',
-  },
-  tabLabel: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: 'black',
-  },
-  indicatorStyle: {
-    backgroundColor: '#FFD73C',
-    height: 2,
   },
 });

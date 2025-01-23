@@ -120,7 +120,7 @@ export default function MessageCompose({ navigation, route }) {
       <View style={styles.inputContainer}>
         <Text style={styles.label}>{existingMessage ? '' : '쪽지 보내기'}</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, existingMessage && styles.readOnlyInput]}
           placeholder="받는 사람의 닉네임 입력"
           value={recipient}
           onChangeText={(text) => {
@@ -154,7 +154,7 @@ export default function MessageCompose({ navigation, route }) {
           </Text>
         )}
         <TextInput
-          style={styles.textArea}
+          style={[styles.textArea, existingMessage && styles.readOnlyInput]}
           placeholder={'쪽지 내용을 입력해주세요.\n유저간 에티켓을 지켜주세요 :)'}
           value={message}
           onChangeText={setMessage}
@@ -227,5 +227,8 @@ const styles = StyleSheet.create({
   },
   resultText: {
     fontSize: 14,
+  },
+  readOnlyInput: {
+    color: 'black', // 텍스트 색상을 검정으로 고정
   },
 });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext }  from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, BackHandler, Platform } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign'; // 구글 아이콘
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; // 네이버, 카카오 아이콘
 import * as Google from 'expo-auth-session/providers/google';  // Google OAuth 라이브러리 사용
@@ -26,13 +26,11 @@ export default function LoginScreen({ navigation }) {
     const { login } = useContext(SessionContext);
 
     const [request, response, promptAsync] = Google.useAuthRequest({
-      clientId: '94369390250-qhr7ger2mipm39827emlfdsqacce3egc.apps.googleusercontent.com', // Google OAuth 클라이언트 ID
-      //redirectUri: 'https://auth.expo.io/@jaehyunheo/baskettime', // Expo Redirect URI
+      //clientId: '94369390250-0o4ungui47qk588r7itid4gcj7riiig6.apps.googleusercontent.com', // Google OAuth 클라이언트 ID
       androidClientId: '94369390250-0gtlruhqq1g5diosdi4v3uqjq5c5tvs5.apps.googleusercontent.com',
-      //clientSecret: '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',
-      redirectUri: AuthSession.makeRedirectUri({ 
-        useProxy: true,
-        projectNameForProxy: 'baskettime', // 프로젝트 이름
+      redirectUri: AuthSession.makeRedirectUri({
+        native: 'com.jaehyunheo.baskettime:/oauth2redirect',
+        useProxy: Platform.OS !== 'android', // Expo Go에서는 Proxy 사용
       }),
       scopes: ['profile', 'email'], // 권한 범위
     });

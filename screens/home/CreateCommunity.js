@@ -13,7 +13,6 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as Permissions from 'expo-permissions';
 import api from '../common/api.js';
 import { Picker } from '@react-native-picker/picker';
 import { SessionContext } from '../../contexts/SessionContext';
@@ -35,17 +34,6 @@ export default function CreateCommunity({ route, navigation }) {
 
   // useContext로 세션 정보 가져오기
   const { session } = useContext(SessionContext);
-
-  const requestPermission = async () => {
-    const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
-    if (status !== 'granted') {
-      showToast({
-        type: 'error',
-        text1: '이미지 권한이 필요합니다.',
-        position: 'bottom'
-      });
-    }
-  };
 
   const fetchPostDetails = async () => {
       try {
@@ -97,8 +85,6 @@ export default function CreateCommunity({ route, navigation }) {
         console.error('Error fetching categories:', error);
       }
     };
-
-    requestPermission();
     fetchCategories();
 
     return () => {

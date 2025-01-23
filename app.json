@@ -22,6 +22,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "jsEngine": "hermes",
       "package": "com.jaehyunheo.baskettime",
       "permissions": [],
       "useNextNotificationsApi": true

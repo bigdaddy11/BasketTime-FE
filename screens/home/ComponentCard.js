@@ -12,9 +12,8 @@ export function ComponentCard(jsonString){
   const [likeCount, setLikeCount] = useState(jsonString.message.likeCount || 0);
   const [isLiked, setIsLiked] = useState(jsonString.message.isLiked || false);
 
-  const [images, setImages] = useState(); // 업로드할 이미지 목록
-
-  const [logoImage, setLogoImage] = useState(); // 로고 이미지
+  const [images, setImages] = useState(null);
+  const [logoImage, setLogoImage] = useState(null);
 
   // 게시물 ID
   const relationId = jsonString.message.id;
@@ -22,8 +21,8 @@ export function ComponentCard(jsonString){
   useEffect(() => {
       // baseURL 가져오기
       const baseURL = api.defaults.baseURL;
-      const imagePath = jsonString.message.imageMainPath;
-      const logoImage = jsonString.message.image;
+      const imagePath = jsonString.message.imageMainPath || null;
+      const logoImage = jsonString.message.image || null;
 
       if (imagePath) {
         const normalizedImage = {
@@ -31,16 +30,11 @@ export function ComponentCard(jsonString){
         };
     
         setImages(normalizedImage); // 이미지 상태 설정
-      } else {
-        setImages(null); // 이미지가 없을 경우 빈 배열로 설정
       }
 
       if (logoImage) {
         const logoChangeImage = `${baseURL}/${logoImage}`; // baseURL과 imageMainPath를 결합
- 
         setLogoImage(logoChangeImage); // 이미지 상태 설정
-      } else {
-        setLogoImage(null); // 이미지가 없을 경우 빈 배열로 설정
       }
   },[]);
 
@@ -94,10 +88,12 @@ export function ComponentCard(jsonString){
           <TouchableOpacity key={jsonString.message.id}
               onPress={handlePress}>
               <View style={{flexDirection: "row",  marginTop: 5, alignItems: "center"}}>
+              {logoImage && ( // images가 null이 아닐 경우에만 렌더링
                 <Image 
                   source={{ uri: logoImage }} // 가로 200, 세로 300 크기의 랜덤 이미지
                   style={styles.BodyImage}
                 />
+              )}
                 <View style={{flexDirection: "column"}}>
                   <View style={{flexDirection: "row", alignItems: "flex-start" }}>
                     <Text style={styles.categoryinput}>{jsonString.message.categoryName}</Text>
@@ -119,7 +115,7 @@ export function ComponentCard(jsonString){
                     //resizeMode="contain" // 이미지 원본 비율 유지
                   />
                 </View>
-  )}
+                )}
               </View>
           </TouchableOpacity>
           <View style={{padding: 10, flexDirection: "row", justifyContent: "space-around", paddingBottom: 10}}>

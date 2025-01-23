@@ -18,7 +18,6 @@ export default function SelectCommunity({ route, navigation }) {
 
   const [categoryName, setCategoryName] = useState();
   const [nickName, setNickName] = useState();
-  const [imagePath, setImagePath] = useState();
   const [timeAgo, setTimeAgo] = useState();
 
   const [post, setPost] = useState(null); // 게시글 데이터
@@ -54,6 +53,28 @@ export default function SelectCommunity({ route, navigation }) {
   }, []);
 
   useEffect(() => {
+    console.log(post);
+    const preloadImages = async () => {
+      try {
+        const baseURL = api.defaults.baseURL;
+        const normalizedImages = (post?.imagePaths || []).map((path) => ({
+          uri: `${baseURL}/${path.imagePaths}`,
+        }));
+        const logoChangeImage = `${baseURL}/${post?.image}`;
+  
+        await Promise.all(normalizedImages.map((img) => Image.prefetch(img.uri)));
+  
+        setImages(normalizedImages);
+        setLogoImage(logoChangeImage);
+      } catch (error) {
+        console.error('Error preloading images:', error);
+      }
+    };
+  
+    if (post) preloadImages();
+  }, [post]);
+
+  useEffect(() => {
     if (!postId) {
       showToast({
         type: 'error',
@@ -71,28 +92,12 @@ export default function SelectCommunity({ route, navigation }) {
     try {
       const response = await api.get(`/api/posts/${postId}`);
 
-      // baseURL 가져오기
-      const baseURL = api.defaults.baseURL;
-      //console.log(response.data);
-
-      // imagePaths를 정상적으로 처리하여 URI 목록으로 변환
-      const normalizedImages = (response.data.imagePaths || []).map((path) => ({
-        uri: `${baseURL}/${path.imagePaths}`, // 각 이미지 경로에 baseURL 추가
-      }));
-
-      //로고이미지 셋팅
-      const logoChangeImage = `${baseURL}/${response.data.image}`; // baseURL과 imageMainPath를 결합
-      
-      setLogoImage(logoChangeImage); // 이미지 상태 설정
-
       setPost(response.data);
       setTitle(response.data.title || '');
       setContent(response.data.content || '');
       setCategoryName(response.data.categoryName);
       setNickName(response.data.nickName);
-      setImagePath(response.data.image);
       setTimeAgo(response.data.timeAgo);
-      setImages(normalizedImages); // 치환된 이미지 경로 설정
     } catch (error) {
       console.error('Error fetching post:', error);
       showToast({
@@ -100,6 +105,7 @@ export default function SelectCommunity({ route, navigation }) {
         text1: '게시글을 불러오는 중 문제가 발생했습니다.',
         position: 'bottom'
       });
+    } finally {
     }
   };
 
@@ -283,7 +289,9 @@ export default function SelectCommunity({ route, navigation }) {
               {/* 이미지와 정보 */}
               <View style={{ flexDirection: "row", alignItems: "center", marginTop: 5, justifyContent: "space-between" }}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  {logoImage && (
                   <Image source={{ uri: logoImage }} style={styles.imageStyle} />
+                  )}
                   <View style={{ flexDirection: "column", justifyContent: "flex-start", alignItems: "flex-start" }}>
                     <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
                       <Text style={styles.categoryinput}>{categoryName}</Text>
@@ -501,7 +509,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   image: {
-    width: "330",
+    width: 330,
     height: undefined,
     aspectRatio: 1
     //borderRadius: 5,
