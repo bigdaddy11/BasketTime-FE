@@ -121,11 +121,13 @@ const styles = StyleSheet.create({
   pickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: "flex-end",
     //backgroundColor: '#f0f0f0',
-    marginBottom: 20,
+    marginBottom: 10,
     borderBottomWidth: 1,
     borderColor: "#ddd",
     //borderRadius: 5,
+    //width: "50%"
   },
   label: {
     fontSize: 14,
@@ -137,7 +139,6 @@ const styles = StyleSheet.create({
     //backgroundColor: '#fff',
     color: 'gray',
     borderRadius: 5,
-    
   },
   placeholderText: {
     textAlign: 'center',
@@ -150,7 +151,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     paddingBottom: 10,
-    marginBottom: 5,
   },
   tableRow: {
     flexDirection: 'row',

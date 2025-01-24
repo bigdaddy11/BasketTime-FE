@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Text } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Notice } from './home/Notice';
@@ -113,6 +113,12 @@ export default function HomeScreen({ route }) {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         ListHeaderComponent={renderHeader} // 스크롤에 포함되는 헤더
         ListFooterComponent={renderFooter} // 로딩 상태 표시
+        ListEmptyComponent={
+          <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+            <Text>작성된 게시물이 없습니다.</Text>
+            <Text>최초로 작성해보세요 :)</Text>
+          </View>
+        }
         contentContainerStyle={styles.container}
       />
 
