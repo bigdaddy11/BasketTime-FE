@@ -36,31 +36,72 @@ export default function LoginScreen({ navigation }) {
     });
 
     useEffect(() => {
-      console.log(response);
       if (response?.type === 'success') {
-        
         const { access_token } = response.params;
-  
+        console.log('Access Token:', access_token);
+    
         // Google API로 사용자 정보 가져오기
         fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: `Bearer ${access_token}` },
         })
           .then((res) => res.json())
-          .then((user) => {
-            login({
-              id: user.sub,
-              name: user.name,
-              email: user.email,
-              picture: user.picture,
-            });
-            navigation.navigate('Main'); // 메인 화면으로 이동
+          .then(async (user) => {
+            console.log('User Info:', user);
+    
+            if (user && user.sub) {
+              // 서버에 로그인 요청
+              api.post('/api/auth/google-login', {
+                  subId: user.sub,
+                  name: user.name,
+                  email: user.email,
+                  picture: user.picture,
+              })
+              .then((response) => {
+                console.log('서버 응답:', response.data);
+                login({
+                      id: response.data.id,
+                      nickName: response.data.nickName,
+                      email: response.data.email,
+                      picture: response.data.picture,
+                      editIs: response.data.editIs
+                    });
+                showToast({
+                      type: 'success',
+                      text1: '로그인에 성공하였습니다.',
+                      position: 'bottom'
+                    });
+                navigation.navigate('Main');
+                // 로그인 성공 후 처리 로직
+              })
+              .catch((error) => {
+                showToast({
+                        type: 'error',
+                        text1: '인증서버 요청이 실패하였습니다.',
+                        position: 'bottom'
+                      });
+                console.error('인증서버 요청이 실패하였습니다.', error);
+              });
+              ;
+            } else {
+              showToast({
+                type: 'error',
+                text1: 'User info is incomplete or invalid',
+                position: 'bottom'
+              });
+              console.error('User info is incomplete or invalid');
+            }
           })
           .catch((error) => {
+            showToast({
+              type: 'error',
+              text1: 'Error fetching user info',
+              position: 'bottom'
+            });
             console.error('Error fetching user info:', error);
-            Alert.alert('Error', '사용자 정보를 가져오는 중 문제가 발생했습니다.');
           });
       }
     }, [response]);
+    
 
     useEffect(() => {
       //console.log(request);
