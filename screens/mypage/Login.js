@@ -38,16 +38,12 @@ export default function LoginScreen({ navigation }) {
     useEffect(() => {
       if (response?.type === 'success') {
         const { access_token } = response.params;
-        console.log('Access Token:', access_token);
-    
         // Google API로 사용자 정보 가져오기
         fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: `Bearer ${access_token}` },
         })
           .then((res) => res.json())
           .then(async (user) => {
-            console.log('User Info:', user);
-    
             if (user && user.sub) {
               // 서버에 로그인 요청
               api.post('/api/auth/google-login', {
@@ -57,7 +53,6 @@ export default function LoginScreen({ navigation }) {
                   picture: user.picture,
               })
               .then((response) => {
-                console.log('서버 응답:', response.data);
                 login({
                       id: response.data.id,
                       nickName: response.data.nickName,
