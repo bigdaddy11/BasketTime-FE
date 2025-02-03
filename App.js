@@ -1,5 +1,5 @@
-import React from 'react';
-import { Image, View, Text, StatusBar, TouchableOpacity, Platform, SafeAreaView } from 'react-native';
+import React, { useContext }  from 'react';
+import { Image, View, Text, StatusBar, TouchableOpacity, Platform, SafeAreaView, ActivityIndicator } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,6 +11,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRoute } from '@react-navigation/native';
 import { SessionProvider } from './contexts/SessionContext'; // Import the SessionProvider
+import { SessionContext } from './contexts/SessionContext';
 
 import HomeScreen from './screens/HomeScreen';
 import BasketballScreen from './screens/BasketballScreen';
@@ -30,6 +31,7 @@ import ContactUs from './screens/mypage/ContactUs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { LoadingProvider } from './contexts/LoadingContext'; // 컨텍스트 가져오기
+import LoadingScreen from './contexts/LoadingScreen'
 
 // Stack Navigator for each tab
 const Stack = createStackNavigator();
@@ -80,7 +82,6 @@ function MainTabs() {
         } else if (route.name === 'MyPage') {
           iconName = 'emoji-people';
         }
-
         // return the MaterialIcons with the determined name
         return <MaterialIcons name={iconName} size={size} color={color} />;
       },
@@ -96,35 +97,43 @@ function MainTabs() {
   );
 }
 
+function RootNavigator() {
+  return (
+      <Stack.Navigator
+        screenOptions={({ navigation }) => ({
+          headerTitle: () => <CustomHeader navigation={navigation} />,
+          headerStyle: {
+            backgroundColor: 'white',
+            height: 70,
+          },
+        })}
+        initialRouteName="Loading" // 초기 화면을 로딩 스크린으로 설정
+      >
+        <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Loading" component={LoadingScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="PlayerDetail" component={PlayerDetailScreen} options={{ title: '선수 상세 정보' }} />
+        <Stack.Screen name="MatchCreateScreen" component={MatchCreateScreen} options={{ title: '경기매칭생성' }} />
+        <Stack.Screen name="CreateCommunity" component={CreateCommunity} options={{ title: '글 작성' }} />
+        <Stack.Screen name="SelectCommunity" component={SelectCommunity} options={{ title: '글 수정/조회' }} />
+        <Stack.Screen name="EditComment" component={EditComment} options={{ title: '댓글 수정' }} />
+        <Stack.Screen name="ImageEditor" component={ImageEditor} />
+        <Stack.Screen name="MessageCompose" component={MessageCompose} options={{ title: '쪽지 쓰기' }} />
+        <Stack.Screen name="MessageInbox" component={MessageInbox} options={{ title: '쪽지함' }} />
+        <Stack.Screen name="ContactUs" component={ContactUs} options={{ title: '문의하기' }} />
+      </Stack.Navigator>
+  );
+}
+
 export default function App() {
   return (
-    <SessionProvider>
-      <LoadingProvider>
-        <NavigationContainer>
-          <Stack.Navigator
-              screenOptions={({ navigation }) => ({
-                headerTitle: () => <CustomHeader navigation={navigation} />, // navigation 전달
-                headerStyle: {
-                  backgroundColor: 'white',
-                  height: 70,
-                },
-              })}
-            >
-            <Stack.Screen name="Main" component={MainTabs} style={{  }} options={{ headerLeft: () => null }} />
-            <Stack.Screen name="PlayerDetail" component={PlayerDetailScreen} options={{ title: '선수 상세 정보' }} />
-            <Stack.Screen name="Login" component={Login} options={{ title: '로그인', headerLeft: () => null }} />
-            <Stack.Screen name="MatchCreateScreen" component={MatchCreateScreen} options={{ title: '경기매칭생성' }} />
-            <Stack.Screen name="CreateCommunity" component={CreateCommunity} options={{ title: '글 작성' }} />
-            <Stack.Screen name="SelectCommunity" component={SelectCommunity} options={{ title: '글 수정/조회' }} />
-            <Stack.Screen name="EditComment" component={EditComment} options={{ title: '댓글 수정' }} />
-            <Stack.Screen name="ImageEditor" component={ImageEditor} />
-            <Stack.Screen name="MessageCompose" component={MessageCompose} options={{ title: '쪽지 쓰기' }} />
-            <Stack.Screen name="MessageInbox" component={MessageInbox} options={{ title: '쪽지함' }} />
-            <Stack.Screen name="ContactUs" component={ContactUs} options={{ title: '문의하기' }} />
-          </Stack.Navigator>
-        </NavigationContainer>
-        <Toast />
-      </LoadingProvider>
-    </SessionProvider>
+    <NavigationContainer>
+      <SessionProvider>
+        <LoadingProvider>
+          <RootNavigator />
+          <Toast />
+        </LoadingProvider>
+      </SessionProvider>
+    </NavigationContainer>
   );
 }

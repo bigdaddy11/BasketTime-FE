@@ -59,14 +59,16 @@ export default function LoginScreen({ navigation }) {
                       email: response.data.email,
                       picture: response.data.picture,
                       editIs: response.data.editIs
+                    }).then((isSuccess) => {
+                      if (isSuccess) {
+                        showToast({
+                          type: 'success',
+                          text1: '로그인에 성공하였습니다.',
+                          position: 'bottom',
+                        });
+                        navigation.replace('Loading');
+                      }
                     });
-                showToast({
-                      type: 'success',
-                      text1: '로그인에 성공하였습니다.',
-                      position: 'bottom'
-                    });
-                navigation.navigate('Main');
-                // 로그인 성공 후 처리 로직
               })
               .catch((error) => {
                 showToast({
@@ -128,7 +130,7 @@ export default function LoginScreen({ navigation }) {
     const handleGoogleLogin = async () => {
       const user = { id: 1, name: 'John Doe', nickName: "휴직맨", role: 'user', email : "zidir0070@gmail.com" };
       login(user); // Set the session
-      navigation.navigate('Main'); // Redirect to Main
+      navigation.replace('Loading'); // Redirect to Main
     };
 
     const handleNaverOauth2 = async () => {
@@ -147,13 +149,13 @@ export default function LoginScreen({ navigation }) {
     const handleNaverLogin = () => {
       const user = { id: 2, name: 'NaverMan', nickName: "네이버맨", role: 'user', email : "zidir0070@naver.com"  };
       login(user); // Set the session
-      navigation.navigate('Main'); // Redirect to Main
+      navigation.replace('Loading'); // Redirect to Main
     };
 
     const handleKakaoLogin = () => {
       const user = { id: 3, name: 'KaKaoMan', nickName: "카카오맨", role: 'user', email : "zidir0070@kakao.com"  };
       login(user); // Set the session
-      navigation.navigate('Main'); // Redirect to Main
+      navigation.replace('Loading'); // Redirect to Main
     };
 
     return (

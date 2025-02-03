@@ -10,7 +10,7 @@ import api from './common/api';
 export default function MyPageScreen() {
   const navigation = useNavigation();
   const { session, logout } = useContext(SessionContext); // 세션 상태 가져오기
-  const [nickname, setNickname] = useState(session.nickName);
+  const [nickname, setNickname] = useState(session?.nickName || 'NoName');
   const [isModalVisible, setModalVisible] = useState(false);
 
    // 앱 버전을 안전하게 가져오기
@@ -41,7 +41,7 @@ export default function MyPageScreen() {
 
   const updateNickname = async () => {
     try {
-        const response = await api.put(`/api/auth/${session.id}/nickname`, {
+        const response = await api.put(`/api/auth/${session.id}/nickname`, null, {
           params: { nickname }, // 쿼리 파라미터로 전달
         });
 
@@ -103,7 +103,7 @@ export default function MyPageScreen() {
               style={styles.picture}
               />
             <View style={{flexDirection: "row", alignItems: "center"}}>
-              <Text style={styles.userName}>{session.nickName}</Text>
+              <Text style={styles.userName}>{session.nickName || 'NoName'}</Text>
               <TouchableOpacity onPress={handleEditClick}>
                 <AntDesign name="edit" size={16} color="#bbb" style={styles.editIcon} />
               </TouchableOpacity>
