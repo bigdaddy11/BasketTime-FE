@@ -54,7 +54,7 @@ export default function PlayerDetailScreen({ route }) {
 
     // 세션 확인
     if (!session || !session.id) {
-      navigation.navigate('Login') // 로그인 페이지로 이동
+      navigation.replace('Login') // 로그인 페이지로 이동
       return;
     }
 

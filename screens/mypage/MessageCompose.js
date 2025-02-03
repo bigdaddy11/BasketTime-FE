@@ -75,7 +75,7 @@ export default function MessageCompose({ navigation, route }) {
 
   const handleSendMessage = useCallback(async () => {
     if (!session || !session.id) {
-      navigation.navigate('Login');
+      navigation.replace('Login');
       return;
     }
     if (!selectedRecipient || !message.trim()) {

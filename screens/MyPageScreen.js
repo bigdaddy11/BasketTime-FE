@@ -71,7 +71,7 @@ export default function MyPageScreen() {
         text1: '로그아웃되었습니다.',
         position: 'bottom'
       });
-      navigation.navigate('Login'); // 홈 화면으로 이동
+      navigation.replace('Login'); // 홈 화면으로 이동
       return;
     } else if (item.routeName === 'Version'){
       //console.log(Constants.manifest.version);

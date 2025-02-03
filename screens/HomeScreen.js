@@ -39,7 +39,7 @@ export default function HomeScreen({ route }) {
 
   const loadPosts = async (pageToFetch = 0, refresh = false) => {
     if (!session || !session.id) {
-      navigation.navigate('Login');
+      navigation.replace('Login');
       return;
     }
 

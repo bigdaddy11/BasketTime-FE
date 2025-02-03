@@ -140,7 +140,7 @@ export default function CreateCommunity({ route, navigation }) {
 
   const handleSave = useCallback(async () => {
     if (!session || !session.id) {
-      navigation.navigate('Login');
+      navigation.replace('Login');
       return;
     }
     if (!title.trim() || !content.trim()) {
