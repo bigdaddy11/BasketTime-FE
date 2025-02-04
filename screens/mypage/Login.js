@@ -9,24 +9,15 @@ import api from '../common/api.js';
 import { SessionContext } from '../../contexts/SessionContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { showToast } from '../common/toast';
+import { login, logout, getProfile } from "@react-native-seoul/kakao-login";
 
 // WebBrowser를 세션 관리에 사용
 WebBrowser.maybeCompleteAuthSession();
 
-// 네이버 OAuth 설정
-const NAVER_CLIENT_ID = 'ga77hLU_or0jQByJZdPu';
-const NAVER_CLIENT_SECRET = '3iLqTQAK68';
-//const REDIRECT_URI = AuthSession.makeRedirectUri({ useProxy: true });
-const REDIRECT_URI = 'https://auth.expo.io/@jaehyunheo/baskettime';
-const STATE = Math.random().toString(36).substring(2, 15); // 상태 토큰 생성
-
-const authUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&state=${STATE}`;
-
 export default function LoginScreen({ navigation }) {
-    const { login } = useContext(SessionContext);
+    const { login: sessionLogin } = useContext(SessionContext);
 
     const [request, response, promptAsync] = Google.useAuthRequest({
-      //clientId: '94369390250-0o4ungui47qk588r7itid4gcj7riiig6.apps.googleusercontent.com', // Google OAuth 클라이언트 ID
       androidClientId: '94369390250-0gtlruhqq1g5diosdi4v3uqjq5c5tvs5.apps.googleusercontent.com',
       redirectUri: AuthSession.makeRedirectUri({
         native: 'com.jaehyunheo.baskettime:/oauth2redirect',
@@ -46,14 +37,15 @@ export default function LoginScreen({ navigation }) {
           .then(async (user) => {
             if (user && user.sub) {
               // 서버에 로그인 요청
-              api.post('/api/auth/google-login', {
+              api.post('/api/auth/login', {
                   subId: user.sub,
                   name: user.name,
                   email: user.email,
                   picture: user.picture,
+                  type: "G",
               })
               .then((response) => {
-                login({
+                sessionLogin({
                       id: response.data.id,
                       nickName: response.data.nickName,
                       email: response.data.email,
@@ -98,12 +90,22 @@ export default function LoginScreen({ navigation }) {
           });
       }
     }, [response]);
-    
 
-    useEffect(() => {
-      //console.log(request);
-    }, [request]);
-    
+    const handleOauthKakaoLogin = async () => {
+      try {
+        const token = await login(); // 카카오 로그인
+        console.log("Access Token:", token);
+  
+        const profile = await getProfile(); // 사용자 정보 가져오기
+        console.log("User Profile:", profile);
+  
+        // 서버로 사용자 정보 전달
+        //await loginToServer(profile);
+      } catch (err) {
+        console.error("Kakao Login Error:", err);
+        Alert.alert("로그인 실패", "카카오 로그인을 실패했습니다.");
+      }
+    };
 
     // 뒤로가기 동작 막기
     useFocusEffect(
@@ -129,32 +131,19 @@ export default function LoginScreen({ navigation }) {
 
     const handleGoogleLogin = async () => {
       const user = { id: 1, name: 'John Doe', nickName: "휴직맨", role: 'user', email : "zidir0070@gmail.com" };
-      login(user); // Set the session
+      sessionLogin(user); // Set the session
       navigation.replace('Loading'); // Redirect to Main
-    };
-
-    const handleNaverOauth2 = async () => {
-      // 인증 프로세스 시작
-      const result = await AuthSession.startAsync( authUrl );
-      console.log(result);
-
-      if (result.type === 'success') {
-        const { code } = result.params;
-        fetchAccessToken(code);
-      } else {
-        //Alert.alert('로그인 취소됨', '네이버 로그인이 취소되었습니다.');
-      }
     };
 
     const handleNaverLogin = () => {
       const user = { id: 2, name: 'NaverMan', nickName: "네이버맨", role: 'user', email : "zidir0070@naver.com"  };
-      login(user); // Set the session
+      sessionLogin(user); // Set the session
       navigation.replace('Loading'); // Redirect to Main
     };
 
     const handleKakaoLogin = () => {
       const user = { id: 3, name: 'KaKaoMan', nickName: "카카오맨", role: 'user', email : "zidir0070@kakao.com"  };
-      login(user); // Set the session
+      sessionLogin(user); // Set the session
       navigation.replace('Loading'); // Redirect to Main
     };
 
@@ -201,11 +190,11 @@ export default function LoginScreen({ navigation }) {
             </View>
         </TouchableOpacity>
 
-        {/* 네이버 OAuth2 버튼 */}
-        <TouchableOpacity style={[styles.loginButton, styles.naverButton]} onPress={handleNaverOauth2}>
+        {/* 카카오오 OAuth2 버튼 */}
+        <TouchableOpacity style={[styles.loginButton, styles.kakaoButton]} onPress={handleOauthKakaoLogin}>
             <View style={styles.iconAndTextContainer}>
-                <Text style={styles.naverIcon}>N</Text>
-                <Text style={styles.loginButtonText}>네이버 OAuth2 로그인</Text>
+                <FontAwesome name="comment" size={24} color="#fff" style={styles.iconLayout}/>
+                <Text style={styles.loginButtonText}>카카오 Oauth 로그인</Text>
             </View>
         </TouchableOpacity>
 

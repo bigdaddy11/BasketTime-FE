@@ -1,4 +1,4 @@
-import React, { useContext }  from 'react';
+import React, { useContext, useEffect }  from 'react';
 import { Image, View, Text, StatusBar, TouchableOpacity, Platform, SafeAreaView, ActivityIndicator } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';

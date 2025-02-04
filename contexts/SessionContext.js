@@ -15,7 +15,7 @@ export const SessionProvider = ({ children, navigation  }) => {
     const loadSession = async () => {
       try {
         const savedSession = await AsyncStorage.getItem('session');
-        console.log('Saved session:', savedSession);
+        //console.log('Saved session:', savedSession);
         if (savedSession) {
           //console.log("세션세팅을 할까?");
           setSession(JSON.parse(savedSession)); // Restore session
