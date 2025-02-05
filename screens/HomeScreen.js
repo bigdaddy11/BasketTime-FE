@@ -7,6 +7,7 @@ import { ComponentCard } from './home/ComponentCard';
 import { Category } from './home/Category';
 import api from './common/api.js';
 import { SessionContext } from '../contexts/SessionContext';
+import DrawPreviewList from './home/DrawPreviewList.js';
 
 export default function HomeScreen({ route }) {
   const navigation = useNavigation();
@@ -91,7 +92,7 @@ export default function HomeScreen({ route }) {
     return (
       <View>
         <Category onSelectCategory={setSelectedCategory} />
-        <Notice />
+        <DrawPreviewList />
       </View>
     );
   }, [selectedCategory]);
