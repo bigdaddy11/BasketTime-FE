@@ -53,7 +53,6 @@ export default function SelectCommunity({ route, navigation }) {
   }, []);
 
   useEffect(() => {
-    console.log(post);
     const preloadImages = async () => {
       try {
         const baseURL = api.defaults.baseURL;

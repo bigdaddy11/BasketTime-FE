@@ -31,7 +31,6 @@ export function CommentItem({ nickName, timeAgo, content, userId, onDelete, onEd
   };
 
   const handleEdit = () => {
-    //console.log(commentId, content);
     setIsModalVisible(false); // 기존 옵션 모달 닫기
     navigation.navigate('EditComment', { commentId, content }); // 수정 화면으로 이동
   };

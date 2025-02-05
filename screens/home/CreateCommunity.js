@@ -41,7 +41,6 @@ export default function CreateCommunity({ route, navigation }) {
         
         // baseURL 가져오기
         const baseURL = api.defaults.baseURL;
-        //console.log(response.data);
 
          // imagePaths를 정상적으로 처리하여 URI 목록으로 변환
         const normalizedImages = (response.data.imagePaths || []).map((path) => ({

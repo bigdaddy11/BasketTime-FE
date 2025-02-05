@@ -47,7 +47,6 @@ export function MatchCard( jsonString ){
     };
 
     useEffect(() => {
-        //console.log(jsonString);
     }, []);
     return(
         <TouchableOpacity onPress={handlePress}>

@@ -9,9 +9,12 @@ import api from './common/api';
 
 export default function MyPageScreen() {
   const navigation = useNavigation();
-  const { session, logout } = useContext(SessionContext); // 세션 상태 가져오기
+  const { session, setSession, logout } = useContext(SessionContext); // 세션 상태 가져오기
   const [nickname, setNickname] = useState(session?.nickName || 'NoName');
   const [isModalVisible, setModalVisible] = useState(false);
+
+  const defaultSession = { nickName: "", editIs: true };
+  const currentSession = session || defaultSession;
 
    // 앱 버전을 안전하게 가져오기
    const appVersion =
@@ -29,25 +32,47 @@ export default function MyPageScreen() {
   ];
 
   useEffect(() => {
-      if (session && !session.editIs) {
+      if (currentSession && !currentSession.editIs) {
           setModalVisible(false); // 닉네임 수정 Modal 표시
       }
   }, [session]);
 
   const updateNickname = async () => {
     try {
-        const response = await api.put(`/api/auth/${session.id}/nickname`, null, {
-          params: { nickname }, // 쿼리 파라미터로 전달
-        });
-
+        // 닉네임 유효성 검사
+        const specialCharRegex = /[^ㄱ-ㅎ가-힣a-zA-Z0-9]/; // 한글, 영어, 숫자만 허용
+        if (specialCharRegex.test(nickname)) {
+            showToast({
+                type: 'error',
+                text1: '닉네임에는 한글, 영어, 숫자만 사용할 수 있습니다.',
+                position: 'bottom',
+            });
+            return; // 요청 중단
+        }
+        const response = await api.put(`/api/auth/${currentSession.id}/nickname?nickname=${nickname}`);
         if (response.status === 200) {
-            session({ ...session, nickName: nickname, editIs: true }); // 세션 업데이트
+            setSession({ ...currentSession, nickName: nickname, editIs: true }); // 세션 업데이트
+            showToast({
+              type: 'success',
+              text1: '닉네임이 성공적으로 변경되었습니다.',
+              position: 'bottom',
+            });
             setModalVisible(false); // Modal 닫기
         } else {
-            console.error('Error updating nickname:', response.data);
+            console.error('닉네임 변경 실패 :', response.data);
+            showToast({
+                type: 'error',
+                text1: response.data || '알 수 없는 오류가 발생했습니다.',
+                position: 'bottom',
+            });
         }
     } catch (error) {
-        console.error('Error updating nickname:', error);
+        //console.error('Error updating nickname:', error);
+        showToast({
+          type: 'error',
+          text1: error.response?.data || '서버 오류가 발생했습니다.',
+          position: 'bottom',
+      });
     } finally {
       setModalVisible(false); // 모달 닫기
     }
@@ -69,7 +94,6 @@ export default function MyPageScreen() {
       navigation.replace('Login'); // 홈 화면으로 이동
       return;
     } else if (item.routeName === 'Version'){
-      //console.log(Constants.manifest.version);
       return;
     }
     // 다른 메뉴로 이동
@@ -87,21 +111,23 @@ export default function MyPageScreen() {
     <View style={styles.container}>
       {/* 상단 유저 정보 */}
       <View style={styles.userInfoContainer}>
-        {session ? (
+        {currentSession ? (
           <>
             <Image 
               source={
-                session.picture 
-                  ? { uri: session.picture } 
+                currentSession.picture 
+                  ? { uri: currentSession.picture } 
                   : require('../assets/default-user.jpg') // 로컬 디폴트 이미지 경로
               }
               style={styles.picture}
               />
             <View style={{flexDirection: "row", alignItems: "center"}}>
-              <Text style={styles.userName}>{session.nickName || 'NoName'}</Text>
-              <TouchableOpacity onPress={handleEditClick}>
-                <AntDesign name="edit" size={16} color="#bbb" style={styles.editIcon} />
-              </TouchableOpacity>
+              <Text style={styles.userName}>{currentSession.nickName || ''}</Text>
+              {!currentSession.editIs && (
+                <TouchableOpacity onPress={handleEditClick}>
+                  <AntDesign name="edit" size={16} color="#bbb" style={styles.editIcon} />
+                </TouchableOpacity>
+              )}
             </View>
             {/* <Text style={styles.userEmail}>{session.email}</Text> */}
           </>
@@ -123,9 +149,10 @@ export default function MyPageScreen() {
               <Text style={styles.modaSubTitle}>닉네임은 최초 1회만 변경 가능합니다.</Text>
               <TextInput
                 style={styles.input}
-                value={nickname}
+                //value={nickname}
                 onChangeText={setNickname}
-                placeholder="새 닉네임 입력"
+                placeholder="새 닉네임 입력 (최대 8글자)"
+                maxLength={8}
               />
               <View style={styles.buttonContainer}>
                 <View style={styles.buttonWrapper}>

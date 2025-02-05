@@ -15,16 +15,13 @@ export const SessionProvider = ({ children, navigation  }) => {
     const loadSession = async () => {
       try {
         const savedSession = await AsyncStorage.getItem('session');
-        //console.log('Saved session:', savedSession);
         if (savedSession) {
-          //console.log("세션세팅을 할까?");
           setSession(JSON.parse(savedSession)); // Restore session
         }
       } catch (error) {
         console.error('Error loading session:', error);
       } finally {
         setIsSessionLoaded(true); // ✅ 세션 로드가 완료되었음을 표시
-        //console.log('Loading session:', session);
       }
     };
 
@@ -55,7 +52,7 @@ export const SessionProvider = ({ children, navigation  }) => {
   };
 
   return (
-    <SessionContext.Provider value={{ session, isSessionLoaded, login, logout }}>
+    <SessionContext.Provider value={{ session, setSession, isSessionLoaded, login, logout }}>
       {children}
     </SessionContext.Provider>
   );

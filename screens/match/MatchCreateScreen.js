@@ -43,7 +43,6 @@ export default function MatchCreateScreen({ route }) {
     }, [id]);
 
     useEffect(() => {
-        //console.log(id);
     }, []);
 
     const validateFields = () => {

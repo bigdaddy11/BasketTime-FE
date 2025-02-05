@@ -9,7 +9,6 @@ export default function EditComment({ route, navigation}) {
 
   //댓글 수정 함수
   const handleEditComment = () => {
-    //console.log(commentId, editedContent);
     const id = commentId;
     Alert.alert(
       '댓글 수정',

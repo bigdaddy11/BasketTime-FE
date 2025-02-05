@@ -146,7 +146,6 @@ export default function MapScreen() {
     }, []);
 
     useEffect(() => {
-        //console.log(matchs); // 상태가 업데이트된 후에 실행됩니다.
     }, [matchs]);
 
     useEffect(() => {
