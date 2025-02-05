@@ -94,18 +94,79 @@ export default function LoginScreen({ navigation }) {
     const handleOauthKakaoLogin = async () => {
       try {
         const token = await login(); // 카카오 로그인
-        console.log("Access Token:", token);
   
         const profile = await getProfile(); // 사용자 정보 가져오기
-        console.log("User Profile:", profile);
-  
-        // 서버로 사용자 정보 전달
-        //await loginToServer(profile);
+        //서버로 사용자 정보 전달
+        await loginToServer(profile);
       } catch (err) {
         console.error("Kakao Login Error:", err);
         Alert.alert("로그인 실패", "카카오 로그인을 실패했습니다.");
       }
     };
+
+    const loginToServer = async (profile) => {
+      if (!profile || !profile.id) {
+        console.error("❌ 사용자 정보가 올바르지 않습니다.");
+        showToast({
+          type: 'error',
+          text1: '사용자 정보를 가져올 수 없습니다.',
+          position: 'bottom'
+        });
+        return;
+      }
+    
+      try {
+        // ✅ 서버에 로그인 요청
+        const response = await api.post('/api/auth/login', {
+          subId: profile.id,
+          name: profile.nickname || "No Name",
+          email: profile.email || "No Email",
+          picture: profile.profileImageUrl || "",
+          type: "K", // 카카오 로그인
+        });
+    
+        if (response.status === 200) {
+          const userData = response.data;
+    
+          // ✅ 세션 업데이트
+          sessionLogin({
+            id: userData.id,
+            nickName: userData.nickName,
+            email: userData.email,
+            picture: userData.picture,
+            editIs: userData.editIs,
+          }).then((isSuccess) => {
+            if (isSuccess) {
+              // ✅ 로그인 성공 메시지 표시
+              showToast({
+                type: 'success',
+                text1: '로그인에 성공하였습니다.',
+                position: 'bottom',
+              });
+    
+              // ✅ 로그인 후 `Loading` 화면으로 이동
+              navigation.replace('Loading');
+            }
+          });
+        } else {
+          console.error("❌ 서버 응답 오류:", response);
+          showToast({
+            type: 'error',
+            text1: '서버 응답 오류 발생',
+            position: 'bottom'
+          });
+        }
+      } catch (err) {
+        console.error("❌ Login to Server Error:", err);
+        showToast({
+          type: 'error',
+          text1: '인증서버 요청이 실패하였습니다.',
+          position: 'bottom'
+        });
+      }
+    };
+    
+    
 
     // 뒤로가기 동작 막기
     useFocusEffect(

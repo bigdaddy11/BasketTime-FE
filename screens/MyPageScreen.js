@@ -19,11 +19,6 @@ export default function MyPageScreen() {
    Constants.manifest?.version ||  // 로컬 개발 환경
    '버전 정보 없음';               // Fallback
 
-    const userInfo = {
-      name: "허재현",
-      email: "zidir0070@naver.com"
-    };
-  
   const menuItems = [
     { id: '2', title: '쪽지함', routeName: "MessageInbox" },
     { id: '3', title: '문의하기', routeName: "ContactUs" },
@@ -108,7 +103,7 @@ export default function MyPageScreen() {
                 <AntDesign name="edit" size={16} color="#bbb" style={styles.editIcon} />
               </TouchableOpacity>
             </View>
-            <Text style={styles.userEmail}>{session.email}</Text>
+            {/* <Text style={styles.userEmail}>{session.email}</Text> */}
           </>
         ) : (
           <Text style={styles.guestText}>로그인이 필요합니다.</Text>
@@ -125,6 +120,7 @@ export default function MyPageScreen() {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>닉네임 변경</Text>
+              <Text style={styles.modaSubTitle}>닉네임은 최초 1회만 변경 가능합니다.</Text>
               <TextInput
                 style={styles.input}
                 value={nickname}
@@ -216,6 +212,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    marginBottom: 5,
+    padding: 5,
+  },
+  modaSubTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: 'blue',
     marginBottom: 5,
     padding: 5,
   },

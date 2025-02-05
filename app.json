@@ -6,7 +6,25 @@
     "owner": "jaehyunheo",
     "orientation": "portrait",
     "scheme": "com.jaehyunheo.baskettime",
-    "plugins": ["expo-dev-client"],
+    "plugins": [
+      "expo-dev-client",
+      [
+        "@react-native-seoul/kakao-login",
+        {
+          "kakaoAppKey": "6b8e6f2e31df20696183ff58f08f8d60",
+          "overrideKakaoSDKVersion": "2.11.2", 
+          "kotlinVersion": "1.9.0"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraMavenRepos": ["https://devrepo.kakao.com/nexus/content/groups/public/"]
+          }
+        }
+      ]
+    ],
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -18,13 +36,19 @@
       "supportsTablet": true
     },
     "android": {
+      "permissions": [
+        "INTERNET",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "metaData": {
+        "com.kakao.sdk.AppKey": "6b8e6f2e31df20696183ff58f08f8d60"
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "jsEngine": "hermes",
       "package": "com.jaehyunheo.baskettime",
-      "permissions": [],
       "useNextNotificationsApi": true
     },
     "web": {
