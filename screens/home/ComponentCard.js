@@ -84,7 +84,7 @@ export function ComponentCard(jsonString){
   };
 
     return(
-        <View style={{padding: 2, borderTopWidth: 1, borderBlockColor: "#eee", backgroundColor: "white"}}>
+        <View style={{padding: 2, borderBottomWidth: 1, borderBlockColor: "#eee", backgroundColor: "white"}}>
           <TouchableOpacity key={jsonString.message.id}
               onPress={handlePress}>
               <View style={{flexDirection: "row",  marginTop: 5, alignItems: "center"}}>

@@ -69,7 +69,7 @@ export default function KBLScreen() {
           style={styles.picker}
         >
           {teams.map((team) => (
-            <Picker.Item key={team.id} label={team.fullName} value={team.id} />
+            <Picker.Item key={team.id} label={team.fullName} value={team.id} style={styles.conferenceText}/>
           ))}
         </Picker>
       </View>
@@ -79,25 +79,16 @@ export default function KBLScreen() {
         <FlatList
           data={filteredPlayers}
           keyExtractor={(item) => item.id.toString()}
-          ListHeaderComponent={
-            <View style={styles.tableHeader}>
-              <Text style={[styles.tableLeftCell, styles.headerCell]}>이름</Text>
-              <Text style={[styles.tableCell, styles.headerCell]}>넘버</Text>
-              <Text style={[styles.tableCell, styles.headerCell]}>포지션</Text>
-              <Text style={[styles.tableCell, styles.headerCell]}>키</Text>
-              <Text style={[styles.tableCell, styles.headerCell]}>몸무게</Text>
-            </View>
-          }
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => navigation.navigate('PlayerDetail', { player: item, teamName: teams.find((team) => team.id === selectedTeam)?.fullName })}
             >
               <View style={styles.tableRow}>
+                <Image 
+                    source={{ uri: item.imagePath }}
+                    style={styles.imageStyle}
+                />
                 <Text style={styles.tableLeftCell}>{item.firstName} {item.lastName}</Text>
-                <Text style={styles.tableCell}>{item.jerseyNumber || 'N/A'}</Text>
-                <Text style={styles.tableCell}>{item.position || 'N/A'}</Text>
-                <Text style={styles.tableCell}>{item.height || 'N/A'}</Text>
-                <Text style={styles.tableCell}>{item.weight || 'N/A'}</Text>
               </View>
             </TouchableOpacity>
           )}
@@ -116,16 +107,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    padding: 10,
+    //padding: 10,
   },
   pickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: "flex-end",
     //backgroundColor: '#f0f0f0',
-    marginBottom: 10,
+    //marginBottom: 10,
     borderBottomWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#eee",
     //borderRadius: 5,
     //width: "50%"
   },
@@ -157,6 +148,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
     paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: "center"
   },
   tableCell: {
     flex: 1,
@@ -166,9 +159,19 @@ const styles = StyleSheet.create({
   tableLeftCell: {
     flex: 1,
     textAlign: 'left',
-    fontSize: 14,
+    fontSize: 16,
   },
   headerCell: {
     fontWeight: 'bold',
+  },
+  imageStyle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20, // 둥근 이미지(원형)
+    marginRight: 10
+  },
+  conferenceText: {
+    color: 'gray',
+    fontSize: 14,
   },
 });

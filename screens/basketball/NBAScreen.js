@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import api from '../common/api.js';
@@ -89,7 +89,7 @@ export default function NBAScreen() {
         </Picker>
         <Picker selectedValue={selectedTeam} onValueChange={(value) => handleTeamChange(value)} style={styles.pickerTeam }>
           {teams.map((team) => (
-            <Picker.Item key={team.id} label={team.fullName} value={team.id} />
+            <Picker.Item key={team.id} label={team.fullName} value={team.id} style={styles.conferenceText}/>
           ))}
         </Picker>
       </View>
@@ -98,25 +98,16 @@ export default function NBAScreen() {
       <FlatList
         data={filteredPlayers}
         keyExtractor={(item) => item.id.toString()}
-        ListHeaderComponent={
-          <View style={styles.tableHeader}>
-            <Text style={[styles.tableLeftCell, styles.headerCell]}>이름</Text>
-            <Text style={[styles.tableCell, styles.headerCell]}>넘버</Text>
-            <Text style={[styles.tableCell, styles.headerCell]}>포지션</Text>
-            <Text style={[styles.tableCell, styles.headerCell]}>키</Text>
-            <Text style={[styles.tableCell, styles.headerCell]}>몸무게</Text>
-          </View>
-        }
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => navigation.navigate('PlayerDetail', { player: item, teamName: teams.find((team) => team.id === selectedTeam)?.fullName })}
           >
             <View style={styles.tableRow}>
+              <Image 
+                  source={{ uri: item.imagePath }}
+                  style={styles.imageStyle}
+              />
               <Text style={styles.tableLeftCell}>{item.firstName} {item.lastName}</Text>
-              <Text style={styles.tableCell}>{item.jerseyNumber || 'N/A'}</Text>
-              <Text style={styles.tableCell}>{item.position || 'N/A'}</Text>
-              <Text style={styles.tableCell}>{convertHeightToMeters(item.height) + "m" || 'N/A'}</Text>
-              <Text style={styles.tableCell}>{convertWeightToKg(item.weight) + "kg"|| 'N/A'}</Text>
             </View>
           </TouchableOpacity>
         )}
@@ -130,7 +121,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    padding: 10,
+    //padding: 10,
   },
   conferenceContainer: {
     flexDirection: 'row',
@@ -142,7 +133,7 @@ const styles = StyleSheet.create({
   },
   conferenceText: {
     color: 'gray',
-    fontSize: 16,
+    fontSize: 14,
   },
   selectedText: {
     color: '#FFD73C',
@@ -153,14 +144,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#eee',
     //borderRadius: 5,
-    marginBottom: 20,
+    //marginBottom: 20,
   },
   picker: {
+    width: "50%",
     //height: 50,
     //margin: 5,
-    flex: 1,
+    //flex: 1,
   },
   pickerTeam: {
     //height: 50,
@@ -170,20 +162,22 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    paddingBottom: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+    //paddingBottom: 10,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
     paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: "center"
   },
   tableCell: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: 20,
   },
   headerCell: {
     fontWeight: 'bold',
@@ -191,6 +185,13 @@ const styles = StyleSheet.create({
   tableLeftCell: {
     flex: 1,
     textAlign: 'left',
-    fontSize: 14,
+    fontSize: 16,
+    
+  },
+  imageStyle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20, // 둥근 이미지(원형)
+    marginRight: 10
   },
 });
