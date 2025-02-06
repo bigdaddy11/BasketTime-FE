@@ -25,6 +25,7 @@ export default function MyPageScreen() {
   const menuItems = [
     { id: '2', title: '쪽지함', routeName: "MessageInbox" },
     { id: '3', title: '문의하기', routeName: "ContactUs" },
+    { id: '6', title: '오픈소스 라이선스 고지', routeName: "OpenSourceLicenseScreen"},
     { id: '4', title: '앱버전', version: appVersion , routeName: "Version" },
     session
         ? { id: '5', title: '로그아웃', routeName: 'Logout' } // 세션이 있을 경우 로그아웃
@@ -93,7 +94,7 @@ export default function MyPageScreen() {
       });
       navigation.replace('Login'); // 홈 화면으로 이동
       return;
-    } else if (item.routeName === 'Version'){
+    } else if (item.routeName === 'Version' ){
       return;
     }
     // 다른 메뉴로 이동

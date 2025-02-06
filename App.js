@@ -29,9 +29,11 @@ import MessageCompose from './screens/mypage/MessageCompose';
 import MessageInbox from './screens/mypage/MessageInbox';
 import ContactUs from './screens/mypage/ContactUs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import { LoadingProvider } from './contexts/LoadingContext'; // 컨텍스트 가져오기
 import LoadingScreen from './contexts/LoadingScreen'
+import OpenSourceLicenseScreen from './screens/mypage/OpenSourceLicenseScreen';
 
 // Stack Navigator for each tab
 const Stack = createStackNavigator();
@@ -56,7 +58,8 @@ function CustomHeader({ navigation }) {
       {route.name === 'Main' && (
       <View>
         <TouchableOpacity onPress={() => navigation.navigate('MessageCompose')}>
-          <SimpleLineIcons name="envelope-letter" size={22} color="#aaa" />
+          
+          <MaterialCommunityIcons name="email-plus-outline" size={24} color="#eee" />
           {/* <EvilIcons name="envelope" size={30} color="#aaa"/> */}
         </TouchableOpacity>
       </View>
@@ -121,6 +124,7 @@ function RootNavigator() {
         <Stack.Screen name="MessageCompose" component={MessageCompose} options={{ title: '쪽지 쓰기' }} />
         <Stack.Screen name="MessageInbox" component={MessageInbox} options={{ title: '쪽지함' }} />
         <Stack.Screen name="ContactUs" component={ContactUs} options={{ title: '문의하기' }} />
+        <Stack.Screen name="OpenSourceLicenseScreen" component={OpenSourceLicenseScreen} options={{ title: '오픈소스 라이선스 고지지' }} />
       </Stack.Navigator>
   );
 }
