@@ -227,43 +227,16 @@ export default function LoginScreen({ navigation }) {
         >
             <View style={styles.iconAndTextContainer}>
                 <AntDesign name="google" size={24} color="#fff" style={styles.iconLayout}/>
-                <Text style={styles.loginButtonText}>구글 Oauth 로그인</Text>
+                <Text style={styles.loginButtonText}>구글 아이디 로그인</Text>
             </View>
         </TouchableOpacity>
         {/* 구글 로그인 버튼 */}
 
-        <TouchableOpacity 
-            style={[styles.loginButton, styles.googleButton]} 
-            title="Login with Google"
-            onPress={handleGoogleLogin}
-        >
-            <View style={styles.iconAndTextContainer}>
-                <AntDesign name="google" size={24} color="#fff" style={styles.iconLayout}/>
-                <Text style={styles.loginButtonText}>구글 아이디로 로그인</Text>
-            </View>
-        </TouchableOpacity>
-
-        {/* 네이버 로그인 버튼 */}
-        <TouchableOpacity style={[styles.loginButton, styles.naverButton]} onPress={handleNaverLogin}>
-            <View style={styles.iconAndTextContainer}>
-                <Text style={styles.naverIcon}>N</Text>
-                <Text style={styles.loginButtonText}>네이버 아이디로 로그인</Text>
-            </View>
-        </TouchableOpacity>
-
         {/* 카카오오 OAuth2 버튼 */}
         <TouchableOpacity style={[styles.loginButton, styles.kakaoButton]} onPress={handleOauthKakaoLogin}>
             <View style={styles.iconAndTextContainer}>
-                <FontAwesome name="comment" size={24} color="#fff" style={styles.iconLayout}/>
-                <Text style={styles.loginButtonText}>카카오 Oauth 로그인</Text>
-            </View>
-        </TouchableOpacity>
-
-        {/* 카카오 로그인 버튼 */}
-        <TouchableOpacity style={[styles.loginButton, styles.kakaoButton]} onPress={handleKakaoLogin}>
-            <View style={styles.iconAndTextContainer}>
-                <FontAwesome name="comment" size={24} color="#fff" style={styles.iconLayout}/>
-                <Text style={styles.loginButtonText}>카카오 계정으로 로그인</Text>
+                <FontAwesome name="comment" size={24} color="black" style={styles.iconLayout}/>
+                <Text style={styles.loginButtonKakaoText }>카카오 아이디 로그인</Text>
             </View>
         </TouchableOpacity>
         </View>
@@ -276,7 +249,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
-    paddingHorizontal: 20,
+    paddingHorizontal: 30,
   },
   logo: {
 
@@ -300,7 +273,14 @@ const styles = StyleSheet.create({
   },
   loginButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
+    fontWeight: 600
+    //flex: 1
+  },
+  loginButtonKakaoText: {
+    color: 'black',
+    fontSize: 14,
+    fontWeight: 600
     //flex: 1
   },
   naverButton: {
@@ -316,11 +296,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row', // 아이콘과 텍스트를 가로로 배치
     alignItems: 'center', // 아이콘과 텍스트를 수직 중앙 정렬
     justifyContent: 'center',     // 텍스트를 부모 컨테이너의 중앙에 위치
-    width: '100%',                // 전체 너비 사용
+    //width: '100%',                // 전체 너비 사용
+    //padding: 5
+    paddingHorizontal: 20
   },
   iconLayout: {
-    marginLeft: 10,
-    marginRight: 10,              // 아이콘과 텍스트 사이의 간격
+    paddingHorizontal: 10,
+    //marginLeft: 10,
+    //marginRight: 10,              // 아이콘과 텍스트 사이의 간격
     justifyContent: "flex-start",
     //flex: 1
   },  

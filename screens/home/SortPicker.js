@@ -13,7 +13,7 @@ const SortPicker = ({ onSortChange }) => {
   };
 
   return (
-    <View style={{ justifyContent: "center", backgroundColor: "#eee",}}>
+    <View style={{ justifyContent: "center", backgroundColor: "#eee"}}>
       <Picker
         selectedValue={selectedSort}
         onValueChange={handleSortChange}
@@ -29,7 +29,7 @@ const SortPicker = ({ onSortChange }) => {
 
 const styles = StyleSheet.create({
     pickerItem: {
-      fontSize: 13,
+      fontSize: 11,
     },
   });
 

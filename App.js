@@ -59,7 +59,7 @@ function CustomHeader({ navigation }) {
       <View>
         <TouchableOpacity onPress={() => navigation.navigate('MessageCompose')}>
           
-          <MaterialCommunityIcons name="email-plus-outline" size={24} color="#eee" />
+          <MaterialCommunityIcons name="email-plus-outline" size={24} color="#ccc" />
           {/* <EvilIcons name="envelope" size={30} color="#aaa"/> */}
         </TouchableOpacity>
       </View>
