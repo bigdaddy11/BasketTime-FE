@@ -186,7 +186,10 @@ export default function CreateCommunity({ route, navigation }) {
           text1: '게시글이 저장되었습니다.',
           position: 'bottom'
         });
-        navigation.navigate('Main', { screen: 'Home', params: { refresh: true } });
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Main' }], // 스택을 초기화하고 'Main' 화면만 남김
+        });
       } else {
         showToast({
           type: 'error',

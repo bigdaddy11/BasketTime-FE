@@ -8,6 +8,7 @@ import { Category } from './home/Category';
 import api from './common/api.js';
 import { SessionContext } from '../contexts/SessionContext';
 import DrawPreviewList from './home/DrawPreviewList.js';
+import SortPicker from './home/SortPicker.js';
 
 export default function HomeScreen({ route }) {
   const navigation = useNavigation();
@@ -20,6 +21,8 @@ export default function HomeScreen({ route }) {
   const [refreshing, setRefreshing] = useState(false); // 새로고침 상태
   const [page, setPage] = useState(1); // 현재 페이지
   const [hasMore, setHasMore] = useState(true); // 더 가져올 데이터가 있는지 여부
+  const [sortOrder, setSortOrder] = useState('latest'); // 정렬 상태 추가
+
 
   useFocusEffect(
     React.useCallback(() => {
@@ -31,6 +34,12 @@ export default function HomeScreen({ route }) {
       }
     }, [route.params?.refresh])
   );
+
+  useEffect(() => {
+    setPosts([]);
+    setPage(0);
+    loadPosts(0, true);
+  }, [sortOrder]);
 
   useEffect(() => {
     setPosts([]);
@@ -54,6 +63,7 @@ export default function HomeScreen({ route }) {
           userId: session.id,
           page: pageToFetch,
           size: 10, // 한 번에 가져올 데이터 수
+          sort: sortOrder, // 정렬 기준 추가
         },
       });
 
@@ -93,6 +103,7 @@ export default function HomeScreen({ route }) {
       <View>
         <Category onSelectCategory={setSelectedCategory} />
         <DrawPreviewList />
+        <SortPicker onSortChange={setSortOrder} />
       </View>
     );
   }, [selectedCategory]);

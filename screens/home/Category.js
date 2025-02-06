@@ -86,6 +86,8 @@ const styles = StyleSheet.create({
         flexDirection: "row", // 스크롤뷰와 고정된 항목을 가로 배치
         alignItems: "center",
         paddingHorizontal: 5,
+        borderBottomWidth: 1,
+        borderBlockColor: "#eee"
     },
     scrollView: {
         flex: 1, // 스크롤뷰가 최대한 너비를 차지하도록 설정

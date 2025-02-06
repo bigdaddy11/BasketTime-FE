@@ -66,7 +66,8 @@ export default function DrawPreviewList() {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 10,
+    marginVertical: 5,
+    //marginTop: 10,
   },
   title: {
     fontSize: 18,
