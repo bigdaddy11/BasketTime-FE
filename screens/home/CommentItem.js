@@ -154,7 +154,8 @@ const styles = StyleSheet.create({
   content: {
     fontSize: 14,
     color: '#444',
-  },modalOverlay: {
+  },
+  modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',

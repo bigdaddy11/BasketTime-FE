@@ -3,27 +3,16 @@ import {
   View,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
-  FlatList,
+  Alert,
   Modal,
   Image
 } from "react-native";
 import BasketballCourtComments from "./BasketballCourtComments";
+import api from "../common/api.js";
 
 const DEFAULT_IMAGE = require("../../assets/noImage.png"); // 기본 이미지 추가
 
 const PlaceModal = ({ isVisible, place, onClose }) => {
-  const [comments, setComments] = useState([]); // 댓글 리스트
-  const [newComment, setNewComment] = useState(""); // 새 댓글 입력값
-
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      setComments([...comments, { id: Date.now(), text: newComment }]);
-      setNewComment("");
-    }
-  };
-
   return (
     <Modal
       visible={isVisible}
@@ -33,7 +22,7 @@ const PlaceModal = ({ isVisible, place, onClose }) => {
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-            <View style={{borderBottomWidth: 1, borderBottomColor: "#ddd", paddingVertical: 10}}>
+            <View style={{borderBottomWidth: 0, borderBottomColor: "#ddd", paddingVertical: 10}}>
                 <Image
                     source={place?.image ? { uri: place.image } : DEFAULT_IMAGE}
                     style={styles.placeImage}
@@ -42,15 +31,9 @@ const PlaceModal = ({ isVisible, place, onClose }) => {
                 <Text style={styles.modalText}>📍 {place?.address}</Text>
                 <Text style={styles.modalText}>⭐ 평점: {place?.rating}</Text>
             </View>
-
           {/* 댓글 컴포넌트 호출 (courtId 전달) */}
-          <BasketballCourtComments courtId={place?.id} />
+          <BasketballCourtComments courtId={place?.id} style={styles.commentStyleContainer}/>
 
-          {/* <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-end",}}>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                <Text style={styles.closeButtonText}>닫기</Text>
-            </TouchableOpacity>
-          </View> */}
           
         </View>
       </View>
@@ -64,6 +47,8 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       alignItems: "center",
       backgroundColor: "rgba(0, 0, 0, 0.5)",
+      minHeight: "45%",
+      maxHeight: "100%"
     },
     modalContent: {
       width: "90%",
@@ -106,6 +91,10 @@ const styles = StyleSheet.create({
       borderRadius: 5,
     },
     closeButtonText: { color: "white", fontWeight: "bold" },
+    commentStyleContainer: {
+      flex: 1,
+      height: "90%"
+    }
   });
 
 export default PlaceModal;

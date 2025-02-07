@@ -9,38 +9,29 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
+  Modal,
   Keyboard,
   TouchableOpacity,
 } from "react-native";
 import api from "../common/api.js";
 import { SessionContext } from "../../contexts/SessionContext";
 import { showToast } from "../common/toast";
+import { useNavigation } from '@react-navigation/native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function BasketballCourtComments({ courtId }) {
   const { session } = useContext(SessionContext); // 세션 정보 가져오기
   const [comments, setComments] = useState([]); // 댓글 데이터
   const [newComment, setNewComment] = useState(""); // 새로운 댓글 입력값
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false); // 모달 상태
+  const [selectedCommentId, setSelectedCommentId] = useState(null); // 선택된 댓글 ID
+  const [selectedComment, setSelectedComment] = useState(null); // 선택된 댓글 내용용
+  const navigation = useNavigation();
 
   useEffect(() => {
-    console.log(courtId);
     fetchComments(); // 농구장 ID 기반 댓글 조회
   }, [courtId]);
-
-  useEffect(() => {
-    const showListener = Keyboard.addListener("keyboardDidShow", () => {
-      setKeyboardVisible(true);
-    });
-
-    const hideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setKeyboardVisible(false);
-    });
-
-    return () => {
-      showListener.remove();
-      hideListener.remove();
-    };
-  }, []);
 
   // **농구장 댓글 조회**
   const fetchComments = async () => {
@@ -81,10 +72,11 @@ export default function BasketballCourtComments({ courtId }) {
     }
 
     try {
-      await api.post(`/api/courts/comments/${courtId}`, {
-        commentText: newComment,
+      await api.post(`/api/courts/comments`, {
+        content: newComment,
         type: "C",
         userId: session.id,
+        courtId: courtId
       });
       setNewComment("");
       fetchComments(); // 댓글 목록 갱신
@@ -101,38 +93,43 @@ export default function BasketballCourtComments({ courtId }) {
   };
 
   // **댓글 삭제**
-  const handleDeleteComment = (id) => {
-    Alert.alert("댓글 삭제", "이 댓글을 삭제하시겠습니까?", [
-      { text: "취소", style: "cancel" },
-      {
-        text: "삭제",
-        onPress: async () => {
-          try {
-            await api.delete(`/api/courts/comments/${id}`);
-            showToast({
-              type: "success",
-              text1: "댓글이 삭제되었습니다.",
-              position: "bottom",
-            });
-            fetchComments(); // 댓글 목록 재조회
-          } catch (error) {
-            console.error("Error deleting comment:", error);
-            showToast({
-              type: "error",
-              text1: "댓글 삭제 중 문제가 발생했습니다.",
-              position: "bottom",
-            });
-          }
-        },
-      },
-    ]);
+  const handleDeleteComment = async (id) => {
+
+    Alert.alert(
+        '댓글 삭제',
+        '이 댓글을 삭제하시겠습니까?',
+        [
+          { text: '취소', style: 'cancel' },
+          {
+            text: '삭제',
+            onPress: async () => {
+              try {
+                await api.delete(`/api/courts/comments/${id}`);
+                showToast({
+                  type: 'success',
+                  text1: '댓글이 삭제제되었습니다.',
+                  position: 'bottom'
+                });
+                
+                fetchComments()
+              } catch (error) {
+                console.error('Error deleting comment:', error);
+                showToast({
+                  type: 'error',
+                  text1: '댓글 삭제제 중 문제가 발생했습니다.',
+                  position: 'bottom'
+                });
+              }
+            },
+          },
+        ],
+        { cancelable: false }
+      );
   };
 
   return (
-    <KeyboardAvoidingView
+    <View
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={keyboardVisible ? 80 : 0} // 키보드 동적 오프셋
     >
       {/* 댓글 리스트 */}
       <FlatList
@@ -144,20 +141,44 @@ export default function BasketballCourtComments({ courtId }) {
               <Text style={styles.commentAuthor}>{item.nickName}</Text>
               <Text style={styles.commentTime}>{item.timeAgo}</Text>
             </View>
-            <Text style={styles.commentText}>{item.commentText}</Text>
-            {session?.id === item.userId && (
-              <TouchableOpacity onPress={() => handleDeleteComment(item.id)} style={styles.deleteButton}>
-                <Text style={styles.deleteButtonText}>삭제</Text>
-              </TouchableOpacity>
-            )}
+            <View style={styles.headerRight}>
+                {session?.id === item.userId && (
+                <TouchableOpacity onPress={() => handleDeleteComment(item.id)} style={{ padding: 0, marginTop: -20 }}>
+                    <Ionicons name="trash-outline" size={16} color="#999" />
+                </TouchableOpacity>
+                )}
+            </View>
+            <TextInput 
+                style={styles.commentText} 
+                value={item.content} />
           </View>
         )}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>댓글이 없습니다. 첫 댓글을 남겨보세요!</Text>
+            <Text style={styles.emptyText}>댓글이 없습니다. </Text>
+            <Text style={styles.emptyText}>최초로 댓글을 남겨보세요!</Text>
           </View>
         }
       />
+
+      {/* 수정/삭제 모달 */}
+        <Modal
+            transparent={true}
+            visible={isModalVisible}
+            animationType="fade"
+            onRequestClose={() => setIsModalVisible(false)} // 뒤로가기 버튼 동작
+            >
+            <TouchableOpacity
+                style={styles.modalOverlay}
+                activeOpacity={1}
+                onPress={() => setIsModalVisible(false)} // 모달 닫기
+            />
+            <View style={styles.modalContent}>
+                <TouchableOpacity style={styles.modalButton} onPress={handleDeleteComment}>
+                    <Text style={styles.modalButtonText}>삭제하기</Text>
+                </TouchableOpacity>
+            </View>
+        </Modal>
 
       {/* 댓글 입력창 */}
       <View style={styles.inputSection}>
@@ -169,24 +190,31 @@ export default function BasketballCourtComments({ courtId }) {
         />
         <Button title="등록" onPress={handleCommentSubmit} />
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    //flex: 1,
+    justifyContent: "flex-end", // 모달을 화면 하단에 고정
     backgroundColor: "#fff",
   },
   commentItem: {
     padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd"
+    borderTopWidth: 1,
+    borderColor: "#ddd"
   },
   commentHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
+    flex: 1,
     marginBottom: 5,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    flex: 1
   },
   commentAuthor: {
     fontWeight: "bold",
@@ -209,7 +237,9 @@ const styles = StyleSheet.create({
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: 40,
+    
+    borderTopWidth: 1,
+
     //lex: 1
     //marginVertical: 20,
   },
@@ -235,5 +265,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 5,
     marginRight: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    //padding: 20,
+    //borderRadius: 10,
+    alignItems: 'baseline',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginVertical: 5,
+    backgroundColor: 'white',
+    //borderRadius: 5,
+    //width: 200,
+  },
+  modalButtonText: {
+    color: 'black',
+    fontSize: 14,
+    textAlign: 'left',
   },
 });

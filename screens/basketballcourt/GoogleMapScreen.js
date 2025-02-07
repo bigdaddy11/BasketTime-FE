@@ -3,12 +3,13 @@ import { View, StyleSheet, TextInput, Text } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import PlaceModal from "./PlaceModal";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
-//const GOOGLE_MAPS_API_KEY = "AIzaSyCiP64B8lfsCRHNDa94JRJJ0JI1qd8kXuQ"; // API 키를 여기에 입력하세요.
 const GOOGLE_MAPS_API_KEY = "AIzaSyD5TbdDeXOaL2B5V7tPv7TNIEZo0V2pJtI";
 
 const GoogleMapScreen = () => {
   const mapViewRef = useRef(null);
+  const navigation = useNavigation();
   const [region, setRegion] = useState({
     latitude: 37.5665,
     longitude: 126.9780,
@@ -20,6 +21,8 @@ const GoogleMapScreen = () => {
   const [markers, setMarkers] = useState([]);
   const [selectedPlace, setSelectedPlace] = useState(null); // 선택된 장소 정보
   const [isModalVisible, setIsModalVisible] = useState(false); // 모달 상태
+
+  const selectedPlaceRef = useRef(selectedPlace);
 
   useEffect(() => {
     (async () => {
@@ -57,6 +60,20 @@ const GoogleMapScreen = () => {
 
   }, []);
 
+  // navigation.goBack() 후에도 상태 유지
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log("화면 포커스됨: 기존 선택 장소 유지", selectedPlaceRef.current);
+
+      // `selectedPlace`가 있으면 다시 모달을 열어줌
+      if (selectedPlaceRef.current) {
+        setTimeout(() => {
+          setIsModalVisible(true);
+        }, 300);
+      }
+    }, [])
+  );
+
   const searchPlaces = async (query, latitude, longitude) => {
     const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${latitude},${longitude}&radius=5000&key=${GOOGLE_MAPS_API_KEY}`;
 
@@ -87,8 +104,9 @@ const GoogleMapScreen = () => {
     return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${GOOGLE_MAPS_API_KEY}`;
   };
   const handleMarkerPress = (place) => {
-    console.log(place);
+    console.log("마커 클릭됨:", place);
     setSelectedPlace(place);
+    selectedPlaceRef.current = place; // `useRef`에 저장하여 상태 유지
     setIsModalVisible(true);
   };
 
@@ -129,13 +147,18 @@ const GoogleMapScreen = () => {
           />
         ))}
       </MapView>
-
-      {/* 장소 정보 모달 */}
-      <PlaceModal
-        isVisible={isModalVisible}
-        place={selectedPlace}
-        onClose={() => setIsModalVisible(false)}
-      />
+ 
+      {/* 모달이 정상적으로 열리는지 확인 */}
+      {isModalVisible && selectedPlace && (
+        <PlaceModal
+          isVisible={isModalVisible}
+          place={selectedPlace}
+          onClose={() => {
+            console.log("모달 닫힘");
+            setIsModalVisible(false);
+          }}
+        />
+      )}
     </View>
   );
 };
