@@ -15,6 +15,7 @@ import { SessionContext } from './contexts/SessionContext';
 
 import HomeScreen from './screens/HomeScreen';
 import BasketballScreen from './screens/BasketballScreen';
+import BasketBallCourtScreen from './screens/BasketBallCourtScreen';
 import MyPageScreen from './screens/MyPageScreen';
 import PlayerDetailScreen from './screens/basketball/PlayerDetailScreen';
 import Login from './screens/mypage/Login';
@@ -93,7 +94,7 @@ function MainTabs() {
     })}
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: '홈', headerShown: false }} />
-      <Tab.Screen name="Basketball" component={BasketballScreen} options={{ tabBarLabel: '프로농구', headerShown: false  }} />
+      <Tab.Screen name="Basketball" component={BasketBallCourtScreen} options={{ tabBarLabel: '우동농', headerShown: false  }} />
       <Tab.Screen name="Draw" component={DrawScreen} options={{ tabBarLabel: 'Draw', headerShown: false  }} />
       <Tab.Screen name="MyPage" component={MyPageScreen} options={{ tabBarLabel: '마이페이지', headerShown: false  }} />
     </Tab.Navigator>
