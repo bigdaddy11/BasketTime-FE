@@ -25,7 +25,6 @@ import DrawScreen from './screens/DrawScreen';
 import CreateCommunity from './screens/home/CreateCommunity';
 import SelectCommunity from './screens/home/SelectCommunity'; 
 import EditComment from './screens/home/EditComment';
-import EditCourtComment from './screens/basketballcourt/EditCourtComment';
 import ImageEditor from './screens/common/ImageEditor';
 import MessageCompose from './screens/mypage/MessageCompose';
 import MessageInbox from './screens/mypage/MessageInbox';
@@ -122,7 +121,6 @@ function RootNavigator() {
         <Stack.Screen name="CreateCommunity" component={CreateCommunity} options={{ title: '글 작성' }} />
         <Stack.Screen name="SelectCommunity" component={SelectCommunity} options={{ title: '글 수정/조회' }} />
         <Stack.Screen name="EditComment" component={EditComment} options={{ title: '댓글 수정' }} />
-        <Stack.Screen name="EditCourtComment" component={EditCourtComment} options={{ title: '농구장 댓글 수정' }} />
         <Stack.Screen name="ImageEditor" component={ImageEditor} />
         <Stack.Screen name="MessageCompose" component={MessageCompose} options={{ title: '쪽지 쓰기' }} />
         <Stack.Screen name="MessageInbox" component={MessageInbox} options={{ title: '쪽지함' }} />

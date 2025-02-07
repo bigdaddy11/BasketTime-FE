@@ -341,16 +341,17 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     position: 'absolute',
-    top: 0,
-    right: 0,
+    top: 2,
+    right: 2,
     backgroundColor: 'black',
-    //borderRadius: 5,
+    borderRadius: 20,
     padding: 2,
 
   },
   removeText: {
     color: '#fff',
-    fontWeight: '100',
+    fontWeight: '600',
+    fontSize: 13
   },
   footer: {
     paddingVertical: 5,

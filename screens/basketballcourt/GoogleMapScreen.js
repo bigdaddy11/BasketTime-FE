@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, StyleSheet, TextInput, Text } from "react-native";
+import { View, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import PlaceModal from "./PlaceModal";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyD5TbdDeXOaL2B5V7tPv7TNIEZo0V2pJtI";
 
 const GoogleMapScreen = () => {
-  const mapViewRef = useRef(null);
   const navigation = useNavigation();
   const [region, setRegion] = useState({
     latitude: 37.5665,
@@ -22,8 +22,6 @@ const GoogleMapScreen = () => {
   const [selectedPlace, setSelectedPlace] = useState(null); // 선택된 장소 정보
   const [isModalVisible, setIsModalVisible] = useState(false); // 모달 상태
 
-  const selectedPlaceRef = useRef(selectedPlace);
-
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -34,20 +32,13 @@ const GoogleMapScreen = () => {
         return;
       }
       let location = await Location.getCurrentPositionAsync({});
-
+     
       const userRegion = {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
         latitudeDelta: 0.05,
         longitudeDelta: 0.05,
       };
-
-      setRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      });
 
       setRegion(userRegion);
 
@@ -60,19 +51,26 @@ const GoogleMapScreen = () => {
 
   }, []);
 
-  // navigation.goBack() 후에도 상태 유지
-  useFocusEffect(
-    React.useCallback(() => {
-      console.log("화면 포커스됨: 기존 선택 장소 유지", selectedPlaceRef.current);
+    const moveToCurrentLocation = async () => {
+        console.log("위치추적");
+        // 위치 권한 요청
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            setErrorMsg('위치 권한이 거부되었습니다.');
+            return;
+        }
 
-      // `selectedPlace`가 있으면 다시 모달을 열어줌
-      if (selectedPlaceRef.current) {
-        setTimeout(() => {
-          setIsModalVisible(true);
-        }, 300);
-      }
-    }, [])
-  );
+        // 현재 위치 가져오기
+        let location = await Location.getCurrentPositionAsync({});
+        console.log(location);
+        const userRegion = {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          };
+        setRegion(userRegion);
+    }
 
   const searchPlaces = async (query, latitude, longitude) => {
     const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${latitude},${longitude}&radius=5000&key=${GOOGLE_MAPS_API_KEY}`;
@@ -104,9 +102,7 @@ const GoogleMapScreen = () => {
     return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${GOOGLE_MAPS_API_KEY}`;
   };
   const handleMarkerPress = (place) => {
-    console.log("마커 클릭됨:", place);
     setSelectedPlace(place);
-    selectedPlaceRef.current = place; // `useRef`에 저장하여 상태 유지
     setIsModalVisible(true);
   };
 
@@ -125,6 +121,11 @@ const GoogleMapScreen = () => {
  
   return (
     <View style={styles.container}>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity onPress={moveToCurrentLocation}>
+            <MaterialIcons name="my-location" size={24} color="#FFD73C" />
+        </TouchableOpacity>
+      </View>
       <TextInput
         style={styles.searchBox}
         placeholder="우리 동네 농구장 검색"
@@ -135,7 +136,6 @@ const GoogleMapScreen = () => {
       <MapView 
         style={styles.map} 
         region={region} 
-        ref={mapViewRef}
         onRegionChangeComplete={handleRegionChangeComplete} // 맵 이동 완료 시 이벤
         >
         {markers.map((marker) => (
@@ -154,7 +154,6 @@ const GoogleMapScreen = () => {
           isVisible={isModalVisible}
           place={selectedPlace}
           onClose={() => {
-            console.log("모달 닫힘");
             setIsModalVisible(false);
           }}
         />
@@ -176,6 +175,17 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   map: { flex: 1 },
+  buttonContainer: {
+    position: 'absolute',
+    top: 20,
+    left: 10,
+    weight: 20,
+    borderRadius: 30,
+    marginRight: 2,
+    padding: 8,
+    backgroundColor: "white",
+    zIndex: 1,
+},
 });
 
 export default GoogleMapScreen;
