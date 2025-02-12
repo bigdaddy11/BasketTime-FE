@@ -77,4 +77,4 @@ yarn-error.*
 
 # @end expo-cli
 
-screens/common/api.js
+screens/./common/api.js

@@ -23,14 +23,25 @@
             "extraMavenRepos": ["https://devrepo.kakao.com/nexus/content/groups/public/"]
           }
         }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FFD73C",
+          "image": "./assets/splash.png",
+          "dark": {
+            "image": "./assets/splash.png",
+            "backgroundColor": "#FFD73C"
+          }
+        }
       ]
     ],
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "contain"
+      
     },
     "ios": {
       "supportsTablet": true
@@ -49,8 +60,8 @@
         "com.kakao.sdk.AppKey": "6b8e6f2e31df20696183ff58f08f8d60"
       },
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#FFD73C"
       },
       "jsEngine": "hermes",
       "package": "com.jaehyunheo.baskettime",

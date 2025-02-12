@@ -5,7 +5,7 @@ import { SessionContext } from '../contexts/SessionContext';
 import Constants from 'expo-constants';
 import { showToast } from './common/toast';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import api from './common/api';
+import api from './common/api.js';
 
 export default function MyPageScreen() {
   const navigation = useNavigation();

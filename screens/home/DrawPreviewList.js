@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView, Linking } from 'react-native';
-import api from '../common/api';
+import api from '../common/api.js';
+
+const DEFAULT_IMAGE = require("../../assets/noImage.png"); // 기본 이미지 추가
 
 export default function DrawPreviewList() {
   const [drawData, setDrawData] = useState([]); // Draw 데이터 상태
@@ -46,11 +48,11 @@ export default function DrawPreviewList() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}> 금주의 🔥 드로우</Text>
+      <Text style={styles.title}> 곧 출시될 🔥 드로우</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollContainer}>
         {drawData.map((item) => (
           <TouchableOpacity key={item.id} style={styles.card} onPress={() => handleLinkPress(item.drawLink)}>
-            <Image source={{ uri: item.imagePath || 'https://via.placeholder.com/200' }} style={styles.image} />
+            <Image source={{ uri: item.imagePath || DEFAULT_IMAGE }} style={styles.image} />
             <View style={{flex: 1, alignItems: "flex-end", marginRight: 10, paddingVertical: 5}}>
                 <Text style={styles.drawSubName} >{getBrandName(item.type)}</Text>
                 <Text style={styles.drawSubName} >{item.price}</Text>
