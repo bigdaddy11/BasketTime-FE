@@ -1,4 +1,4 @@
-import React, { useContext, useEffect }  from 'react';
+import React, { useContext, useEffect, useCallback, useState  }  from 'react';
 import { Image, View, Text, StatusBar, TouchableOpacity, Platform, SafeAreaView, StyleSheet } from 'react-native';
 
 import * as SecureStore from 'expo-secure-store';
@@ -33,7 +33,11 @@ import { LoadingProvider } from './contexts/LoadingContext'; // 컨텍스트 가
 import LoadingScreen from './contexts/LoadingScreen'
 import OpenSourceLicenseScreen from './screens/mypage/OpenSourceLicenseScreen';
 
+import * as SplashScreen from 'expo-splash-screen';
+
 const GOOGLE_MAPS_API_KEY = "AIzaSyD5TbdDeXOaL2B5V7tPv7TNIEZo0V2pJtI";
+
+SplashScreen.preventAutoHideAsync();
 
 // Stack Navigator for each tab
 const Stack = createStackNavigator();
@@ -133,6 +137,23 @@ function RootNavigator() {
 }
 
 export default function App() {
+  const [appIsReady, setAppIsReady] = useState(false);
+
+  // 앱 초기화 작업
+  useEffect(() => {
+    async function prepare() {
+      try {
+        // 🎯 여기서 필요한 초기 로드 작업 (예: API 호출, 세션 확인 등)
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기 (테스트용)
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setAppIsReady(true);
+      }
+    }
+
+    prepare();
+  }, []);
 
   useEffect(() => {
     const storeApiKey = async () => {
@@ -154,14 +175,27 @@ export default function App() {
     };
 
     storeApiKey();
-  }, []);
+  }, [appIsReady]);
+
+  // 스플래시 숨기기
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      await SplashScreen.hideAsync(); // 스플래시 화면 숨김
+    }
+  }, [appIsReady]);
+
+  if (!appIsReady) {
+    return null; // 스플래시 상태 유지
+  }
 
   return (
     <NavigationContainer>
       <SessionProvider>
         <LoadingProvider>
-          <RootNavigator />
-          <Toast/>
+          <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+            <RootNavigator />
+            <Toast/>
+          </View>
         </LoadingProvider>
       </SessionProvider>
     </NavigationContainer>
