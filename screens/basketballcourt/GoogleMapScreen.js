@@ -4,10 +4,9 @@ import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import PlaceModal from "./PlaceModal";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import * as SecureStore from 'expo-secure-store';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { showToast } from "../common/toast";
-
-const GOOGLE_MAPS_API_KEY = "AIzaSyD5TbdDeXOaL2B5V7tPv7TNIEZo0V2pJtI";
 
 const GoogleMapScreen = () => {
   const navigation = useNavigation();
@@ -22,6 +21,25 @@ const GoogleMapScreen = () => {
   const [markers, setMarkers] = useState([]);
   const [selectedPlace, setSelectedPlace] = useState(null); // 선택된 장소 정보
   const [isModalVisible, setIsModalVisible] = useState(false); // 모달 상태
+
+  const [apiKey, setApiKey] = useState(null);
+
+  useEffect(() => {
+    const fetchApiKey = async () => {
+      try {
+        const key = await SecureStore.getItemAsync("GOOGLE_MAPS_API_KEY");
+        if (key) {
+          setApiKey(key);
+        } else {
+          console.error("❌ API Key가 저장되지 않았습니다.");
+        }
+      } catch (error) {
+        console.error("❌ API Key 불러오기 실패:", error);
+      }
+    };
+
+    fetchApiKey();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -54,7 +72,7 @@ const GoogleMapScreen = () => {
     // 최초 로딩 시 기본 좌표로 검색
     searchPlaces(region.latitude, region.longitude);
 
-  }, []);
+  }, [apiKey]);
 
     const moveToCurrentLocation = async () => {
         // 위치 권한 요청
@@ -76,8 +94,7 @@ const GoogleMapScreen = () => {
     }
 
   const searchPlaces = async (query, latitude, longitude) => {
-    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${latitude},${longitude}&radius=5000&key=${GOOGLE_MAPS_API_KEY}`;
-
+    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${latitude},${longitude}&radius=5000&key=${apiKey}`;
     try {
       let response = await fetch(url);
       let data = await response.json();
@@ -101,7 +118,7 @@ const GoogleMapScreen = () => {
 
   // 구글 장소 사진 URL 생성 함수
   const getPhotoUrl = (photoReference) => {
-    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${GOOGLE_MAPS_API_KEY}`;
+    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
   };
   const handleMarkerPress = (place) => {
     setSelectedPlace(place);

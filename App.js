@@ -8,21 +8,16 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Toast from 'react-native-toast-message'; // Import Toast
 
-import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+
 import { useRoute } from '@react-navigation/native';
 import { SessionProvider } from './contexts/SessionContext'; // Import the SessionProvider
-import { SessionContext } from './contexts/SessionContext';
 
 import HomeScreen from './screens/HomeScreen';
-import BasketballScreen from './screens/BasketballScreen';
 import BasketBallCourtScreen from './screens/BasketBallCourtScreen';
 import MyPageScreen from './screens/MyPageScreen';
 import PlayerDetailScreen from './screens/basketball/PlayerDetailScreen';
 import Login from './screens/mypage/Login';
-import MatchCreateScreen from './screens/match/MatchCreateScreen';
-import MapScreen from './screens/match/MapScreen';
 import DrawScreen from './screens/DrawScreen';
 import CreateCommunity from './screens/home/CreateCommunity';
 import SelectCommunity from './screens/home/SelectCommunity'; 
@@ -125,7 +120,6 @@ function RootNavigator() {
         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }}/>
         <Stack.Screen name="Loading" component={LoadingScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="PlayerDetail" component={PlayerDetailScreen} options={{ title: '선수 상세 정보' }} />
-        <Stack.Screen name="MatchCreateScreen" component={MatchCreateScreen} options={{ title: '경기매칭생성' }} />
         <Stack.Screen name="CreateCommunity" component={CreateCommunity} options={{ title: '글 작성' }} />
         <Stack.Screen name="SelectCommunity" component={SelectCommunity} options={{ title: '글 수정/조회' }} />
         <Stack.Screen name="EditComment" component={EditComment} options={{ title: '댓글 수정' }} />
@@ -154,7 +148,6 @@ export default function App() {
 
         // API 키 불러오기
         const key = await SecureStore.getItemAsync("GOOGLE_MAPS_API_KEY");
-        setApiKey(key);
       } catch (error) {
         console.error("❌ API Key 저장 오류:", error);
       }
@@ -162,7 +155,7 @@ export default function App() {
 
     storeApiKey();
   }, []);
-  
+
   return (
     <NavigationContainer>
       <SessionProvider>
