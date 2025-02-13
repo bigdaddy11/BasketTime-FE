@@ -25,7 +25,7 @@ export default function CreateCommunity({ route, navigation }) {
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState(''); // HTML 형식으로 저장
-  const [SelectedCategory, setSelectedCategory] = useState('1');
+  const [SelectedCategory, setSelectedCategory] = useState(null);
   const [categories, setCategories] = useState([]); // 카테고리 목록 상태
   const [images, setImages] = useState([]); // 업로드할 이미지 목록
 
@@ -75,6 +75,7 @@ export default function CreateCommunity({ route, navigation }) {
       try {
         const response = await api.get('/api/category'); // 카테고리 데이터 가져오기
         setCategories(response.data); // 데이터 상태로 저장
+        setSelectedCategory(response.data[0].id); //가장 먼저 가져온 배열의 id 세팅
       } catch (error) {
         showToast({
           type: 'error',
