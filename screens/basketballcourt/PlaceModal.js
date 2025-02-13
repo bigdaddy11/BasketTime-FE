@@ -26,7 +26,6 @@ const PlaceModal = ({ isVisible, place, onClose }) => {
         });
         setComments(response.data || []);
         } catch (error) {
-        console.error("Error fetching comments:", error);
         showToast({
             type: "error",
             text1: "댓글을 불러오는 중 문제가 발생했습니다.",
@@ -161,7 +160,7 @@ const PlaceModal = ({ isVisible, place, onClose }) => {
                     ListEmptyComponent={
                         <View style={styles.emptyContainer}>
                             <Text style={styles.emptyText}>댓글이 없습니다. </Text>
-                            <Text style={styles.emptyText}>최초로 댓글을 남겨보세요!</Text>
+                            <Text style={styles.emptyText}>이용 후기를 남겨보세요!</Text>
                         </View>
                     }
                 />

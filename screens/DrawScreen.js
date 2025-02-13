@@ -104,8 +104,9 @@ export default function DrawScreen() {
             <Image source={{ uri: item.imagePath || 'https://via.placeholder.com/80' }} style={styles.image} />
             <View style={styles.cardContent}>
               <Text style={styles.cardSubTitle}>{getBrandName(item.type)}</Text>
-              <Text style={styles.cardTitle}>{item.drawName}</Text>
               <Text style={styles.cardSubTitle}>{item.price}</Text>
+              <Text style={styles.cardSubTitle}>{item.releaseTime}</Text>
+              <Text style={styles.cardTitle}>{item.drawName}</Text>
             </View>
           </TouchableOpacity>
         )}
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    borderBottomWidth: 1,
+    //borderBottomWidth: 1,
     borderColor: '#ddd',
     //borderRadius: 5,
     paddingHorizontal: 10,
@@ -157,7 +158,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#eee',
     overflow: 'hidden',
   },
   image: {
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
   },
   cardSubTitle: {
     fontSize: 12,
-    color: '#555',
+    color: '#aaa',
   },
   placeholderText: {
     textAlign: 'center',

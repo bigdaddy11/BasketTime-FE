@@ -212,12 +212,15 @@ export default function LoginScreen({ navigation }) {
         <View style={styles.container}>
         {/* 상단 로고 */}
         <Image 
-            source={{uri: 'https://your-image-link.com/logo.png'}} // 로고 이미지 경로
+            source={require("../../assets/login.png")} // 로고 이미지 경로
             style={styles.logo}
         />
 
         {/* 설명 텍스트 */}
-        <Text style={styles.description}>Basket Time 에 오신것을 환영합니다</Text>
+        <View style={{marginBottom: 20}}>
+          <Text style={styles.description}>Basket Time 에 오신것을 환영해요 :)</Text>
+          <Text style={styles.description}>소셜 로그인으로 간편하게 이용해보세요!</Text>
+        </View>
 
         {/* 구글 Oauth2 버튼 */}
         <TouchableOpacity 
@@ -227,7 +230,7 @@ export default function LoginScreen({ navigation }) {
         >
             <View style={styles.iconAndTextContainer}>
                 <AntDesign name="google" size={24} color="#fff" style={styles.iconLayout}/>
-                <Text style={styles.loginButtonText}>구글 아이디 로그인</Text>
+                <Text style={styles.loginButtonText}>Google Login</Text>
             </View>
         </TouchableOpacity>
         {/* 구글 로그인 버튼 */}
@@ -236,7 +239,7 @@ export default function LoginScreen({ navigation }) {
         <TouchableOpacity style={[styles.loginButton, styles.kakaoButton]} onPress={handleOauthKakaoLogin}>
             <View style={styles.iconAndTextContainer}>
                 <FontAwesome name="comment" size={24} color="black" style={styles.iconLayout}/>
-                <Text style={styles.loginButtonKakaoText }>카카오 아이디 로그인</Text>
+                <Text style={styles.loginButtonKakaoText }> Kakao Login</Text>
             </View>
         </TouchableOpacity>
         </View>
@@ -252,14 +255,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   logo: {
-
-    resizeMode: 'contain',
-    //marginBottom: 30,
+    width: 300, 
+    height: 60,
+    resizeMode: 'cover',
+    marginBottom: 40,
   },
   description: {
-    fontSize: 16,
+    fontSize: 15,
     textAlign: 'center',
-    marginBottom: 40,
+    marginBottom: 5,
     color: '#333',
   },
   loginButton: {
@@ -269,17 +273,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 10,
     flexDirection: 'row',
-    justifyContent: 'flex-start', // 아이콘과 텍스트가 중앙 정렬되도록 추가
+    justifyContent: 'center', // 아이콘과 텍스트가 중앙 정렬되도록 추가
   },
   loginButtonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 600
     //flex: 1
   },
   loginButtonKakaoText: {
     color: 'black',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 600
     //flex: 1
   },

@@ -5,6 +5,7 @@ import * as Location from "expo-location";
 import PlaceModal from "./PlaceModal";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { showToast } from "../common/toast";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyD5TbdDeXOaL2B5V7tPv7TNIEZo0V2pJtI";
 
@@ -26,7 +27,11 @@ const GoogleMapScreen = () => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        console.log("위치 권한이 거부되었습니다.");
+        showToast({
+                    type: "error",
+                    text1: "위치 권한이 거부되었습니다.",
+                    position: "bottom",
+                });
         // 위치 권한 거부 시 기본 좌표로 검색
         searchPlaces("농구장", region.latitude, region.longitude);
         return;
@@ -52,7 +57,6 @@ const GoogleMapScreen = () => {
   }, []);
 
     const moveToCurrentLocation = async () => {
-        console.log("위치추적");
         // 위치 권한 요청
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
@@ -62,7 +66,6 @@ const GoogleMapScreen = () => {
 
         // 현재 위치 가져오기
         let location = await Location.getCurrentPositionAsync({});
-        console.log(location);
         const userRegion = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
@@ -78,7 +81,6 @@ const GoogleMapScreen = () => {
     try {
       let response = await fetch(url);
       let data = await response.json();
-      //console.log("전체 데이터:", JSON.stringify(data, null, 2));
 
       if (data.results) {
         const places = data.results.map((place) => ({

@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     minHeight: 250,
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#eee',
     backgroundColor: 'white',
     justifyContent: "center",
     alignItems: "center"
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#eee',
   },
   menuText: {
     fontSize: 16,

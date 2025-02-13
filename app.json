@@ -12,7 +12,7 @@
         "@react-native-seoul/kakao-login",
         {
           "kakaoAppKey": "6b8e6f2e31df20696183ff58f08f8d60",
-          "overrideKakaoSDKVersion": "2.11.2", 
+          "overrideKakaoSDKVersion": "2.11.2",
           "kotlinVersion": "1.9.0"
         }
       ],
@@ -20,7 +20,9 @@
         "expo-build-properties",
         {
           "android": {
-            "extraMavenRepos": ["https://devrepo.kakao.com/nexus/content/groups/public/"]
+            "extraMavenRepos": [
+              "https://devrepo.kakao.com/nexus/content/groups/public/"
+            ]
           }
         }
       ],
@@ -34,14 +36,14 @@
             "backgroundColor": "#FFD73C"
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain"
-      
+      "resizeMode": "cover"
     },
     "ios": {
       "supportsTablet": true

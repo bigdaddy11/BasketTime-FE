@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView, Linking } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import api from '../common/api.js';
 
 const DEFAULT_IMAGE = require("../../assets/noImage.png"); // 기본 이미지 추가
@@ -45,23 +46,36 @@ export default function DrawPreviewList() {
         });
       }
     };
+  
+  const renderItem = useMemo(() => ({ item }) => (
+    <TouchableOpacity key={item.id} style={styles.card} onPress={() => handleLinkPress(item.drawLink)}>
+      <FastImage
+        source={{ uri: item.imagePath || DEFAULT_IMAGE }}
+        style={styles.image}
+        resizeMode={FastImage.resizeMode.cover}
+      />
+      <View style={styles.cardContent}>
+        <Text style={styles.drawSubName}>{getBrandName(item.type)}</Text>
+        <Text style={styles.drawSubName}>{item.price}</Text>
+        <Text style={styles.drawSubName}>{item.releaseTime}</Text>
+        <Text style={styles.drawName} numberOfLines={1}>{item.drawName}</Text>
+      </View>
+    </TouchableOpacity>
+  ), []);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}> 곧 출시될 🔥 드로우</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollContainer}>
-        {drawData.map((item) => (
-          <TouchableOpacity key={item.id} style={styles.card} onPress={() => handleLinkPress(item.drawLink)}>
-            <Image source={{ uri: item.imagePath || DEFAULT_IMAGE }} style={styles.image} />
-            <View style={{flex: 1, alignItems: "flex-end", marginRight: 10, paddingVertical: 5}}>
-                <Text style={styles.drawSubName} >{getBrandName(item.type)}</Text>
-                <Text style={styles.drawSubName} >{item.price}</Text>
-                <Text style={styles.drawSubName} >{item.releaseTime}</Text>
-                <Text style={styles.drawName} numberOfLines={1}>{item.drawName}</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      <FlatList
+        data={drawData}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        initialNumToRender={5} // 최초 렌더링 개수 제한
+        windowSize={3} // 화면 내에서 유지할 뷰 개수 제한
+        removeClippedSubviews // 화면 밖의 요소 제거하여 성능 향상
+      />
     </View>
   );
 }
@@ -89,11 +103,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     //alignItems: 'center',
     justifyContent: 'center',
+    shouldRasterizeIOS: true, // iOS 최적화
+    renderToHardwareTextureAndroid: true, // Android 최적화
   },
   image: {
     width: '100%',
     height: '60%',
     resizeMode: 'cover',
+  },
+  cardContent: {
+    flex: 1,
+    alignItems: "flex-end",
+    marginRight: 10,
+    paddingVertical: 5,
   },
   drawName: {
     fontSize: 14,
