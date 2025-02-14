@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { View, Text, StyleSheet, TextInput, Button, Keyboard, Image, FlatList, Alert, Modal, TouchableOpacity } from 'react-native';
-import api from "../common/api.js";
+import api from "../common/api";
 import { ScrollView } from "react-native-gesture-handler";
 import { SessionContext } from '../../contexts/SessionContext';
 import { showToast } from "../common/toast";

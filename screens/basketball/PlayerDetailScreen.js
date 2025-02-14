@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, KeyboardAvoidingView, Platform, ScrollView, Keyboard, Image, FlatList, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import api from '../common/api.js';
+import api from '../common/api';
 import { CommentItem } from '../home/CommentItem';
 import { SessionContext } from '../../contexts/SessionContext';
 import { showToast } from '../common/toast';

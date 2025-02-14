@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, TextInput, Button, StyleSheet, Alert, FlatList, Text, KeyboardAvoidingView, Platform, Keyboard, ScrollView, Image, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import api from '../common/api.js';
+import api from '../common/api';
 import { SessionContext } from '../../contexts/SessionContext';
 import { CommentItem } from './CommentItem'; // 분리된 컴포넌트 불러오기
 import { showToast } from '../common/toast';

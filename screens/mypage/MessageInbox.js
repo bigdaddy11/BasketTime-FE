@@ -6,7 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import api from '../common/api.js';
+import api from '../common/api';
 import { SessionContext } from '../../contexts/SessionContext';
 import { showToast } from '../common/toast';
 

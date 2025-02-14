@@ -13,7 +13,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import api from '../common/api.js';
+import api from '../common/api';
 import { Picker } from '@react-native-picker/picker';
 import { SessionContext } from '../../contexts/SessionContext';
 import EvilIcons from '@expo/vector-icons/EvilIcons';

@@ -5,7 +5,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome'; // 네이버, �
 import * as Google from 'expo-auth-session/providers/google';  // Google OAuth 라이브러리 사용
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
-import api from '../common/api.js';
+import api from '../common/api';
 import { SessionContext } from '../../contexts/SessionContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { showToast } from '../common/toast';
@@ -235,11 +235,18 @@ export default function LoginScreen({ navigation }) {
         </TouchableOpacity>
         {/* 구글 로그인 버튼 */}
 
-        {/* 카카오오 OAuth2 버튼 */}
+        {/* 카카오 OAuth2 버튼 */}
         <TouchableOpacity style={[styles.loginButton, styles.kakaoButton]} onPress={handleOauthKakaoLogin}>
             <View style={styles.iconAndTextContainer}>
                 <FontAwesome name="comment" size={24} color="black" style={styles.iconLayout}/>
                 <Text style={styles.loginButtonKakaoText }> Kakao Login</Text>
+            </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.loginButton, styles.kakaoButton]} onPress={handleKakaoLogin}>
+            <View style={styles.iconAndTextContainer}>
+                <FontAwesome name="comment" size={24} color="black" style={styles.iconLayout}/>
+                <Text style={styles.loginButtonKakaoText }> Test Kakao Login</Text>
             </View>
         </TouchableOpacity>
         </View>

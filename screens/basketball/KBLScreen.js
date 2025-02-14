@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import api from '../common/api.js';
+import api from '../common/api';
 import { useNavigation } from '@react-navigation/native';
 
 export default function KBLScreen() {

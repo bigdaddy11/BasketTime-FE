@@ -2,7 +2,7 @@ import { StyleSheet, View, Image, Text, TouchableOpacity} from 'react-native';
 import React, { useState, useContext, useEffect } from 'react';
 import { Fontisto } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
-import api from '../common/api.js';
+import api from '../common/api';
 import { SessionContext } from '../../contexts/SessionContext';
 
 export function ComponentCard(jsonString){

@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Notice } from './home/Notice';
 import { ComponentCard } from './home/ComponentCard';
 import { Category } from './home/Category';
-import api from './common/api.js';
+import api from './common/api';
 import { SessionContext } from '../contexts/SessionContext';
 import DrawPreviewList from './home/DrawPreviewList.js';
 import SortPicker from './home/SortPicker.js';

@@ -22,7 +22,8 @@
           "android": {
             "extraMavenRepos": [
               "https://devrepo.kakao.com/nexus/content/groups/public/"
-            ]
+            ],
+            "kotlinVersion": "1.9.0"
           }
         }
       ],
@@ -63,6 +64,7 @@
           "apiKey": "AIzaSyD5TbdDeXOaL2B5V7tPv7TNIEZo0V2pJtI"
         }
       },
+      "googleServicesFile": "./google-services.json",
       "metaData": {
         "com.kakao.sdk.AppKey": "6b8e6f2e31df20696183ff58f08f8d60"
       },
@@ -72,7 +74,8 @@
       },
       "jsEngine": "hermes",
       "package": "com.jaehyunheo.baskettime",
-      "useNextNotificationsApi": true
+      "useNextNotificationsApi": true,
+      "buildType": "aab"
     },
     "web": {
       "favicon": "./assets/favicon.png"

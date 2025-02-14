@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView, Linking } from 'react-native';
-import FastImage from 'react-native-fast-image';
-import api from '../common/api.js';
+// import FastImage from 'react-native-fast-image';
+import api from '../common/api';
 
 const DEFAULT_IMAGE = require("../../assets/noImage.png"); // 기본 이미지 추가
 
@@ -49,10 +49,15 @@ export default function DrawPreviewList() {
   
   const renderItem = useMemo(() => ({ item }) => (
     <TouchableOpacity key={item.id} style={styles.card} onPress={() => handleLinkPress(item.drawLink)}>
-      <FastImage
+      {/* <FastImage
         source={{ uri: item.imagePath || DEFAULT_IMAGE }}
         style={styles.image}
         resizeMode={FastImage.resizeMode.cover}
+      /> */}
+      <Image
+        source={{ uri: item.imagePath || DEFAULT_IMAGE }}
+        style={styles.image}
+        // resizeMode={FastImage.resizeMode.cover}
       />
       <View style={styles.cardContent}>
         <Text style={styles.drawSubName}>{getBrandName(item.type)}</Text>
