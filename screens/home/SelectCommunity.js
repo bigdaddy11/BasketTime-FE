@@ -52,6 +52,24 @@ export default function SelectCommunity({ route, navigation }) {
     
   }, []);
 
+  const flattenComments = (comments) => {
+    const flattened = [];
+    const seen = new Map(); // id 기반으로 중복 체크
+  
+    const traverse = (comment, depth = 0) => {
+      if (seen.has(comment.id)) return; // 중복 방지
+      seen.set(comment.id, true);       // 현재 댓글 추가
+      flattened.push({ ...comment, depth });
+  
+      if (comment.replies) {
+        comment.replies.forEach(reply => traverse(reply, depth + 1));
+      }
+    };
+  
+    comments.forEach(comment => traverse(comment));
+    return flattened;
+  };
+
   useEffect(() => {
     const preloadImages = async () => {
       try {
@@ -163,7 +181,8 @@ export default function SelectCommunity({ route, navigation }) {
         params: {
           type: "P"
         }});
-      setComments(response.data || []);
+        const flattenedComments = flattenComments(response.data || []);
+        setComments(flattenedComments);
     } catch (error) {
       console.error('Error fetching comments:', error);
       showToast({
@@ -282,7 +301,7 @@ export default function SelectCommunity({ route, navigation }) {
         {/* <Text style={styles.commentHeader}>댓글</Text> */}
         <FlatList
           data={comments}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => `${item.id}-${item.parentId || 'root'}`}  // 부모 ID까지 추가
           ListHeaderComponent={
             <View>
               {/* 이미지와 정보 */}
@@ -337,6 +356,9 @@ export default function SelectCommunity({ route, navigation }) {
               onDelete={() => handleDeleteComment(item.id)} // 댓글 삭제 핸들러에 ID 전달
               //onEdit={() => handleEditComment(item.id, item.commentText)} // 수정 핸들러
               commentId={item.id}
+              depth={item.depth}
+              postId={postId}
+              //onReply={handleReplySubmit} // 대댓글 작성
             />
           )}
           ListEmptyComponent={
