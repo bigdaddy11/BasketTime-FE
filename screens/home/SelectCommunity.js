@@ -264,6 +264,46 @@ export default function SelectCommunity({ route, navigation }) {
     );
   };
 
+  // 게시글 신고 버튼
+  const handleReport = () => {
+    setIsModalVisible(false);
+    Alert.alert('게시글 신고', '이 게시글을 신고하시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      { text: '신고', onPress: () => reportPost(postId) },
+    ]);
+  };
+
+  const reportPost = async (id) => {
+    try {
+      const response = await api.post('/api/reports', {
+        userId: session.id,
+        type: "P",  // 게시글 신고
+        relationId: id
+      });
+      showToast({
+        type: 'success',
+        text1:  response.data.message,
+        text2: '운영자가 해당 게시물을 검토한 후 조치 예정입니다.',
+        position: 'bottom'
+      });
+    } catch (error) {
+      
+      if (error.response && error.response.status === 409) {
+        showToast({
+          type: 'error',
+          text1: error.response.data.message,
+          position: 'bottom'
+        });
+      } else {
+        showToast({
+          type: 'error',
+          text1: '신고 처리 중 오류가 발생했습니다.',
+          position: 'bottom'
+        });
+      }
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -286,11 +326,18 @@ export default function SelectCommunity({ route, navigation }) {
             onPress={() => setIsModalVisible(false)} // 모달 닫기
           />
           <View style={styles.modalContent}>
-            <TouchableOpacity style={styles.modalButton} onPress={handleEditPost}>
-              <Text style={styles.modalButtonText}>게시물 수정하기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton} onPress={handleDeletePost}>
-              <Text style={styles.modalButtonText}>게시물 삭제하기</Text>
+          {isAuthor && (
+            <>
+              <TouchableOpacity style={styles.modalButton} onPress={handleEditPost}>
+                <Text style={styles.modalButtonText}>게시물 수정하기</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalButton} onPress={handleDeletePost}>
+                <Text style={styles.modalButtonText}>게시물 삭제하기</Text>
+              </TouchableOpacity>
+              </>
+            )}
+            <TouchableOpacity style={styles.modalButton} onPress={handleReport}>
+              <Text style={styles.modalRedButtonText}>게시물 신고하기</Text>
             </TouchableOpacity>
           </View>
         </Modal>
@@ -319,11 +366,11 @@ export default function SelectCommunity({ route, navigation }) {
                   </View>
                 </View>
                 {/* 오른쪽 상단 ... 버튼 */}
-                {isAuthor && (
-                  <TouchableOpacity onPress={handleMoreOptions} style={{ padding: 10, marginTop: -20 }}>
-                    <Feather name="more-horizontal" size={20} color="#999" />
-                  </TouchableOpacity>
-                )}
+                
+                <TouchableOpacity onPress={handleMoreOptions} style={{ padding: 10, marginTop: -20 }}>
+                  <Feather name="more-horizontal" size={20} color="#999" />
+                </TouchableOpacity>
+              
               </View>
         
               {/* 제목 */}
@@ -517,6 +564,11 @@ const styles = StyleSheet.create({
   },
   modalButtonText: {
     color: 'black',
+    fontSize: 14,
+    textAlign: 'left',
+  },
+  modalRedButtonText: {
+    color: 'red',
     fontSize: 14,
     textAlign: 'left',
   },

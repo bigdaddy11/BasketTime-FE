@@ -88,12 +88,12 @@ export function ComponentCard(jsonString){
           <TouchableOpacity key={jsonString.message.id}
               onPress={handlePress}>
               <View style={{flexDirection: "row",  marginTop: 5, alignItems: "center"}}>
-              {logoImage && ( // images가 null이 아닐 경우에만 렌더링
-                <Image 
-                  source={{ uri: logoImage }} // 가로 200, 세로 300 크기의 랜덤 이미지
-                  style={styles.BodyImage}
-                />
-              )}
+                {logoImage && ( // images가 null이 아닐 경우에만 렌더링
+                  <Image 
+                    source={{ uri: logoImage }} // 가로 200, 세로 300 크기의 랜덤 이미지
+                    style={styles.BodyImage}
+                  />
+                )}
                 <View style={{flexDirection: "column"}}>
                   <View style={{flexDirection: "row", alignItems: "flex-start" }}>
                     <Text style={styles.categoryinput}>{jsonString.message.categoryName}</Text>

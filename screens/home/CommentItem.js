@@ -1,8 +1,10 @@
 import React, {useState, useContext, useEffect} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, FlatList, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import api from '../common/api';
 import Feather from '@expo/vector-icons/Feather';
 import { SessionContext } from '../../contexts/SessionContext';
+import { showToast } from '../common/toast';
 
 // 댓글 하나를 출력하는 컴포넌트
 export function CommentItem({ nickName, timeAgo, content, userId, onDelete, onEdit, commentId, depth, postId }) {
@@ -45,6 +47,46 @@ export function CommentItem({ nickName, timeAgo, content, userId, onDelete, onEd
     navigation.navigate('ReplyScreen', { commentId, postId });  // ReplyScreen으로 이동
   };
 
+  // 게시글 신고 버튼
+  const handleReport = () => {
+    setIsModalVisible(false);
+    Alert.alert('게시글 신고', '이 게시글을 신고하시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      { text: '신고', onPress: () => reportPost(commentId) },
+    ]);
+  };
+
+  const reportPost = async (id) => {
+    try {
+      const response = await api.post('/api/reports', {
+        userId: session.id,
+        type: "PC",  // 댓글 신고
+        relationId: id
+      });
+      showToast({
+        type: 'success',
+        text1:  response.data.message,
+        text2: '운영자가 해당 게시물을 검토한 후 조치 예정입니다.',
+        position: 'bottom'
+      });
+    } catch (error) {
+      
+      if (error.response && error.response.status === 409) {
+        showToast({
+          type: 'error',
+          text1: error.response.data.message,
+          position: 'bottom'
+        });
+      } else {
+        showToast({
+          type: 'error',
+          text1: '신고 처리 중 오류가 발생했습니다.',
+          position: 'bottom'
+        });
+      }
+    }
+  };
+
   return (
     <View style={containerStyle}>
       {/* 닉네임과 작성 시간 */}
@@ -55,7 +97,7 @@ export function CommentItem({ nickName, timeAgo, content, userId, onDelete, onEd
         </View>
         <View style={styles.headerRight}>
         
-        {!isReplyScreen && isAuthor && (
+        {!isReplyScreen && (
         <TouchableOpacity onPress={handleMoreOptions} style={{ marginTop: -5 }}>
           <Feather name="more-horizontal" size={16} color="#999" />
         </TouchableOpacity>
@@ -94,6 +136,9 @@ export function CommentItem({ nickName, timeAgo, content, userId, onDelete, onEd
               </TouchableOpacity>
             </>
             )}
+            <TouchableOpacity style={styles.modalButton} onPress={handleReport}>
+              <Text style={styles.modalRedButtonText}>게시물 신고하기</Text>
+            </TouchableOpacity>
           </View>
         </Modal>
     </View>
@@ -217,5 +262,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFD73C',
     padding: 10,
     //borderRadius: 5,
+  },
+  modalRedButtonText: {
+    color: 'red',
+    fontSize: 14,
+    textAlign: 'left',
   },
 });
