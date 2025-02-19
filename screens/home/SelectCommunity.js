@@ -78,9 +78,9 @@ export default function SelectCommunity({ route, navigation }) {
           uri: `${baseURL}/${path.imagePaths}`,
         }));
         const logoChangeImage = `${baseURL}/${post?.image}`;
-  
+        
         await Promise.all(normalizedImages.map((img) => Image.prefetch(img.uri)));
-  
+        
         setImages(normalizedImages);
         setLogoImage(logoChangeImage);
       } catch (error) {

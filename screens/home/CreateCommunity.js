@@ -124,9 +124,10 @@ export default function CreateCommunity({ route, navigation }) {
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images, // 이미지만 선택
-        allowsEditing: true, // 선택한 이미지 편집 가능
+        allowsEditing: false, // 선택한 이미지 편집 가능
         quality: 1, // 이미지 품질
       });
+      
   
       if (!result.canceled) {
         // 새로운 이미지 추가
@@ -163,10 +164,17 @@ export default function CreateCommunity({ route, navigation }) {
 
       // 다중 이미지 추가
       images.forEach((image, index) => {
+        const fileType = image.uri.split('.').pop().toLowerCase(); // 확장자 추출
+        
+        const mimeType = fileType === 'png' ? 'image/png' :
+                         fileType === 'gif' ? 'image/gif' :
+                         fileType === 'webp' ? 'image/webp' :
+                         fileType === 'bmp' ? 'image/bmp' :
+                         'image/jpeg'; // 기본값은 jpg
         formData.append('images', {
           uri: image.uri,
-          type: 'image/jpeg',
-          name: `image_${index}.jpg`,
+          type: mimeType,
+          name: `image_${index}.${fileType}`,
         });
       });
 
