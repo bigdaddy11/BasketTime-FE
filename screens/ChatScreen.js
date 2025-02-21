@@ -75,10 +75,13 @@ export default function ChatScreen() {
       {/* 헤더 */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>농구경기 잡자</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('CreateChatRoom')}>
-          <Feather name="plus" size={24} color="#FFD73C" />
-        </TouchableOpacity>
       </View>
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => navigation.navigate('CreateChatRoom')} // 신규 글 작성 화면으로 이동
+      >
+        <Feather name="plus" size={24} color="#fff" />
+      </TouchableOpacity>
 
       {/* 검색 바 */}
       <TextInput
@@ -186,5 +189,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 20,
     color: '#888',
+  },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#FFD73C',
+    width: 40,
+    height: 40,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
   },
 });

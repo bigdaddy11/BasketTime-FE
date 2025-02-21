@@ -1,90 +1,120 @@
 // src/screens/ChatRoom.js
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { View, Text, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet, Keyboard } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { io } from 'socket.io-client';
+import useWebSocket from '../../contexts/useWebSocket';
 import Feather from '@expo/vector-icons/Feather';
 import api from '../common/api';
+import { showToast } from '../common/toast';
+import { SessionContext } from '../../contexts/SessionContext';
 
 // Socket.IO 서버 URL
-const SOCKET_SERVER_URL = api.defaults.baseURL
+const SOCKET_SERVER_URL = api.defaults.baseURL+"/ws"
 
 export default function ChatRoom() {
   const route = useRoute();
   const { roomId, roomName } = route.params;
+  const { session } = useContext(SessionContext); // 세션 정보 가져오기
   
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
-  const socket = useRef(null);
+  const { messages, sendMessage, connected  } = useWebSocket(roomId);
+  const [message, setMessage] = useState('');
+  const [history, setHistory] = useState([]);  // 🔹 이전 채팅 기록을 저장하는 상태
+  const flatListRef = useRef(null); // 🔹 FlatList 참조
 
-  // Socket 연결 및 이벤트 처리
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
   useEffect(() => {
-    socket.current = io(SOCKET_SERVER_URL, {
-      transports: ['websocket'],
-      query: { roomId }
-    });
+      const showListener = Keyboard.addListener('keyboardDidShow', () => {
+        setKeyboardVisible(true);
+      });
+  
+      const hideListener = Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboardVisible(false);
+      });
+      return () => {
+        
+        showListener.remove();
+        hideListener.remove();
+      };
+      
+    }, []);
 
-    // 메시지 수신
-    socket.current.on('message', (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-    });
-
-    return () => {
-      socket.current.disconnect();
+  useEffect(() => {
+    // 🔹 서버에서 이전 채팅 메시지를 불러옴
+    const fetchChatHistory = async () => {
+      try {
+        const response = await api.get(`/api/chatrooms/${roomId}/messages`);
+        setHistory(response.data);  // 🔹 불러온 메시지를 상태에 저장
+      } catch (error) {
+        showToast({
+                    type: "error",
+                    text1: "채팅 기록 불러오기 실패.",
+                    position: "bottom",
+                });
+      }
     };
+
+    fetchChatHistory(); // 함수 호출
   }, [roomId]);
 
-  // 메시지 전송
-  const sendMessage = useCallback(() => {
-    if (!newMessage.trim()) return;
+  // history + messages를 합쳐서 최신 메시지 순서대로 표시
+  const combinedMessages = [...history, ...messages];
 
-    const messageData = {
-      roomId,
-      text: newMessage,
-      sender: '사용자명',  // 사용자명 또는 ID
-      timestamp: new Date().toISOString()
-    };
+  useEffect(() => {
+    if (flatListRef.current && combinedMessages.length > 0) {
+      flatListRef.current.scrollToEnd({ animated: true });
+    }
+  }, [combinedMessages]);
 
-    socket.current.emit('sendMessage', messageData); // 서버에 전송
-    setMessages((prevMessages) => [...prevMessages, messageData]); // 클라이언트에 반영
-    setNewMessage('');
-  }, [newMessage, roomId]);
+  // 🔹 메시지 전송 함수 (완료 버튼 & 전송 버튼 클릭 시)
+  const handleSendMessage = () => {
+    if (!message.trim()) return; // 빈 메시지 방지
+    sendMessage(message);
+    setMessage(''); 
+    Keyboard.dismiss(); 
 
-  // FlatList 메시지 렌더링
-  const renderMessage = ({ item }) => (
-    <View style={[styles.messageItem, item.sender === '사용자명' ? styles.myMessage : styles.otherMessage]}>
-      <Text style={styles.messageText}>{item.text}</Text>
-      <Text style={styles.messageTime}>{new Date(item.timestamp).toLocaleTimeString()}</Text>
-    </View>
-  );
+    // 전송 후 가장 아래로 스크롤
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={keyboardVisible ? 80 : 0} // 동적 오프셋 설정
     >
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{roomName}</Text>
       </View>
 
       <FlatList
-        data={messages}
+        ref={flatListRef} // FlatList 참조 추가
+        data={combinedMessages}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={renderMessage}
+        renderItem={({ item }) => (
+            <View style={[styles.messageItem, item.sender === session.nickName ? styles.myMessage : styles.otherMessage]}>
+                <Text style={styles.messageText}>{item.message}</Text> 
+                <Text style={styles.messageTime}>{new Date(item.timestamp).toLocaleTimeString()}</Text>
+            </View>
+        )}
         style={styles.messageList}
         contentContainerStyle={{ paddingVertical: 10 }}
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })} //채팅방 입장 시 맨 아래로 이동
       />
 
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           placeholder="메시지를 입력하세요..."
-          value={newMessage}
-          onChangeText={setNewMessage}
-          onSubmitEditing={sendMessage}
+          value={message}
+          onChangeText={setMessage}
+          onSubmitEditing={handleSendMessage}
+          returnKeyType="send"
         />
-        <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
+        <TouchableOpacity onPress={handleSendMessage} style={styles.sendButton}>
           <Feather name="send" size={24} color="white" />
         </TouchableOpacity>
       </View>
@@ -121,18 +151,19 @@ const styles = StyleSheet.create({
   messageTime: { fontSize: 10, color: '#999', marginTop: 3 },
   inputContainer: {
     flexDirection: 'row',
-    padding: 10,
+    padding: 7,
     borderTopWidth: 1,
     borderTopColor: '#ddd',
     backgroundColor: '#fff',
   },
   input: {
     flex: 1,
-    padding: 10,
+    padding: 7,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 20,
-    marginRight: 10,
+    borderColor: '#ccc',
+    borderRadius: 2,
+    marginRight: 7,
+    marginRight: 5,
   },
   sendButton: {
     backgroundColor: '#007AFF',
