@@ -34,10 +34,10 @@ export default function CreateChatRoom() {
       });
       showToast({
         type: 'success',
-        text1: '채팅방 생성에 성공하였였습니다.',
+        text1: '채팅방 생성에 성공하였습니다.',
         position: 'bottom'
     });
-      navigation.navigate('ChatRoom', { roomId: response.data.id, roomName: roomName });
+      navigation.navigate('ChatRoom', { roomId: response.data.id, roomName: roomName, roomDesc: description });
     } catch (error) {
         showToast({
             type: 'error',

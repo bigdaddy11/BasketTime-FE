@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, Image, StyleSheet, RefreshControl, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, FlatList, TextInput, TouchableOpacity, Image, StyleSheet, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Feather from '@expo/vector-icons/Feather';
 import api from './common/api';
+import { showToast } from './common/toast';
 
 export default function ChatScreen() {
   const navigation = useNavigation();
@@ -32,7 +33,7 @@ export default function ChatScreen() {
     }
   };
 
-  const fetchChatRooms = async (pageNumber = 0, isRefresh = false) => {
+  const fetchChatRooms = useCallback(async (pageNumber = 0, isRefresh = false) => {
     if (loading || (!isRefresh && !hasMore)) return; // 이미 로딩 중이거나 더 불러올 데이터가 없으면 중단
     
     setLoading(true);
@@ -48,33 +49,71 @@ export default function ChatScreen() {
 
       if (isRefresh) {
         setChatRooms(newRooms);
+        setPage(1); // 새로고침 시 페이지를 1로 초기화
       } else {
         setChatRooms(prevRooms => [...prevRooms, ...newRooms]);
+        setPage(pageNumber + 1);
       }
-      setPage(pageNumber + 1);
+      
     } catch (error) {
-      console.error('Error fetching chat rooms:', error);
+      showToast
+      ({
+        type: "error",
+        text1: "채팅방 조회 시 문제가 발생했습니다.", // 서버에서 보낸 메시지 출력
+        position: "bottom",
+      });
+      setHasMore(false); // 500 오류 발생 시 추가 요청 방지
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  },[hasMore]);
 
   // 검색 필터 적용
   const filteredRooms = chatRooms.filter(room =>
     room.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // 채팅방 클릭 시 먼저 확인창 띄우기
+  const joinChatRoom = async (room) => {
+    Alert.alert(
+      '채팅방 입장',
+      `입장하시겠습니까?`,
+      [
+        {
+          text: '취소',
+          style: 'cancel',
+        },
+        {
+          text: '확인',
+          onPress: async () => {
+            try {
+              //await api.post(`/api/chatrooms/${room.id}/join/${session.id}`);
+              enterChatRoom(room);
+            } catch (error) {
+              showToast
+              ({
+                type: "error",
+                text1: "채팅방 입장 중 문제가 발생했습니다.", 
+                position: "bottom",
+              });
+            }
+          },
+        },
+      ]
+    );
+  };
+
   // 채팅방 클릭 시 이동
   const enterChatRoom = (room) => {
-    navigation.navigate('ChatRoom', { roomId: room.id, roomName: room.name });
+    navigation.navigate('ChatRoom', { roomId: room.id, roomName: room.name, roomDesc: room.description });
   };
 
   return (
     <View style={styles.container}>
       {/* 헤더 */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>농구경기 잡자</Text>
+        <Text style={styles.headerTitle}>농구시합 하자!</Text>
       </View>
       <TouchableOpacity
         style={styles.floatingButton}
@@ -96,7 +135,7 @@ export default function ChatScreen() {
         data={filteredRooms}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.roomItem} onPress={() => enterChatRoom(item)}>
+          <TouchableOpacity style={styles.roomItem} onPress={() => joinChatRoom(item)}>
             <View style={styles.roomIcon}>
               <Feather name="message-circle" size={24} color="white" />
             </View>
@@ -105,7 +144,7 @@ export default function ChatScreen() {
               <Text style={styles.roomSubText}>{item.description || '설명 없음'}</Text>
             </View>
             <View style={styles.roomMeta}>
-              <Text style={styles.memberCountText}>{item.members}/{item.maxMembers}</Text>
+              <Text style={styles.memberCountText}>{item.userCount}/{item.maxMembers}</Text>
             </View>
           </TouchableOpacity>
         )}
@@ -153,7 +192,8 @@ const styles = StyleSheet.create({
   roomItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
     borderBottomWidth: 1,
     borderColor: '#ddd',
   },
@@ -161,7 +201,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FFD73C',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -204,6 +244,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
-    elevation: 5,
+    elevation: 10,
+    zIndex: 999, // iOS에서 최상단으로 올리기
   },
 });

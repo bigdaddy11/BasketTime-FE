@@ -24,7 +24,6 @@ const useWebSocket = (roomId) => {
         // 채팅방 별 구독
         const topic = `/topic/chat/${roomId}`;
         client.subscribe(topic, (message) => {
-          console.log("메시지 수신 : " + message.body);
           const receivedMessage = JSON.parse(message.body);
           setMessages((prevMessages) => [...prevMessages, receivedMessage]);
         });
@@ -51,10 +50,9 @@ const useWebSocket = (roomId) => {
   // 메시지 보내기 함수 (연결 확인 후 전송)
   const sendMessage = (message) => {
     if (stompClient && stompClient.connected) {
-      console.log('📤 메시지 전송:', message);
       stompClient.publish({
         destination: `/app/chat/${roomId}`,
-        body: JSON.stringify({ message: message, sender : session.nickName }),
+        body: JSON.stringify({ message: message, sender : session.id }),
       });
     } else {
       console.warn('⏳ WebSocket 연결 대기 중... 1초 후 재시도');

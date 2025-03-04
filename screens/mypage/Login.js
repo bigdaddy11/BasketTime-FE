@@ -191,7 +191,7 @@ export default function LoginScreen({ navigation }) {
     };
 
     const handleGoogleLogin = async () => {
-      const user = { id: 1, name: 'John Doe', nickName: "휴직맨", role: 'user', email : "zidir0070@gmail.com" };
+      const user = { id: 1, name: 'John Doe', nickName: "구글맨", role: 'user', email : "zidir0070@gmail.com" };
       sessionLogin(user); // Set the session
       navigation.replace('Loading'); // Redirect to Main
     };
@@ -243,10 +243,24 @@ export default function LoginScreen({ navigation }) {
             </View>
         </TouchableOpacity>
 
+        <TouchableOpacity style={[styles.loginButton, styles.googleButton]} onPress={handleGoogleLogin}>
+            <View style={styles.iconAndTextContainer}>
+                <FontAwesome name="comment" size={24} color="black" style={styles.iconLayout}/>
+                <Text style={styles.loginButtonKakaoText }> Test Google Login</Text>
+            </View>
+        </TouchableOpacity>
+
         <TouchableOpacity style={[styles.loginButton, styles.kakaoButton]} onPress={handleKakaoLogin}>
             <View style={styles.iconAndTextContainer}>
                 <FontAwesome name="comment" size={24} color="black" style={styles.iconLayout}/>
                 <Text style={styles.loginButtonKakaoText }> Test Kakao Login</Text>
+            </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.loginButton, styles.naverButton]} onPress={handleNaverLogin}>
+            <View style={styles.iconAndTextContainer}>
+                <FontAwesome name="comment" size={24} color="black" style={styles.iconLayout}/>
+                <Text style={styles.loginButtonKakaoText }> Test Naver Login</Text>
             </View>
         </TouchableOpacity>
         </View>
