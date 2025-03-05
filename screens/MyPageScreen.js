@@ -1,17 +1,19 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Modal, TextInput, Button} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Modal, TextInput, Button, Alert} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SessionContext } from '../contexts/SessionContext'; 
 import Constants from 'expo-constants';
 import { showToast } from './common/toast';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import api from './common/api';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function MyPageScreen() {
   const navigation = useNavigation();
   const { session, setSession, logout } = useContext(SessionContext); // 세션 상태 가져오기
   const [nickname, setNickname] = useState(session?.nickName || 'NoName');
   const [isModalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const defaultSession = { nickName: "", editIs: true };
   const currentSession = session || defaultSession;
@@ -100,6 +102,91 @@ export default function MyPageScreen() {
     // 다른 메뉴로 이동
     navigation.navigate(item.routeName);
   };
+
+  // ✅ 30일 제한 여부 체크 API 호출
+  const checkCanUpdateImage = async () => {
+    try {
+      const response = await api.get(`/api/users/${session.id}/can-update-profile-picture`);
+      return response.data; // true (가능) or false (불가능)
+    } catch (error) {
+      console.error("Error checking profile update limit:", error);
+      return false;
+    }
+  };
+
+  // ✅ 이미지 선택 및 업로드
+  const handleImagePick = async () => {
+    const canUpdate = await checkCanUpdateImage();
+    if (!canUpdate) {
+      showToast({
+        type: 'error',
+        text1: '프로필 이미지는 30일에 한 번만 변경할 수 있습니다.',
+        position: 'bottom'
+      });
+      return;
+    }
+
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+      });
+      
+      if (!result.canceled) {
+        uploadImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      showToast({
+        type: 'error',
+        text1: '이미지 선택에 실패하였습니다.',
+        position: 'bottom'
+      });
+    }
+  };
+
+  // ✅ 이미지 업로드 API 호출
+  const uploadImage = async (imageUri) => {
+    
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("image", {
+      uri: imageUri,
+      type: "image/jpeg",
+      name: `profile_${session.id}.jpg`,
+    });
+    
+    try {
+      const response = await api.put(`/api/users/${session.id}/upload-profile-picture`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      
+      if (response.status === 200) {
+        console.log("response.data : " + response.data);
+        setSession({ ...session, picture: response.data });
+
+        showToast({
+          type: "success",
+          text1: "프로필 이미지가 변경되었습니다.",
+          position: "bottom",
+        });
+      } else {
+        showToast({
+          type: "error",
+          text1: "프로필 이미지가 변경에 실패하였습니다.",
+          position: "bottom",
+        });
+      }
+    } catch (error) {
+      showToast({
+        type: "error",
+        text1: error.response?.data || "이미지 업로드 실패",
+        position: "bottom",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.menuItem} onPress={() => handleMenuPress(item)}>
@@ -114,14 +201,22 @@ export default function MyPageScreen() {
       <View style={styles.userInfoContainer}>
         {currentSession ? (
           <>
-            <Image 
-              source={
-                currentSession.picture 
-                  ? { uri: currentSession.picture } 
-                  : require('../assets/default-user.jpg') // 로컬 디폴트 이미지 경로
-              }
-              style={styles.picture}
+            <View style={styles.profileContainer}>
+              {/* 프로필 이미지 */}
+              <Image 
+                source={
+                  currentSession.picture 
+                    ? { uri: currentSession.picture } 
+                    : require('../assets/default-user.jpg') // 로컬 디폴트 이미지 경로
+                }
+                style={styles.picture}
               />
+              {/* 카메라 아이콘 (우측 하단) */}
+              <TouchableOpacity style={styles.cameraIcon} onPress={handleImagePick}>
+                <AntDesign name="camera" size={24} color="black" />
+              </TouchableOpacity>
+              
+            </View>
             <View style={{flexDirection: "row", alignItems: "center"}}>
               <Text style={styles.userName}>{currentSession.nickName || ''}</Text>
               {!currentSession.editIs && (
@@ -268,5 +363,17 @@ const styles = StyleSheet.create({
   buttonWrapper: {
     //flex: 1, // 버튼 간의 균등 배치
     marginLeft: 5, // 버튼 간 간격 설정
+  },
+  profileContainer: {
+    position: 'relative', // 상대적 위치
+  },
+  cameraIcon: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: 'white',  // 배경 흰색으로 변경
+    borderRadius: 50,          // 둥글게 만듦
+    padding: 5,                // 아이콘과 배경 간격 조정
+    elevation: 5,              // 안드로이드 그림자 효과
   },
 });
