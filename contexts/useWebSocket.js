@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { Client } from '@stomp/stompjs';
 import { SessionContext } from './SessionContext';
+import Constants from "expo-constants";
 
 const useWebSocket = (roomId) => {
   const [stompClient, setStompClient] = useState(null);
@@ -8,8 +9,11 @@ const useWebSocket = (roomId) => {
   const [connected, setConnected] = useState(false); // 연결 상태 관리
   const { session } = useContext(SessionContext); // 세션 정보 가져오기
 
+  const SOCKET_SERVER_URL = Constants.expoConfig?.extra?.websocketUrl || "ws://192.168.219.113:8080/ws";
+
+
   useEffect(() => {
-    const brokerURL = 'ws://192.168.219.113:8080/ws';
+    const brokerURL = SOCKET_SERVER_URL;
     const client = new Client({
       brokerURL,
       reconnectDelay: 5000, // 자동 재연결 (5초 후)
