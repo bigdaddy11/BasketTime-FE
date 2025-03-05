@@ -10,7 +10,7 @@
       }
     },
     "preview": {
-      "distribution": "internal",
+      "distribution": "store",
       "android": {
         "env": {
           "EXPO_PUBLIC_ENV": "production"

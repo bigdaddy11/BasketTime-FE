@@ -13,7 +13,7 @@
         {
           "kakaoAppKey": "6b8e6f2e31df20696183ff58f08f8d60",
           "overrideKakaoSDKVersion": "2.11.2",
-          "kotlinVersion": "1.9.0"
+          "kotlinVersion": "1.9.25"
         }
       ],
       [
@@ -21,9 +21,8 @@
         {
           "android": {
             "extraMavenRepos": [
-              "https://devrepo.kakao.com/nexus/content/groups/public/"
-            ],
-            "kotlinVersion": "1.9.0"
+              "https://devrepo.kakao.com/nexus/content/groups/public/", "https://maven.google.com"
+            ]
           }
         }
       ],
@@ -32,7 +31,7 @@
         {
           "backgroundColor": "#FFFFFF",
           "image": "./assets/splash.png",
-          "resizeMode " : "cover",
+          "resizeMode ": "cover",
           "imageWidth": 300,
           "dark": {
             "image": "./assets/splash.png",
@@ -48,7 +47,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "backgroundColor": "#FFFFFF",
-      "resizeMode " : "cover",
+      "resizeMode ": "cover",
       "imageWidth": 300
     },
     "ios": {
@@ -64,7 +63,6 @@
           "apiKey": "AIzaSyD5TbdDeXOaL2B5V7tPv7TNIEZo0V2pJtI"
         }
       },
-      "googleServicesFile": "./google-services.json",
       "metaData": {
         "com.kakao.sdk.AppKey": "6b8e6f2e31df20696183ff58f08f8d60"
       },

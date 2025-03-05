@@ -9,9 +9,12 @@ const useWebSocket = (roomId) => {
   const [connected, setConnected] = useState(false); // 연결 상태 관리
   const { session } = useContext(SessionContext); // 세션 정보 가져오기
 
-  const SOCKET_SERVER_URL = Constants.expoConfig?.extra?.websocketUrl || "ws://192.168.219.113:8080/ws";
+  // 개발 환경 확인
+  const isDev = !Constants.expoConfig || !Constants.expoConfig.releaseChannel || Constants.expoConfig.releaseChannel === "default";
 
-
+  const SOCKET_SERVER_URL = isDev
+      ? "ws://192.168.219.113:8080/ws" // 개발용
+      : "wss://baskettime.co.kr/ws";  // 운영용
   useEffect(() => {
     const brokerURL = SOCKET_SERVER_URL;
     const client = new Client({

@@ -242,7 +242,7 @@ export default function LoginScreen({ navigation }) {
                 <Text style={styles.loginButtonKakaoText }> Kakao Login</Text>
             </View>
         </TouchableOpacity>
-
+{/* 
         <TouchableOpacity style={[styles.loginButton, styles.googleButton]} onPress={handleGoogleLogin}>
             <View style={styles.iconAndTextContainer}>
                 <FontAwesome name="comment" size={24} color="black" style={styles.iconLayout}/>
@@ -262,7 +262,7 @@ export default function LoginScreen({ navigation }) {
                 <FontAwesome name="comment" size={24} color="black" style={styles.iconLayout}/>
                 <Text style={styles.loginButtonKakaoText }> Test Naver Login</Text>
             </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         </View>
     );
 }

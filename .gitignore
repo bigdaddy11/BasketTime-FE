@@ -78,6 +78,6 @@ yarn-error.*
 # @end expo-cli
 
 screens/common/api.js
-App.js
+#App.js
 google-services.json
 contexts/firebaseConfig.js
