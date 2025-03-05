@@ -38,6 +38,15 @@ export default function ContactUs({ navigation }) {
       return;
     }
 
+    if (!isValidEmail(email)) {
+      showToast({
+        type: 'error',
+        text1: '올바른 이메일 형식을 입력해주세요.',
+        position: 'bottom',
+      });
+      return;
+    }
+
     showLoading(); // 로딩 시작
 
     try {
@@ -76,6 +85,11 @@ export default function ContactUs({ navigation }) {
     } finally {
         hideLoading(); // 로딩 종료
     }
+  };
+
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 기본적인 이메일 검증 정규식
+    return emailRegex.test(email);
   };
 
   return (
