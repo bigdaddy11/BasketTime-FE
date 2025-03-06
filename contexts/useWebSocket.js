@@ -79,7 +79,7 @@ const useWebSocket = (roomId) => {
         if (stompClient && stompClient.connected) {
           stompClient.publish({
             destination: `/app/chat/${roomId}`,
-            body: JSON.stringify({ message: message, sender : session.nickName }),
+            body: JSON.stringify({ message: message, sender : session.id }),
           });
         } else {
           showToast

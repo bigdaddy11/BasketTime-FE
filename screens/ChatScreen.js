@@ -113,7 +113,7 @@ export default function ChatScreen() {
     <View style={styles.container}>
       {/* 헤더 */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>농구시합 하자!</Text>
+        <Text style={styles.headerTitle}>농구시합 하자 🏀</Text>
       </View>
       <TouchableOpacity
         style={styles.floatingButton}

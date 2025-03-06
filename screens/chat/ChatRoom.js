@@ -30,6 +30,11 @@ export default function ChatRoom() {
 
   useEffect(() => {
       const showListener = Keyboard.addListener('keyboardDidShow', () => {
+        if (flatListRef.current) {
+          setTimeout(() => {
+            flatListRef.current.scrollToEnd({ animated: false });
+          }, 200); // 약간의 지연을 추가해 키보드가 올라온 후 스크롤
+        }
         setKeyboardVisible(true);
       });
   
@@ -116,7 +121,9 @@ export default function ChatRoom() {
 
   useEffect(() => {
     if (flatListRef.current && combinedMessages.length > 0) {
-      flatListRef.current.scrollToEnd({ animated: true });
+      setTimeout(() => {
+        flatListRef.current.scrollToEnd({ animated: false });
+      }, 1000); // 약간의 지연을 추가해 키보드가 올라온 후 스크롤
     }
   }, [combinedMessages]);
 
@@ -125,12 +132,12 @@ export default function ChatRoom() {
     if (!message.trim()) return; // 빈 메시지 방지
     sendMessage(message);
     setMessage(''); 
-    Keyboard.dismiss(); 
+    //Keyboard.dismiss(); 
 
     // 전송 후 가장 아래로 스크롤
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    // setTimeout(() => {
+    //   flatListRef.current?.scrollToEnd({ animated: true });
+    // }, 100);
   };
 
   // 🔹 채팅방 참여자 목록 가져오기
@@ -239,7 +246,7 @@ export default function ChatRoom() {
         )}
         style={styles.messageList}
         contentContainerStyle={{ paddingVertical: 10 }}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })} //채팅방 입장 시 맨 아래로 이동
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })} //채팅방 입장 시 맨 아래로 이동
       />
 
       <View style={styles.inputContainer}>

@@ -63,10 +63,10 @@ function CustomHeader({ navigation }) {
       <StatusBar barStyle="dark-content" backgroundColor="white" translucent={true} />
       <View>
         {/* <Text style={{ fontSize: 14}}>Basket Time</Text> */}
-        <Image 
+        {/* <Image 
           source={require('./assets/main.png')} // main.png 파일을 불러옴
           style={{ width: 60, height: 60, resizeMode: 'contain', marginLeft: -10 }} // 적절한 크기로 조정
-        />
+        /> */}
       </View>
       {/* 현재 화면 이름이 'Home'일 때만 버튼 노출 */}
       {route.name === 'Main' && (
