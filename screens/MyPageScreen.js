@@ -125,16 +125,28 @@ export default function MyPageScreen() {
       });
       return;
     }
-
+  
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         quality: 1,
       });
-      
+  
       if (!result.canceled) {
-        uploadImage(result.assets[0].uri);
+        Alert.alert(
+          "프로필 이미지 변경",
+          "선택한 이미지를 프로필 사진으로 변경하시겠습니까?",
+          [
+            { text: "취소", style: "cancel" }, // 취소 버튼
+            {
+              text: "확인",
+              onPress: () => {
+                uploadImage(result.assets[0].uri); // 확인 시 업로드 실행
+              }
+            }
+          ]
+        );
       }
     } catch (error) {
       showToast({
@@ -173,7 +185,7 @@ export default function MyPageScreen() {
       } else {
         showToast({
           type: "error",
-          text1: "프로필 이미지가 변경에 실패하였습니다.",
+          text1: "프로필 이미지 변경에 실패하였습니다.",
           position: "bottom",
         });
       }
