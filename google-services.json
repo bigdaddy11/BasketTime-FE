@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "94369390250",
+    "project_id": "dependable-glow-439512-m5",
+    "storage_bucket": "dependable-glow-439512-m5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:94369390250:android:78123bc105a881eccafad3",
+        "android_client_info": {
+          "package_name": "com.jaehyunheo.baskettime"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "94369390250-0gtlruhqq1g5diosdi4v3uqjq5c5tvs5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jaehyunheo.baskettime",
+            "certificate_hash": "596037ff117347516f2ce8a740188ec7233531e7"
+          }
+        },
+        {
+          "client_id": "94369390250-0o4ungui47qk588r7itid4gcj7riiig6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQWUslHMVXFtla3fQkJuP-xleC-1QlY0g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "94369390250-0o4ungui47qk588r7itid4gcj7riiig6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -79,5 +79,3 @@ yarn-error.*
 
 #screens/common/api.js
 #App.js
-google-services.json
-contexts/firebaseConfig.js

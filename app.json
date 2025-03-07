@@ -6,6 +6,11 @@
     "owner": "jaehyunheo",
     "orientation": "portrait",
     "scheme": "com.jaehyunheo.baskettime",
+    "notification": {
+      "icon": "./assets/notification-icon.png", 
+      "androidMode": "default",
+      "androidCollapsedTitle": "새로운 알림이 있습니다"
+    },
     "plugins": [
       "expo-dev-client",
       [
@@ -71,6 +76,7 @@
         "backgroundColor": "#FFD73C"
       },
       "jsEngine": "hermes",
+      "googleServicesFile": "./google-services.json",
       "package": "com.jaehyunheo.baskettime",
       "useNextNotificationsApi": true,
       "buildType": "aab",

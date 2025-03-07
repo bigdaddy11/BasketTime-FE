@@ -8,13 +8,14 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Toast from 'react-native-toast-message'; // Import Toast
 
-// import firebaseApp from './contexts/firebaseConfig'
+import firebaseApp from './contexts/firebaseConfig'
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { useRoute } from '@react-navigation/native';
-import { SessionProvider } from './contexts/SessionContext'; // Import the SessionProvider
-
+import { SessionProvider, SessionContext } from './contexts/SessionContext'; // Import the SessionProvider
+import { registerForPushNotificationsAsync } from './contexts/registerForPushNotificationsAsync';
+import * as Notifications from 'expo-notifications';
 import HomeScreen from './screens/HomeScreen';
 import BasketBallCourtScreen from './screens/BasketBallCourtScreen';
 import MyPageScreen from './screens/MyPageScreen';
@@ -153,6 +154,14 @@ export default function App() {
 
   // 앱 초기화 작업
   useEffect(() => {
+    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      console.log("📩 푸쉬 알림 수신:", notification);
+    });
+
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log("📩 푸쉬 알림 클릭됨:", response);
+    });
+
     async function prepare() {
       try {
         // 🎯 여기서 필요한 초기 로드 작업 (예: API 호출, 세션 확인 등)
@@ -165,6 +174,13 @@ export default function App() {
     }
 
     prepare();
+
+    registerForPushNotificationsAsync();
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
   }, []);
 
   useEffect(() => {
