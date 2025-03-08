@@ -19,8 +19,10 @@ export async function registerForPushNotificationsAsync() {
     console.log("시작");
     // ✅ 푸쉬 알림 권한 요청
     const messaging = getMessaging(firebaseApp);
-    console.log("messaging : " + messaging);
-    
+    token = await getToken(messaging, {
+        vapidKey: "YOUR_FIREBASE_VAPID_KEY",
+      });
+      console.log("FCM 푸쉬 토큰:", token);
   } catch (error) {
     console.error("FCM 푸쉬 토큰 발급 오류:", error);
     showToast({
