@@ -11,7 +11,7 @@
       }
     },
     "preview": {
-      "distribution": "store",
+      "distribution": "apk",
       "channel": "preview",
       "android": {
         "env": {
