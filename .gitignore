@@ -79,3 +79,4 @@ yarn-error.*
 
 #screens/common/api.js
 #App.js
+service-account.json

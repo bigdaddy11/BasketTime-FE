@@ -15,10 +15,18 @@
       "channel": "preview",
       "android": {
         "env": {
-          "EXPO_PUBLIC_ENV": "production"
+          "EXPO_PUBLIC_ENV": "preview"
         }
       }
     },
-    "production": {}
+    "production": {
+      "distribution": "store",
+      "channel": "production",
+      "android": {
+        "env": {
+          "EXPO_PUBLIC_ENV": "production"
+        }
+      }
+    }
   }
 }

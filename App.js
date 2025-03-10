@@ -3,17 +3,18 @@ import { Image, View, Text, StatusBar, TouchableOpacity, Platform, SafeAreaView,
 
 import * as SecureStore from 'expo-secure-store';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Toast from 'react-native-toast-message'; // Import Toast
 
-import firebaseApp from './contexts/firebaseConfig'
+import api from './screens/common/api';
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { useRoute } from '@react-navigation/native';
-import { SessionProvider, SessionContext } from './contexts/SessionContext'; // Import the SessionProvider
+import { SessionProvider } from './contexts/SessionContext'; // Import the SessionProvider
 import { registerForPushNotificationsAsync } from './contexts/registerForPushNotificationsAsync';
 import * as Notifications from 'expo-notifications';
 import HomeScreen from './screens/HomeScreen';
@@ -33,7 +34,7 @@ import ReplyScreen from './screens/home/ReplyScreen';
 import ChatRoom from './screens/chat/ChatRoom';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+
 import ChatScreen from './screens/ChatScreen';
 import CreateChatRoom from './screens/chat/CreateChatRoom';
 import { LoadingProvider } from './contexts/LoadingContext'; // 컨텍스트 가져오기
@@ -151,35 +152,33 @@ function RootNavigator() {
 
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
-
+  const [session, setSession] = useState(null); // ✅ AsyncStorage에서 불러올 세션 상태
   // 앱 초기화 작업
   useEffect(() => {
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-      console.log("📩 푸쉬 알림 수신:", notification);
+        console.log("📩 푸쉬 알림 수신:", notification);
     });
 
     const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log("📩 푸쉬 알림 클릭됨:", response);
+        console.log("📩 푸쉬 알림 클릭됨:", response);
     });
 
     async function prepare() {
-      try {
-        // 🎯 여기서 필요한 초기 로드 작업 (예: API 호출, 세션 확인 등)
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기 (테스트용)
-      } catch (e) {
-        console.warn(e);
-      } finally {
-        setAppIsReady(true);
-      }
+        try {
+            // 🎯 여기서 필요한 초기 로드 작업 (예: API 호출, 세션 확인 등)
+            await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기 (테스트용)
+        } catch (e) {
+            console.warn(e);
+        } finally {
+            setAppIsReady(true);
+        }
     }
 
     prepare();
 
-    registerForPushNotificationsAsync();
-
     return () => {
-      Notifications.removeNotificationSubscription(notificationListener);
-      Notifications.removeNotificationSubscription(responseListener);
+        Notifications.removeNotificationSubscription(notificationListener);
+        Notifications.removeNotificationSubscription(responseListener);
     };
   }, []);
 

@@ -5,7 +5,7 @@ export const showToast = ({
   text1 = '', 
   text2 = '', 
   position = 'bottom',
-  visibilityTime = 1500 // 기본 지속 시간: 1.5초
+  visibilityTime = 2000 // 기본 지속 시간: 1.5초
 }) => {
   Toast.show({
     type,       
