@@ -14,7 +14,7 @@ export async function registerForPushNotificationsAsync() {
   }
 
   try {
-    if (!isFCM) {
+    if (isFCM) {
       // ✅ FCM 사용 (운영 / Preview 빌드)
       const messaging = getMessaging();
       const permissionStatus = await hasPermission(messaging);
