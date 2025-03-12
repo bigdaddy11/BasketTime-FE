@@ -1,5 +1,6 @@
 import { getMessaging, getToken, requestPermission, hasPermission } from '@react-native-firebase/messaging';
 import * as Notifications from 'expo-notifications';
+import { Platform, PermissionsAndroid } from 'react-native';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import { showToast } from '../screens/common/toast';
@@ -7,7 +8,7 @@ import { showToast } from '../screens/common/toast';
 export async function registerForPushNotificationsAsync() {
   let token;
   const isFCM = Constants.expoConfig.extra.useFCM;
-  
+
   if (!Device.isDevice) {
     showToast({ type: 'error', text1: '푸쉬 알림은 실제 기기에서만 가능합니다.', position: 'bottom' });
     return;
@@ -16,6 +17,19 @@ export async function registerForPushNotificationsAsync() {
   try {
     if (isFCM) {
       // ✅ FCM 사용 (운영 / Preview 빌드)
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+        );
+    
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          console.log("🔴 Android 푸쉬 알림 권한 거부됨");
+          return;
+        }
+    
+        console.log("✅ Android 푸쉬 알림 권한 허용됨");
+      }
+
       const messaging = getMessaging();
       const permissionStatus = await hasPermission(messaging);
 
