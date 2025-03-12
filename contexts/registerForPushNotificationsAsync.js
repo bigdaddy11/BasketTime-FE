@@ -23,11 +23,11 @@ export async function registerForPushNotificationsAsync() {
         );
     
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          console.log("🔴 Android 푸쉬 알림 권한 거부됨");
+          //console.log("🔴 Android 푸쉬 알림 권한 거부됨");
           return;
         }
     
-        console.log("✅ Android 푸쉬 알림 권한 허용됨");
+        //console.log("✅ Android 푸쉬 알림 권한 허용됨");
       }
 
       const messaging = getMessaging();
@@ -42,12 +42,11 @@ export async function registerForPushNotificationsAsync() {
       }
 
       token = await getToken(messaging);
-      console.log("🔥 FCM 푸쉬 토큰:", token);
+      //console.log("🔥 FCM 푸쉬 토큰:", token);
     } else {
       // ✅ Expo Push 사용 (개발 빌드)
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
-      console.log("existingStatus : " + existingStatus);
 
       if (existingStatus !== 'granted') {
         const { status } = await Notifications.requestPermissionsAsync();
@@ -69,7 +68,7 @@ export async function registerForPushNotificationsAsync() {
         console.error("❌ Expo Push Token 발급 실패:", error);
         return;
       }
-      console.log("🚀 Expo Push 토큰:", token);
+      //console.log("🚀 Expo Push 토큰:", token);
     }
   } catch (error) {
     console.error("푸쉬 토큰 발급 오류!:", error);

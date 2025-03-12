@@ -174,7 +174,7 @@ export default function MyPageScreen() {
       });
       
       if (response.status === 200) {
-        console.log("response.data : " + response.data);
+        //console.log("response.data : " + response.data);
         setSession({ ...session, picture: response.data });
 
         showToast({

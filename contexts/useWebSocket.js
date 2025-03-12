@@ -26,7 +26,7 @@ const useWebSocket = (roomId) => {
       //debug: (msg) => console.log(`[STOMP Debug]: ${msg}`), // 디버깅 로그
 
       onConnect: () => {
-        console.log('✅ WebSocket 연결 성공');
+        //console.log('✅ WebSocket 연결 성공');
         setConnected(true);
 
         // 채팅방 별 구독

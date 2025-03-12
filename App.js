@@ -36,6 +36,7 @@ import ReplyScreen from './screens/home/ReplyScreen';
 import ChatRoom from './screens/chat/ChatRoom';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { showToast } from './screens/common/toast';
 
 import ChatScreen from './screens/ChatScreen';
 import CreateChatRoom from './screens/chat/CreateChatRoom';
@@ -159,17 +160,26 @@ export default function App() {
   useEffect(() => {
 
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-        console.log("📩 푸쉬 알림 수신:", notification);
+        //console.log("📩 푸쉬 알림 수신:", notification);
     });
 
     const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-        console.log("📩 푸쉬 알림 클릭됨:", response);
+        //console.log("📩 푸쉬 알림 클릭됨:", response);
     });
 
     // ✅ FCM 푸시 알림 리스너 추가
     const unsubscribeFCM = messaging().onMessage(async remoteMessage => {
-      showToast({ type: 'info', text1: remoteMessage.notification?.body, position: 'top' });
-      console.log("🔥 FCM 포그라운드 푸쉬 수신:", remoteMessage);
+      showToast({ type: 'info', text1: remoteMessage.notification?.body, position: 'top', visibilityTime: 4000 });
+      //console.log("🔥 FCM 포그라운드 푸쉬 수신:", remoteMessage);
+
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+            name: 'Default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [200, 100, 200],
+            lightColor: '#FF231F7C',
+        });
+      }
 
       // ✅ 알림을 수동으로 표시 (옵션)
       Notifications.scheduleNotificationAsync({
@@ -177,6 +187,11 @@ export default function App() {
               title: remoteMessage.notification?.title,
               body: remoteMessage.notification?.body,
               data: remoteMessage.data,
+              sound: "default",
+              android: {
+                icon: "ic_notification",
+                color: "#FFFFFF"
+              }
           },
           trigger: null,
       });
@@ -209,9 +224,9 @@ export default function App() {
         
         if (!storedKey) {
           await SecureStore.setItemAsync("GOOGLE_MAPS_API_KEY", GOOGLE_MAPS_API_KEY);
-          console.log("✅ API Key 저장 완료");
+          //console.log("✅ API Key 저장 완료");
         } else {
-          console.log("🔹 기존 API Key 존재");
+          //console.log("🔹 기존 API Key 존재");
         }
 
         // API 키 불러오기

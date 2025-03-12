@@ -14,7 +14,7 @@ export default function DrawPreviewList() {
       const response = await api.get('/api/draw/week');
       setDrawData(response.data || []);
     } catch (error) {
-      console.log('Error fetching latest draw data:', error);
+      //console.log('Error fetching latest draw data:', error);
     }
   };
 
