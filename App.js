@@ -12,10 +12,12 @@ import Toast from 'react-native-toast-message'; // Import Toast
 import api from './screens/common/api';
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-
+import { firebaseApp } from './contexts/firebaseConfig';
+import './contexts/firebaseMessaging';
 import { useRoute } from '@react-navigation/native';
 import { SessionProvider } from './contexts/SessionContext'; // Import the SessionProvider
 import { registerForPushNotificationsAsync } from './contexts/registerForPushNotificationsAsync';
+import messaging from '@react-native-firebase/messaging';
 import * as Notifications from 'expo-notifications';
 import HomeScreen from './screens/HomeScreen';
 import BasketBallCourtScreen from './screens/BasketBallCourtScreen';
@@ -155,12 +157,29 @@ export default function App() {
   const [session, setSession] = useState(null); // ✅ AsyncStorage에서 불러올 세션 상태
   // 앱 초기화 작업
   useEffect(() => {
+
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
         console.log("📩 푸쉬 알림 수신:", notification);
     });
 
     const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
         console.log("📩 푸쉬 알림 클릭됨:", response);
+    });
+
+    // ✅ FCM 푸시 알림 리스너 추가
+    const unsubscribeFCM = messaging().onMessage(async remoteMessage => {
+      showToast({ type: 'info', text1: remoteMessage.notification?.body, position: 'top' });
+      console.log("🔥 FCM 포그라운드 푸쉬 수신:", remoteMessage);
+
+      // ✅ 알림을 수동으로 표시 (옵션)
+      Notifications.scheduleNotificationAsync({
+          content: {
+              title: remoteMessage.notification?.title,
+              body: remoteMessage.notification?.body,
+              data: remoteMessage.data,
+          },
+          trigger: null,
+      });
     });
 
     async function prepare() {
@@ -179,6 +198,7 @@ export default function App() {
     return () => {
         Notifications.removeNotificationSubscription(notificationListener);
         Notifications.removeNotificationSubscription(responseListener);
+        unsubscribeFCM(); // ✅ FCM 리스너 해제
     };
   }, []);
 

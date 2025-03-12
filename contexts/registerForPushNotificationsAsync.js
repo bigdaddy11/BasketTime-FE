@@ -7,7 +7,7 @@ import { showToast } from '../screens/common/toast';
 export async function registerForPushNotificationsAsync() {
   let token;
   const isFCM = Constants.expoConfig.extra.useFCM;
-
+  
   if (!Device.isDevice) {
     showToast({ type: 'error', text1: '푸쉬 알림은 실제 기기에서만 가능합니다.', position: 'bottom' });
     return;
@@ -33,6 +33,7 @@ export async function registerForPushNotificationsAsync() {
       // ✅ Expo Push 사용 (개발 빌드)
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
+      console.log("existingStatus : " + existingStatus);
 
       if (existingStatus !== 'granted') {
         const { status } = await Notifications.requestPermissionsAsync();
@@ -44,11 +45,20 @@ export async function registerForPushNotificationsAsync() {
         return;
       }
 
-      token = (await Notifications.getExpoPushTokenAsync()).data;
+
+      try {
+        token = (await Notifications.getExpoPushTokenAsync(
+          projectId
+        )).data;
+        if (!token) throw new Error("Expo Push 토큰을 가져올 수 없습니다.");
+      } catch (error) {
+        console.error("❌ Expo Push Token 발급 실패:", error);
+        return;
+      }
       console.log("🚀 Expo Push 토큰:", token);
     }
   } catch (error) {
-    console.error("푸쉬 토큰 발급 오류:", error);
+    console.error("푸쉬 토큰 발급 오류!:", error);
     showToast({ type: 'error', text1: '푸쉬 토큰 발급 실패: ' + error, position: 'bottom' });
   }
 
