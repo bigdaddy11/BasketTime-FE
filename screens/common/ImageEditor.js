@@ -11,31 +11,56 @@ export default function ImageViewer({ route, navigation }) {
   const handleDownload = async () => {
     try {
       // 권한 요청
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== 'granted') {
+      const permission = await MediaLibrary.getPermissionsAsync();
+
+      // ✅ 이미 권한이 있고, 재요청 불필요할 경우
+      if (permission.granted) {
+        console.log("🔓 저장 권한 이미 허용됨");
+      } else if (!permission.granted && permission.canAskAgain) {
+        // ✅ 권한이 없고 요청할 수 있다면 요청
+        const request = await MediaLibrary.requestPermissionsAsync();
+
+        if (!request.granted) {
+          showToast({
+            type: 'info',
+            text1: '이미지를 저장하려면 권한이 필요합니다.',
+            position: 'bottom'
+          });
+          return;
+        }
+      } else {
+        // ❌ 권한 없고 재요청도 불가
         showToast({
-          type: 'info',
-          text1: '이미지를 저장하려면 권한이 필요합니다.',
+          type: 'error',
+          text1: '설정 > 앱 권한에서 미디어 권한을 허용해주세요.',
           position: 'bottom'
         });
         return;
       }
 
-      // 파일 다운로드 및 저장
-      const fileName = imageUri.split('/').pop();
-      const downloadResumable = FileSystem.createDownloadResumable(
-        imageUri,
-        FileSystem.documentDirectory + fileName
-      );
+      if (permission.granted) {
+        const fileName = imageUri.split('/').pop();
+        const downloadResumable = FileSystem.createDownloadResumable(
+          imageUri,
+          FileSystem.documentDirectory + fileName
+        );
+      
+        const { uri } = await downloadResumable.downloadAsync();
+        if (!uri) {
+          showToast({ type: 'error', text1: '이미지 다운로드 실패', position: 'bottom' });
+          return;
+        }
+      
+        // ✅ 다운로드 성공 후 저장
+        const asset = await MediaLibrary.createAssetAsync(uri);
+        //await MediaLibrary.createAlbumAsync('Download', asset, false);
+        showToast({
+          type: 'success',
+          text1: '이미지가 갤러리에 저장되었습니다.',
+          position: 'bottom'
+        });
+      }
 
-      const { uri } = await downloadResumable.downloadAsync();
-      const asset = await MediaLibrary.createAssetAsync(uri);
-      await MediaLibrary.createAlbumAsync('Download', asset, false);
-      showToast({
-        type: 'success',
-        text1: '이미지가 갤러리에 저장되었습니다.',
-        position: 'bottom'
-      });
     } catch (error) {
       console.error('Error downloading image:', error);
       showToast({

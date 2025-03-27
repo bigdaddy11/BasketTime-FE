@@ -22,18 +22,18 @@ export default function DrawPreviewList() {
     fetchLatestDraws();
   }, []);
 
-  function getBrandName(type) {
-    switch (type) {
-      case 'N':
-        return 'Nike';
-      case 'NB':
-        return 'Newbalance';
-      case 'A':
-        return 'Asics';
-      default:
-        return 'Unknown';
-    }
-  }
+  // function getBrandName(type) {
+  //   switch (type) {
+  //     case 'N':
+  //       return 'Nike';
+  //     case 'NB':
+  //       return 'Newbalance';
+  //     case 'A':
+  //       return 'Asics';
+  //     default:
+  //       return 'Unknown';
+  //   }
+  // }
 
   const handleLinkPress = (url) => {
       if (url && url.trim()) {
@@ -60,7 +60,7 @@ export default function DrawPreviewList() {
         // resizeMode={FastImage.resizeMode.cover}
       />
       <View style={styles.cardContent}>
-        <Text style={styles.drawSubName}>{getBrandName(item.type)}</Text>
+        <Text style={styles.drawSubName}>{item.type}</Text>
         <Text style={styles.drawSubName}>{item.price}</Text>
         <Text style={styles.drawSubName}>{item.releaseTime}</Text>
         <Text style={styles.drawName} numberOfLines={1}>{item.drawName}</Text>

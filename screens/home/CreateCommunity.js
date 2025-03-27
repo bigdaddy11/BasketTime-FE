@@ -164,17 +164,10 @@ export default function CreateCommunity({ route, navigation }) {
 
       // 다중 이미지 추가
       images.forEach((image, index) => {
-        const fileType = image.uri.split('.').pop().toLowerCase(); // 확장자 추출
-        
-        const mimeType = fileType === 'png' ? 'image/png' :
-                         fileType === 'gif' ? 'image/gif' :
-                         fileType === 'webp' ? 'image/webp' :
-                         fileType === 'bmp' ? 'image/bmp' :
-                         'image/jpeg'; // 기본값은 jpg
         formData.append('images', {
           uri: image.uri,
-          type: mimeType,
-          name: `image_${index}.${fileType}`,
+          type: "image/jpeg",
+          name: `image_${index}.jpg`,
         });
       });
 

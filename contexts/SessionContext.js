@@ -38,16 +38,20 @@ export const SessionProvider = ({ children, navigation  }) => {
       setSession(user);
 
       const pushToken = await registerForPushNotificationsAsync();
-      const encodedPushToken = encodeURIComponent(pushToken);
+      //console.log("pushToken : " + pushToken);
+      if (pushToken) {
+        const encodedPushToken = encodeURIComponent(pushToken);
+        //console.log("encodedPushToken : ", encodedPushToken);
       
-      const deviceType = Platform.OS === 'ios' ? 'ios' : 'android';
-
-      if (encodedPushToken) {
-          await api.post('/api/auth/update-push-token', null, {
-              params: { userId: user.id, pushToken : encodedPushToken, deviceType }
-          });
-
-          await AsyncStorage.setItem('pushToken', pushToken); // ✅ 로컬 저장
+        const deviceType = Platform.OS === 'ios' ? 'ios' : 'android';
+      
+        await api.post('/api/auth/update-push-token', null, {
+          params: { userId: user.id, pushToken: encodedPushToken, deviceType }
+        });
+      
+        await AsyncStorage.setItem('pushToken', pushToken); // ✅ 로컬 저장
+      } else {
+        console.log("🔕 푸시 토큰이 없으므로 저장하지 않음");
       }
 
       return true; // ✅ 로그인 완료 후 true 반환

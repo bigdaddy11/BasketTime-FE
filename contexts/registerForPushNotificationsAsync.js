@@ -8,54 +8,40 @@ import { showToast } from '../screens/common/toast';
 export async function registerForPushNotificationsAsync() {
   let token;
   const isFCM = Constants.expoConfig.extra.useFCM;
+  const projectId = Constants.expoConfig.extra.eas.projectId;
 
   if (!Device.isDevice) {
     showToast({ type: 'error', text1: '푸쉬 알림은 실제 기기에서만 가능합니다.', position: 'bottom' });
-    return;
+    return null;
   }
 
   try {
     if (isFCM) {
-      // ✅ FCM 사용 (운영 / Preview 빌드)
-      if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-        );
-    
-        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          //console.log("🔴 Android 푸쉬 알림 권한 거부됨");
-          return;
-        }
-    
-        //console.log("✅ Android 푸쉬 알림 권한 허용됨");
-      }
-
       const messaging = getMessaging();
       const permissionStatus = await hasPermission(messaging);
 
-      if (permissionStatus === 0) { // 0: 권한 없음
-        const requestStatus = await requestPermission(messaging);
-        if (requestStatus !== 1) {
-          showToast({ type: 'error', text1: '푸쉬 알림 권한이 거부되었습니다.', position: 'bottom' });
-          return;
-        }
+      if (permissionStatus === 1) {
+        token = await getToken(messaging);
+        //console.log("🔥 FCM 푸쉬 토큰 (기존 권한):", token);
+      } else if (permissionStatus === 0) {
+        //console.log("🔕 푸쉬 알림 권한 거부됨 (FCM)");
+        return null;
+      } else {
+        //console.log("⚠️ 알림 권한 상태 알 수 없음:", permissionStatus);
+        return null;
       }
-
-      token = await getToken(messaging);
-      //console.log("🔥 FCM 푸쉬 토큰:", token);
     } else {
       // ✅ Expo Push 사용 (개발 빌드)
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
+
+      // if (existingStatus !== 'granted') {
+      //   const { status } = await Notifications.requestPermissionsAsync();
+      //   finalStatus = status;
+      // }
 
       if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-
-      if (finalStatus !== 'granted') {
         showToast({ type: 'error', text1: '푸쉬 알림 권한이 거부되었습니다.', position: 'bottom' });
-        return;
+        return null;
       }
 
 

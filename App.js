@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useCallback, useState  }  from 'react';
-import { Image, View, Text, StatusBar, TouchableOpacity, Platform, SafeAreaView, StyleSheet } from 'react-native';
+import { Image, View, Text, StatusBar, TouchableOpacity, Platform, SafeAreaView, StyleSheet, PermissionsAndroid } from 'react-native';
 
 import * as SecureStore from 'expo-secure-store';
 
@@ -199,6 +199,17 @@ export default function App() {
 
     async function prepare() {
         try {
+          // ✅ Android 푸시 알림 권한 요청
+          if (Platform.OS === 'android') {
+              const granted = await PermissionsAndroid.request(
+                  PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+              );
+              if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+                  //("🔴 Android 푸쉬 알림 권한 거부됨");
+              } else {
+                  //console.log("✅ Android 푸쉬 알림 권한 허용됨");
+              }
+          }
             // 🎯 여기서 필요한 초기 로드 작업 (예: API 호출, 세션 확인 등)
             await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기 (테스트용)
         } catch (e) {

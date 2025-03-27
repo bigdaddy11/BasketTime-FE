@@ -2,7 +2,7 @@
   "expo": {
     "name": "Basket Time",
     "slug": "baskettime",
-    "version": "2.2.1",
+    "version": "2.3.0",
     "owner": "jaehyunheo",
     "orientation": "portrait",
     "scheme": "com.jaehyunheo.baskettime",
@@ -80,7 +80,7 @@
       "package": "com.jaehyunheo.baskettime",
       "useNextNotificationsApi": true,
       "buildType": "aab",
-      "versionCode": 7
+      "versionCode": 8
     },
     "web": {
       "favicon": "./assets/favicon.png"
