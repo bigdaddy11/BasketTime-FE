@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useCallback, useState  }  from 'react';
-import { Image, View, Text, StatusBar, TouchableOpacity, Platform, SafeAreaView, StyleSheet, PermissionsAndroid } from 'react-native';
+import { Alert, View, Text, StatusBar, TouchableOpacity, Platform, SafeAreaView, StyleSheet, PermissionsAndroid, BackHandler } from 'react-native';
 
 import * as SecureStore from 'expo-secure-store';
 
@@ -210,8 +210,31 @@ export default function App() {
                   //console.log("✅ Android 푸쉬 알림 권한 허용됨");
               }
           }
-            // 🎯 여기서 필요한 초기 로드 작업 (예: API 호출, 세션 확인 등)
-            await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기 (테스트용)
+
+          // 서버 핑 체크
+          try {
+            const res = await api.get('/api/ping'); // 서버에 있는 간단한 응답용 API
+            if (res.status !== 200) {
+              throw new Error('서버 상태 비정상');
+            }
+          } catch (error) {
+            Alert.alert(
+              "서버 오류",
+              "서버에 연결할 수 없습니다.\n앱을 종료합니다.",
+              [
+                {
+                  text: "확인",
+                  onPress: () => {
+                    BackHandler.exitApp(); // 앱 종료
+                  }
+                }
+              ],
+              { cancelable: false }
+            );
+            return; // 앱 준비 상태로 넘기지 않음
+          }
+          // 🎯 여기서 필요한 초기 로드 작업 (예: API 호출, 세션 확인 등)
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기 (테스트용)
         } catch (e) {
             console.warn(e);
         } finally {
